@@ -1,9 +1,14 @@
 # Epic E.055 Quick Reference
 
-## Current Status (2025-07-18)
+## 🔴 CRITICAL CURRENT ISSUES (2025-07-18)
+1. **mosaic-mcp has TypeScript build errors** - MUST FIX FIRST
+2. **MCP server won't start** until build errors are fixed
+3. **DO NOT try to bypass** - Fix the root cause
+
+## Current Status
 - Tony 2.7.0: IN PROGRESS (do not touch)
-- @mosaic/core: IMPLEMENTED (needs integration)
-- mosaic-mcp: READY FOR ENHANCEMENT
+- @mosaic/core: IMPLEMENTED (with MCP client ready)
+- mosaic-mcp: BUILD BROKEN - Fix TypeScript errors
 - mosaic-dev: NEEDS NAMESPACE UPDATE
 
 ## Key Commands

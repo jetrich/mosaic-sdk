@@ -2,6 +2,17 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 🔴 IMMEDIATE ACTION REQUIRED
+
+**YOU ARE IN THE MOSAIC-SDK PROJECT - TONY 2.8.0 WITH MCP REQUIRED**
+
+Before doing ANYTHING else, you MUST:
+1. Type exactly: `cat .mosaic/AGENT-QUICK-REFERENCE.md`
+2. Type exactly: `cat docs/agent-management/tech-lead-tony/E055-PROGRESS.md | head -100`
+3. Confirm you understand Epic E.055 status
+
+**DO NOT PROCEED WITHOUT COMPLETING THE ABOVE STEPS**
+
 ## 🚨 CRITICAL: Epic E.055 - MosAIc Stack Transformation In Progress
 
 ### ⚡ MANDATORY FIRST READ - ALL AGENTS
