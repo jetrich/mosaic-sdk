@@ -1,0 +1,88 @@
+#!/bin/bash
+# mosaic - Isolated MosAIc Stack CLI wrapper
+
+# Get the directory where this script is located
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+ROOT_DIR="$(dirname "$SCRIPT_DIR")"
+
+# Source the development environment if available
+if [ -f "$ROOT_DIR/.env.development" ]; then
+    export $(cat "$ROOT_DIR/.env.development" | grep -v '^#' | xargs)
+fi
+
+# Set isolated configuration
+export CLAUDE_CONFIG_DIR="$ROOT_DIR/.mosaic/claude"
+export TONY_WORKSPACE="$ROOT_DIR"
+export MCP_REQUIRED=true
+export MCP_URL="${MCP_URL:-http://localhost:3456}"
+
+# Check if we're using Tony or Claude mode
+case "${1:-help}" in
+    tony)
+        shift
+        # Use Tony with isolated configuration
+        exec tony --config "$CLAUDE_CONFIG_DIR/config.json" "$@"
+        ;;
+    
+    claude)
+        shift
+        # Use Claude with isolated configuration
+        exec claude --config "$CLAUDE_CONFIG_DIR/config.json" "$@"
+        ;;
+    
+    dev)
+        shift
+        # Development environment management
+        exec "$SCRIPT_DIR/dev-environment.sh" "$@"
+        ;;
+    
+    test)
+        # Test the isolated setup
+        echo "MosAIc Stack Isolated Environment Test"
+        echo "====================================="
+        echo "Workspace: $TONY_WORKSPACE"
+        echo "Config Dir: $CLAUDE_CONFIG_DIR"
+        echo "MCP URL: $MCP_URL"
+        echo "MCP Required: $MCP_REQUIRED"
+        echo
+        echo "Checking MCP server..."
+        if curl -s "$MCP_URL/health" >/dev/null 2>&1; then
+            echo "✓ MCP server is accessible"
+        else
+            echo "✗ MCP server is not accessible"
+            echo "  Run: mosaic dev start"
+        fi
+        ;;
+    
+    help|--help|-h|"")
+        echo "MosAIc Stack - Isolated Development Environment"
+        echo
+        echo "Usage: mosaic <command> [options]"
+        echo
+        echo "Commands:"
+        echo "  tony [args]      Run Tony Framework with MosAIc MCP"
+        echo "  claude [args]    Run Claude with MosAIc MCP"
+        echo "  dev <cmd>        Manage development environment"
+        echo "  test             Test the isolated setup"
+        echo
+        echo "Development Commands:"
+        echo "  mosaic dev start    Start isolated MCP server"
+        echo "  mosaic dev stop     Stop MCP server"
+        echo "  mosaic dev status   Check server status"
+        echo "  mosaic dev logs     View server logs"
+        echo
+        echo "Examples:"
+        echo "  mosaic dev start          # Start the isolated environment"
+        echo "  mosaic tony plan          # Use Tony with MosAIc MCP"
+        echo "  mosaic claude -p 'Help'   # Use Claude with MosAIc MCP"
+        echo
+        echo "This wrapper ensures all commands use the isolated MosAIc"
+        echo "environment without affecting your other projects."
+        ;;
+    
+    *)
+        echo "Unknown command: $1"
+        echo "Use 'mosaic help' for usage information"
+        exit 1
+        ;;
+esac

@@ -15,6 +15,24 @@ The MosAIc Stack consists of four core components:
 - **[@mosaic/mcp](https://github.com/jetrich/mosaic-mcp)** (0.1.0+) - Infrastructure backbone for coordination
 - **[@mosaic/dev](https://github.com/jetrich/mosaic-dev)** (0.1.0+) - Development tools and SDK
 
+## 🔬 Isolated Development Environment
+
+Develop and test MosAIc without affecting your other projects:
+
+```bash
+# Start isolated MCP server (port 3456)
+./mosaic dev start
+
+# Use MosAIc Tony/Claude in this directory only
+./mosaic tony plan              # Uses MosAIc with MCP
+./mosaic claude -p "Help"       # Isolated from other projects
+
+# Your other projects remain unaffected
+cd ~/other-project && tony plan  # Still uses your current Tony version
+```
+
+See [Isolated Environment Guide](docs/development/isolated-environment.md) for details.
+
 ## 🚀 Quick Start
 
 ### Installation

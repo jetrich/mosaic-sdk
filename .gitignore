@@ -33,6 +33,8 @@ coverage/
 .env.development.local
 .env.test.local
 .env.production.local
+# But we do want the template
+!.env.development
 
 # Logs
 logs/
@@ -56,6 +58,11 @@ worktrees/*/*
 .mosaic/cache/
 .mosaic/tmp/
 .mosaic/.prepared
+.mosaic/data/
+.mosaic/logs/
+.mosaic/claude/
+.mosaic/*.pid
+.mosaic/dev-session.sh
 
 # Backup files
 *.backup

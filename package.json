@@ -26,7 +26,12 @@
     "dev:mcp": "npm run dev --prefix mosaic-mcp",
     "start:mcp": "npm start --prefix mosaic-mcp",
     "migrate": "node scripts/migrate-packages.js",
-    "prepare:mosaic": "bash scripts/prepare-mosaic.sh"
+    "prepare:mosaic": "bash scripts/prepare-mosaic.sh",
+    "dev:start": "./scripts/dev-environment.sh start",
+    "dev:stop": "./scripts/dev-environment.sh stop",
+    "dev:status": "./scripts/dev-environment.sh status",
+    "dev:logs": "./scripts/dev-environment.sh logs",
+    "mosaic": "./scripts/mosaic"
   },
   "keywords": [
     "mosaic",
