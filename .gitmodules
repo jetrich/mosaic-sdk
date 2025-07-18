@@ -1,0 +1,9 @@
+[submodule "mosaic-mcp"]
+	path = mosaic-mcp
+	url = https://github.com/jetrich/tony-mcp
+[submodule "mosaic"]
+	path = mosaic
+	url = https://github.com/jetrich/mosaic
+[submodule "mosaic-dev"]
+	path = mosaic-dev
+	url = https://github.com/jetrich/tony-dev.git

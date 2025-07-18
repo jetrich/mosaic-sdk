@@ -1,0 +1,64 @@
+{
+  "name": "@mosaic/sdk",
+  "version": "0.1.0",
+  "description": "MosAIc SDK - Enterprise AI Development Platform",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "setup": "npm install && git submodule update --init --recursive && npm run install:all",
+    "install:all": "npm install --prefix mosaic && npm install --prefix mosaic-mcp && npm install --prefix mosaic-dev",
+    "update": "git submodule update --remote --merge",
+    "verify": "npm run verify:structure && npm run verify:submodules",
+    "verify:structure": "node scripts/verify-structure.js",
+    "verify:submodules": "git submodule status",
+    "test": "npm run test:mosaic && npm run test:mcp && npm run test:dev",
+    "test:mosaic": "npm test --prefix mosaic",
+    "test:mcp": "npm test --prefix mosaic-mcp",
+    "test:dev": "npm test --prefix mosaic-dev",
+    "build:all": "npm run build:mosaic && npm run build:mcp && npm run build:dev",
+    "build:mosaic": "npm run build --prefix mosaic",
+    "build:mcp": "npm run build --prefix mosaic-mcp",
+    "build:dev": "npm run build --prefix mosaic-dev",
+    "clean": "npm run clean:modules && npm run clean:builds",
+    "clean:modules": "rm -rf node_modules mosaic/node_modules mosaic-mcp/node_modules mosaic-dev/node_modules",
+    "clean:builds": "rm -rf mosaic/dist mosaic-mcp/dist mosaic-dev/dist",
+    "fresh": "npm run clean && npm run setup",
+    "dev:mcp": "npm run dev --prefix mosaic-mcp",
+    "start:mcp": "npm start --prefix mosaic-mcp",
+    "migrate": "node scripts/migrate-packages.js",
+    "prepare:mosaic": "bash scripts/prepare-mosaic.sh"
+  },
+  "keywords": [
+    "mosaic",
+    "ai",
+    "development",
+    "platform",
+    "enterprise",
+    "mcp",
+    "tony",
+    "framework",
+    "orchestration"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jetrich/mosaic-sdk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jetrich/mosaic-sdk/issues"
+  },
+  "homepage": "https://mosaicstack.dev",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0"
+  },
+  "workspaces": [
+    "mosaic",
+    "mosaic-mcp",
+    "mosaic-dev"
+  ],
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

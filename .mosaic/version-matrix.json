@@ -1,0 +1,90 @@
+{
+  "compatibility": {
+    "v0.1.0": {
+      "release": "2025-01-18",
+      "components": {
+        "@tony/core": "2.8.0",
+        "@mosaic/mcp": "0.1.0",
+        "@mosaic/core": "0.1.0",
+        "@mosaic/dev": "0.1.0",
+        "@mosaic/tony-adapter": "0.1.0"
+      },
+      "requirements": {
+        "node": ">=18.0.0",
+        "mcp": "mandatory"
+      }
+    },
+    "v0.2.0": {
+      "release": "2025-02-15",
+      "components": {
+        "@tony/core": "2.8.x",
+        "@mosaic/mcp": "0.2.0",
+        "@mosaic/core": "0.2.0",
+        "@mosaic/dev": "0.2.0",
+        "@mosaic/tony-adapter": "0.2.0"
+      },
+      "requirements": {
+        "node": ">=18.0.0",
+        "mcp": "mandatory"
+      }
+    },
+    "v0.3.0": {
+      "release": "2025-04-15",
+      "components": {
+        "@tony/core": "2.9.0",
+        "@mosaic/mcp": "0.3.0",
+        "@mosaic/core": "0.3.0",
+        "@mosaic/dev": "0.3.0",
+        "@mosaic/tony-adapter": "0.3.0"
+      },
+      "requirements": {
+        "node": ">=18.0.0",
+        "mcp": "mandatory"
+      }
+    },
+    "v1.0.0": {
+      "release": "2025-11-15",
+      "components": {
+        "@tony/core": "3.0.0",
+        "@mosaic/mcp": "1.0.0",
+        "@mosaic/core": "1.0.0",
+        "@mosaic/dev": "1.0.0",
+        "@mosaic/tony-adapter": "1.0.0"
+      },
+      "requirements": {
+        "node": ">=18.0.0",
+        "mcp": "mandatory"
+      }
+    }
+  },
+  "rules": {
+    "tony-core": {
+      "description": "Tony Framework maintains independent versioning",
+      "constraint": "MCP version must be compatible"
+    },
+    "mosaic-components": {
+      "description": "MosAIc components follow synchronized milestones",
+      "constraint": "All @mosaic/* packages must have compatible versions"
+    },
+    "mcp-requirement": {
+      "description": "MCP is mandatory starting from Tony 2.8.0",
+      "constraint": "No standalone mode available"
+    }
+  },
+  "deprecations": {
+    "2025-01-18": {
+      "packages": [
+        "@tony-framework/mcp",
+        "@tony-ai/sdk"
+      ],
+      "reason": "Rebranded to @mosaic/* namespace"
+    },
+    "2025-01-18": {
+      "features": [
+        "standalone-mode",
+        "file-based-state"
+      ],
+      "reason": "MCP is now mandatory"
+    }
+  }
+}

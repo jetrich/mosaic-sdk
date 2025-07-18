@@ -1,0 +1,104 @@
+{
+  "version": "1.0",
+  "stack": {
+    "name": "MosAIc Stack",
+    "version": "0.1.0",
+    "description": "Enterprise AI Development Platform"
+  },
+  "components": {
+    "tony": {
+      "package": "@tony/core",
+      "version": "2.8.0",
+      "repository": "jetrich/tony",
+      "path": "./tony",
+      "config": {
+        "mcp": {
+          "required": true,
+          "minVersion": "0.1.0"
+        }
+      }
+    },
+    "mosaic-core": {
+      "package": "@mosaic/core",
+      "version": "0.1.0",
+      "repository": "jetrich/mosaic",
+      "path": "./mosaic",
+      "config": {
+        "ui": {
+          "port": 3001,
+          "host": "localhost"
+        }
+      }
+    },
+    "mosaic-mcp": {
+      "package": "@mosaic/mcp",
+      "version": "0.1.0",
+      "repository": "jetrich/mosaic-mcp",
+      "path": "./tony-mcp",
+      "config": {
+        "server": {
+          "port": 3000,
+          "host": "localhost"
+        },
+        "database": {
+          "type": "sqlite",
+          "path": "./data/mosaic-mcp.db"
+        }
+      }
+    },
+    "mosaic-dev": {
+      "package": "@mosaic/dev",
+      "version": "0.1.0",
+      "repository": "jetrich/mosaic-dev",
+      "path": "./tony-dev",
+      "config": {
+        "testing": {
+          "coverage": 85,
+          "parallel": true
+        }
+      }
+    }
+  },
+  "integration": {
+    "tony-adapter": {
+      "package": "@mosaic/tony-adapter",
+      "version": "0.1.0",
+      "bridges": ["@tony/core", "@mosaic/core"]
+    }
+  },
+  "deployment": {
+    "environments": {
+      "development": {
+        "mcp": {
+          "mode": "local",
+          "database": "sqlite"
+        }
+      },
+      "production": {
+        "mcp": {
+          "mode": "cluster",
+          "database": "postgresql",
+          "replicas": 3
+        },
+        "mosaic": {
+          "mode": "kubernetes",
+          "scaling": "auto"
+        }
+      }
+    }
+  },
+  "migration": {
+    "from": {
+      "tony-sdk": "2.7.0",
+      "tony-mcp": "0.0.1-beta.1"
+    },
+    "to": {
+      "mosaic-sdk": "0.1.0",
+      "mosaic-mcp": "0.1.0"
+    },
+    "tools": {
+      "cli": "@mosaic/migrate",
+      "version": "0.1.0"
+    }
+  }
+}
