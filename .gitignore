@@ -78,3 +78,6 @@ tony/package-lock.json
 
 # But we do want our own lock file
 !package-lock.json
+
+# Claude local settings
+.claude/settings.local.json

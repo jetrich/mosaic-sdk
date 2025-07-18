@@ -1,0 +1,27 @@
+{
+    "env": {
+      "TONY_VERSION": "2.8.0",
+      "MCP_PORT": "3456",
+      "MCP_DATABASE": ".mosaic/data/mcp.db",
+      "MOSAIC_ENV": "development"
+    },
+    "permissions": {
+      "allow": [
+        "Bash(npm run dev:*)",
+        "Bash(./mosaic *)",
+        "Bash(./scripts/*)"
+      ]
+    },
+    "hooks": {
+      "UserPromptSubmit": [
+        {
+          "hooks": [
+            {
+              "type": "command",
+              "command": "echo '[MosAIc SDK] Using Tony 2.8.0 with MCP on port 3456'"
+            }
+          ]
+        }
+      ]
+    }
+  }
