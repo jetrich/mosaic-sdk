@@ -1,0 +1,66 @@
+{
+  "name": "@mosaic/mcp-integration",
+  "version": "0.1.0",
+  "description": "Integrated MCP server for MosAIc remote services",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "mosaic-mcp-server": "dist/server.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/server.js",
+    "start:dev": "tsx src/server.ts",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "mosaic",
+    "mcp",
+    "integration",
+    "server",
+    "remote-services"
+  ],
+  "author": "MosAIc Team",
+  "license": "MIT",
+  "dependencies": {
+    "@mosaic/mcp-common": "^0.1.0",
+    "@mosaic/mcp-gitea-remote": "^0.1.0",
+    "@mosaic/mcp-woodpecker": "^0.1.0",
+    "@mosaic/mcp-bookstack": "^0.1.0",
+    "@mosaic/mcp-plane": "^0.1.0",
+    "@modelcontextprotocol/sdk": "^0.5.0",
+    "zod": "^3.23.8",
+    "dotenv": "^16.4.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.14.0",
+    "@typescript-eslint/eslint-plugin": "^7.13.0",
+    "@typescript-eslint/parser": "^7.13.0",
+    "eslint": "^8.57.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.5",
+    "tsx": "^4.15.0",
+    "typescript": "^5.5.0"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jetrich/mosaic-sdk.git",
+    "directory": "packages/mcp-integration"
+  },
+  "bugs": {
+    "url": "https://github.com/jetrich/mosaic-sdk/issues"
+  },
+  "homepage": "https://mosaicstack.dev"
+}

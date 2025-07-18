@@ -1,0 +1,140 @@
+{
+  "version": "1.0.0",
+  "mosaicstack": {
+    "domain": "mosaicstack.dev",
+    "enabled": true,
+    "services": {
+      "gitea": {
+        "name": "MosAIc Git Repository",
+        "web": "https://git.mosaicstack.dev",
+        "api": "https://git.mosaicstack.dev/api/v1",
+        "ssh": "git@git.mosaicstack.dev:2222",
+        "organization": "mosaic-org",
+        "webhook_secret": "${GITEA_WEBHOOK_SECRET}",
+        "admin_token": "${GITEA_ADMIN_TOKEN}",
+        "features": {
+          "organizations": ["mosaic-org", "tony-org"],
+          "webhooks": true,
+          "oauth": true,
+          "ssh_keys": true,
+          "private_repos": true
+        }
+      },
+      "woodpecker": {
+        "name": "MosAIc CI/CD Pipeline",
+        "web": "https://ci.mosaicstack.dev",
+        "api": "https://ci.mosaicstack.dev/api",
+        "admin_token": "${WOODPECKER_ADMIN_TOKEN}",
+        "integration": {
+          "gitea": {
+            "enabled": true,
+            "oauth_client": "${WOODPECKER_GITEA_CLIENT}",
+            "webhook_endpoint": "https://ci.mosaicstack.dev/hook"
+          }
+        },
+        "features": {
+          "docker_runners": true,
+          "parallel_builds": 4,
+          "build_retention": "30d",
+          "artifact_storage": true
+        }
+      },
+      "bookstack": {
+        "name": "MosAIc Documentation Hub",
+        "web": "https://docs.mosaicstack.dev",
+        "api": "https://docs.mosaicstack.dev/api",
+        "admin_token": "${BOOKSTACK_ADMIN_TOKEN}",
+        "features": {
+          "auto_sync": true,
+          "markdown_import": true,
+          "pdf_export": true,
+          "search": true
+        },
+        "structure": {
+          "shelves": [
+            "MosAIc SDK Documentation",
+            "Tony Framework Documentation", 
+            "API Documentation",
+            "Deployment Guides",
+            "Developer Onboarding"
+          ]
+        }
+      },
+      "plane": {
+        "name": "MosAIc Project Management",
+        "web": "https://pm.mosaicstack.dev",
+        "api": "https://pm.mosaicstack.dev/api",
+        "admin_token": "${PLANE_ADMIN_TOKEN}",
+        "features": {
+          "kanban_boards": true,
+          "sprint_planning": true,
+          "issue_tracking": true,
+          "time_tracking": true,
+          "integrations": true
+        },
+        "workspaces": [
+          {
+            "name": "MosAIc Development",
+            "description": "Main development workspace for MosAIc ecosystem",
+            "projects": [
+              "mosaic-sdk",
+              "mosaic-mcp",
+              "mosaic-dev",
+              "tony-framework"
+            ]
+          }
+        ]
+      }
+    },
+    "integration": {
+      "mcp": {
+        "enabled": true,
+        "server_url": "http://localhost:3456",
+        "tools": [
+          "gitea-operations",
+          "woodpecker-triggers", 
+          "bookstack-publishing",
+          "plane-tracking"
+        ]
+      },
+      "authentication": {
+        "method": "token",
+        "sso": {
+          "enabled": false,
+          "provider": "gitea"
+        }
+      },
+      "webhooks": {
+        "gitea_to_woodpecker": true,
+        "woodpecker_to_plane": true,
+        "documentation_sync": true
+      }
+    },
+    "backup": {
+      "enabled": true,
+      "schedule": "0 2 * * *",
+      "retention": "30d",
+      "destinations": [
+        {
+          "type": "local",
+          "path": "/opt/mosaic/backups"
+        }
+      ]
+    }
+  },
+  "development": {
+    "local_override": {
+      "enabled": true,
+      "ports": {
+        "gitea": 13000,
+        "woodpecker": 18000,
+        "bookstack": 18080,
+        "plane": 13001
+      }
+    },
+    "testing": {
+      "mock_services": false,
+      "integration_tests": true
+    }
+  }
+}

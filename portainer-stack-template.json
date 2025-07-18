@@ -1,0 +1,143 @@
+{
+  "version": "2",
+  "templates": [
+    {
+      "type": 3,
+      "title": "MosAIc Development Stack",
+      "description": "Complete self-hosted development infrastructure with Gitea, Woodpecker CI/CD, BookStack documentation, and Plane.so project management. Designed for use with existing nginx proxy manager.",
+      "note": "Requires nginx proxy manager to be already deployed. Configure proxy hosts for git.mosaicstack.dev, ci.mosaicstack.dev, docs.mosaicstack.dev, and pm.mosaicstack.dev after deployment.",
+      "categories": ["Development", "CI/CD", "Documentation", "Project Management"],
+      "platform": "linux",
+      "logo": "https://raw.githubusercontent.com/jetrich/mosaic-sdk/main/docs/assets/mosaic-logo.png",
+      "repository": {
+        "url": "https://github.com/jetrich/mosaic-sdk",
+        "stackfile": "docker-compose.mosaicstack.yml"
+      },
+      "env": [
+        {
+          "name": "POSTGRES_PASSWORD",
+          "label": "PostgreSQL Password",
+          "description": "Strong password for PostgreSQL database cluster",
+          "default": ""
+        },
+        {
+          "name": "REDIS_PASSWORD", 
+          "label": "Redis Password",
+          "description": "Strong password for Redis cache and session storage",
+          "default": ""
+        },
+        {
+          "name": "WOODPECKER_GITEA_CLIENT",
+          "label": "Woodpecker Gitea OAuth Client ID",
+          "description": "OAuth application client ID created in Gitea for Woodpecker integration",
+          "default": ""
+        },
+        {
+          "name": "WOODPECKER_GITEA_SECRET",
+          "label": "Woodpecker Gitea OAuth Client Secret", 
+          "description": "OAuth application client secret created in Gitea for Woodpecker integration",
+          "default": ""
+        },
+        {
+          "name": "WOODPECKER_AGENT_SECRET",
+          "label": "Woodpecker Agent Secret",
+          "description": "Shared secret for Woodpecker server-agent communication (generate random string)",
+          "default": ""
+        },
+        {
+          "name": "WOODPECKER_ADMIN",
+          "label": "Woodpecker Admin Username",
+          "description": "Username of the Gitea user who will be Woodpecker admin",
+          "default": "admin"
+        },
+        {
+          "name": "PLANE_SECRET_KEY",
+          "label": "Plane.so Secret Key",
+          "description": "Django secret key for Plane.so (generate random 50+ character string)",
+          "default": ""
+        },
+        {
+          "name": "GITEA_DISABLE_REGISTRATION",
+          "label": "Disable Gitea Registration",
+          "description": "Disable public user registration in Gitea",
+          "default": "true",
+          "select": [
+            {
+              "text": "Yes (Recommended)",
+              "value": "true",
+              "default": true
+            },
+            {
+              "text": "No (Allow public registration)",
+              "value": "false"
+            }
+          ]
+        },
+        {
+          "name": "GITEA_REQUIRE_SIGNIN",
+          "label": "Require Sign-in to View",
+          "description": "Require users to sign in to view repositories",
+          "default": "true",
+          "select": [
+            {
+              "text": "Yes (Private instance)",
+              "value": "true",
+              "default": true
+            },
+            {
+              "text": "No (Public repositories visible)",
+              "value": "false"
+            }
+          ]
+        }
+      ],
+      "volumes": [
+        {
+          "container": "/opt/mosaic/postgres/data",
+          "description": "PostgreSQL database files"
+        },
+        {
+          "container": "/opt/mosaic/redis/data", 
+          "description": "Redis persistent data"
+        },
+        {
+          "container": "/opt/mosaic/gitea/data",
+          "description": "Gitea repositories and application data"
+        },
+        {
+          "container": "/opt/mosaic/gitea/config",
+          "description": "Gitea configuration files"
+        },
+        {
+          "container": "/opt/mosaic/woodpecker/data",
+          "description": "Woodpecker server data and build history"
+        },
+        {
+          "container": "/opt/mosaic/woodpecker/agent_data",
+          "description": "Woodpecker agent data and cache"
+        },
+        {
+          "container": "/opt/mosaic/bookstack/data",
+          "description": "BookStack configuration and uploaded files"
+        },
+        {
+          "container": "/opt/mosaic/plane/media",
+          "description": "Plane.so media files and uploads"
+        },
+        {
+          "container": "/opt/mosaic/plane/static",
+          "description": "Plane.so static files"
+        }
+      ],
+      "ports": [
+        "2222:22/tcp (Gitea SSH)",
+        "3000:3000/tcp (Gitea Web - routed via nginx proxy manager)",
+        "8000:8000/tcp (Woodpecker CI - routed via nginx proxy manager)",
+        "8080:80/tcp (BookStack - routed via nginx proxy manager)", 
+        "3001:3000/tcp (Plane.so - routed via nginx proxy manager)",
+        "5432:5432/tcp (PostgreSQL - optional external access)",
+        "6379:6379/tcp (Redis - optional external access)"
+      ]
+    }
+  ]
+}

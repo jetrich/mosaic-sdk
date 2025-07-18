@@ -84,6 +84,19 @@
           "mode": "kubernetes",
           "scaling": "auto"
         }
+      },
+      "mosaicstack": {
+        "remote": {
+          "domain": "mosaicstack.dev",
+          "services": ["gitea", "woodpecker", "bookstack", "plane"],
+          "ssl": true,
+          "proxy": "nginx-proxy-manager"
+        },
+        "mcp": {
+          "mode": "distributed",
+          "database": "postgresql",
+          "coordination": "remote"
+        }
       }
     }
   },
