@@ -51,11 +51,11 @@ Transform Tony SDK into MosAIc Stack with mandatory MCP requirement starting v2.
   - mosaic CLI wrapper
   - .env.development template
 
-### Package Transformation (25% Complete)
+### Package Transformation (50% Complete)
 - [x] tony-mcp → @mosaic/mcp (0.1.0) - package.json updated
 - [ ] tony-dev → @mosaic/dev (pending)
 - [ ] tony → @tony/core (2.8.0) - blocked by 2.7.0
-- [ ] Create @mosaic/core package
+- [x] Create @mosaic/core package ✅
 
 ## 🔄 Current Status
 
@@ -77,7 +77,22 @@ Transform Tony SDK into MosAIc Stack with mandatory MCP requirement starting v2.
 - [x] Set up TypeScript build tooling
 - [x] Successfully built and tested compilation
 - [x] Pushed to GitHub branch: `feature/core-orchestration`
-- [ ] Pending: Integration with mosaic-mcp for actual MCP connectivity
+- [x] Pending: Integration with mosaic-mcp for actual MCP connectivity ✅
+
+### MCP Integration Success (NEW - 2025-07-18)
+- [x] Implemented full MCP client in MCPClient.ts:
+  - [x] Stdio transport using @modelcontextprotocol/sdk
+  - [x] Server process spawning and management
+  - [x] Tool listing and invocation
+  - [x] Agent registration and messaging
+- [x] Created integration test script (test-mcp-integration.ts)
+- [x] Successfully tested connection to mosaic-mcp server:
+  - Connected via stdio transport
+  - Listed 14 available tools
+  - Made tool calls (tony_project_list, tony_project_create)
+  - Registered agents and sent inter-agent messages
+  - Clean disconnect
+- [x] @mosaic/core now fully integrated with MCP infrastructure
 
 ### Isolated Development Environment
 - Created complete isolation system for testing MosAIc
