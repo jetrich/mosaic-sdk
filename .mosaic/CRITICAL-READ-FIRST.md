@@ -10,26 +10,27 @@
 ### KEY FACTS:
 - **Tony Version**: 2.8.0 (with mandatory MCP)
 - **MCP Port**: 3456 (isolated from other projects)
-- **Current Blocker**: TypeScript errors in mosaic-mcp preventing build
-- **DO NOT TOUCH**: tony/ submodule (2.7.0 work in progress)
+- **Status**: MCP server is now WORKING ✅
+- **Tony 2.7.0**: COMPLETED & TAGGED ✅
 - **DO NOT TOUCH**: mosaic/ submodule (separate project)
+- **READY TO PROCEED**: Add tony submodule for 2.8.0 work
 
-### BEFORE RUNNING ANY COMMANDS:
-1. The MCP server has build errors that need fixing first
-2. The @mosaic/core integration is already complete in the worktree
-3. Check `git worktree list` to see existing work
+### CURRENT STATE:
+1. MCP server is running successfully on port 3456 ✅
+2. The @mosaic/core integration is complete in the worktree ✅
+3. Tony 2.7.0 is complete - ready for 2.8.0 work ✅
 
-### To Start Working:
+### To Start Tony 2.8.0 Work:
 ```bash
-# 1. Check current status
+# 1. Add tony submodule (if not already added)
+git submodule add https://github.com/jetrich/tony.git tony
+git submodule update --init --recursive
+
+# 2. Create worktree for Tony 2.8.0
+./scripts/worktree-helper.sh create tony feature/mcp-mandatory mcp-mandatory
+
+# 3. Check MCP server status
 ./scripts/dev-environment.sh status
-
-# 2. Fix TypeScript errors in mosaic-mcp
-cd mosaic-mcp
-npm test  # See what's failing
-
-# 3. The worktree has the working integration
-cd worktrees/mosaic-worktrees/core-orchestration
 ```
 
 ## REMEMBER: You are working on Epic E.055 - MosAIc Stack Transformation

@@ -7,3 +7,6 @@
 [submodule "mosaic-dev"]
 	path = mosaic-dev
 	url = https://github.com/jetrich/mosaic-dev
+[submodule "tony"]
+	path = tony
+	url = https://github.com/jetrich/tony.git
