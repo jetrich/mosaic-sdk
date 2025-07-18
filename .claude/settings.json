@@ -15,10 +15,22 @@
     "hooks": {
       "UserPromptSubmit": [
         {
+          "matcher": "*",
           "hooks": [
             {
               "type": "command",
-              "command": "echo '[MosAIc SDK] Using Tony 2.8.0 with MCP on port 3456'"
+              "command": "echo '[MosAIc SDK] Using Tony 2.8.0 with MCP on port 3456. Run /init for context.'"
+            }
+          ]
+        }
+      ],
+      "PreToolUse": [
+        {
+          "matcher": "Bash(*)",
+          "hooks": [
+            {
+              "type": "command",
+              "command": ".claude/hooks/pre-tool-check.sh"
             }
           ]
         }
