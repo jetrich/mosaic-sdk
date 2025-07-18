@@ -35,15 +35,21 @@ start_mcp_server() {
     mkdir -p "$ROOT_DIR/.mosaic/logs"
     mkdir -p "$ROOT_DIR/.mosaic/cache"
     
+    # Ensure mosaic-mcp is built
+    if [ ! -d "$ROOT_DIR/mosaic-mcp/dist" ]; then
+        echo -e "${YELLOW}Building mosaic-mcp...${NC}"
+        (cd "$ROOT_DIR/mosaic-mcp" && npm install && npm run build)
+    fi
+    
     # Check if database exists, create if not
     if [ ! -f "$ROOT_DIR/.mosaic/data/mcp.db" ]; then
         echo -e "${YELLOW}Initializing MCP database...${NC}"
-        (cd "$ROOT_DIR/mosaic-mcp" && npm run migrate)
+        (cd "$ROOT_DIR/mosaic-mcp" && npm run migrate:run -- --db-path "$ROOT_DIR/.mosaic/data/mcp.db")
     fi
     
-    # Start MCP server in background
+    # Start MCP server in background with custom database path
     cd "$ROOT_DIR/mosaic-mcp"
-    nohup npm run dev > "$ROOT_DIR/.mosaic/logs/mcp-server.log" 2>&1 &
+    DATABASE_PATH="$ROOT_DIR/.mosaic/data/mcp.db" PORT=3456 nohup npm run dev > "$ROOT_DIR/.mosaic/logs/mcp-server.log" 2>&1 &
     MCP_PID=$!
     
     echo -e "${GREEN}✓ MCP server started (PID: $MCP_PID)${NC}"
