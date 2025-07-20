@@ -1,0 +1,215 @@
+# Base Pipeline Template
+# This template provides common pipeline structure for all projects
+
+# Pipeline metadata
+labels:
+  app-type: ${APP_TYPE}  # node, python, go, etc.
+  team: ${TEAM_NAME}
+  environment: ${ENVIRONMENT}
+
+# Global variables - can be overridden
+variables:
+  - &default_clone_depth "50"
+  - &default_timeout "3600"  # 1 hour
+  - &cache_version "v1"
+
+# Clone configuration
+clone:
+  depth: *default_clone_depth
+  tags: true
+
+# When to run pipeline
+when:
+  - event: [push, pull_request]
+    branch: [main, develop, feature/*, hotfix/*]
+  - event: tag
+    tag: v*
+
+# Shared pipeline configurations
+x-base-step: &base-step
+  environment:
+    - CI=true
+    - NODE_ENV=test
+  when:
+    - event: [push, pull_request]
+
+# Notification template
+x-notify: &notify
+  image: plugins/webhook
+  settings:
+    urls: ${WEBHOOK_URL}
+    content_type: application/json
+    template: |
+      {
+        "project": "${DRONE_REPO_NAME}",
+        "build": "${DRONE_BUILD_NUMBER}",
+        "commit": "${DRONE_COMMIT_SHA}",
+        "branch": "${DRONE_COMMIT_BRANCH}",
+        "status": "${DRONE_BUILD_STATUS}",
+        "author": "${DRONE_COMMIT_AUTHOR}",
+        "message": "${DRONE_COMMIT_MESSAGE}",
+        "link": "${DRONE_BUILD_LINK}"
+      }
+
+# Common service definitions
+x-postgres: &postgres-service
+  image: postgres:17.5-alpine
+  environment:
+    - POSTGRES_USER=test
+    - POSTGRES_PASSWORD=test
+    - POSTGRES_DB=test_db
+    - POSTGRES_HOST_AUTH_METHOD=trust
+
+x-redis: &redis-service
+  image: redis:7-alpine
+  command: redis-server --appendonly yes
+
+x-mongo: &mongo-service
+  image: mongo:7-alpine
+  environment:
+    - MONGO_INITDB_ROOT_USERNAME=test
+    - MONGO_INITDB_ROOT_PASSWORD=test
+    - MONGO_INITDB_DATABASE=test_db
+
+# Base steps that can be extended
+steps:
+  # Version information
+  version-info:
+    <<: *base-step
+    image: alpine:latest
+    commands:
+      - echo "Pipeline Template Version: 1.0.0"
+      - echo "Build Number: ${DRONE_BUILD_NUMBER}"
+      - echo "Commit: ${DRONE_COMMIT_SHA}"
+      - echo "Branch: ${DRONE_COMMIT_BRANCH}"
+      - date
+
+  # Security check for secrets
+  check-secrets:
+    <<: *base-step
+    image: trufflesecurity/trufflehog:latest
+    commands:
+      - trufflehog filesystem . --only-verified --fail
+    when:
+      - event: [push, pull_request]
+    failure: ignore  # Don't block pipeline, just warn
+
+  # License scanning
+  license-check:
+    <<: *base-step
+    image: licensefinder/license_finder
+    commands:
+      - license_finder || echo "License check completed"
+    when:
+      - event: push
+      - branch: [main, develop]
+    failure: ignore
+
+  # Create artifacts directory
+  prepare-artifacts:
+    <<: *base-step
+    image: alpine:latest
+    commands:
+      - mkdir -p artifacts/{logs,reports,coverage,build}
+      - echo "Artifacts directory prepared"
+
+  # Placeholder for language-specific steps
+  # These should be overridden in specific implementations
+  install:
+    <<: *base-step
+    image: ${BUILD_IMAGE}
+    commands:
+      - echo "Override this step with language-specific install"
+
+  lint:
+    <<: *base-step
+    image: ${BUILD_IMAGE}
+    commands:
+      - echo "Override this step with language-specific linting"
+    depends_on:
+      - install
+
+  test:
+    <<: *base-step
+    image: ${BUILD_IMAGE}
+    commands:
+      - echo "Override this step with language-specific tests"
+    depends_on:
+      - install
+
+  build:
+    <<: *base-step
+    image: ${BUILD_IMAGE}
+    commands:
+      - echo "Override this step with language-specific build"
+    depends_on:
+      - lint
+      - test
+
+  # Common artifact collection
+  collect-artifacts:
+    <<: *base-step
+    image: alpine:latest
+    commands:
+      - |
+        # Collect various artifacts
+        cp -r logs/* artifacts/logs/ 2>/dev/null || true
+        cp -r coverage/* artifacts/coverage/ 2>/dev/null || true
+        cp -r reports/* artifacts/reports/ 2>/dev/null || true
+        cp -r dist/* artifacts/build/ 2>/dev/null || true
+        cp -r build/* artifacts/build/ 2>/dev/null || true
+        
+        # Create manifest
+        cat > artifacts/manifest.json << EOF
+        {
+          "build": "${DRONE_BUILD_NUMBER}",
+          "commit": "${DRONE_COMMIT_SHA}",
+          "branch": "${DRONE_COMMIT_BRANCH}",
+          "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+          "artifacts": [
+            $(find artifacts -type f -name "*" | grep -v manifest.json | sed 's/^/"/' | sed 's/$/"/' | paste -sd, -)
+          ]
+        }
+        EOF
+        
+        # Create tarball
+        tar -czf artifacts-${DRONE_COMMIT_SHA:0:8}.tar.gz artifacts/
+    when:
+      - event: [push, pull_request]
+      - status: [success, failure]
+    depends_on:
+      - build
+
+  # Success notification
+  notify-success:
+    <<: *notify
+    when:
+      - status: success
+      - branch: [main, develop]
+    depends_on:
+      - collect-artifacts
+
+  # Failure notification
+  notify-failure:
+    <<: *notify
+    when:
+      - status: failure
+    depends_on:
+      - collect-artifacts
+
+# Services template - uncomment as needed
+services:
+  # postgres:
+  #   <<: *postgres-service
+  #   when:
+  #     - event: [push, pull_request]
+  
+  # redis:
+  #   <<: *redis-service
+  #   when:
+  #     - event: [push, pull_request]
+  
+  # mongo:
+  #   <<: *mongo-service
+  #   when:
+  #     - event: [push, pull_request]

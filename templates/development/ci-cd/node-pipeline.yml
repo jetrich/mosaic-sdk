@@ -1,0 +1,216 @@
+# Node.js/TypeScript Pipeline Template
+# Extends base-pipeline.yml with Node.js specific configurations
+
+# Include base template
+include: base-pipeline.yml
+
+# Node.js specific variables
+variables:
+  - &node_version "20"
+  - &node_image "node:20-alpine"
+  - &npm_cache_dir ".npm"
+  - &build_image *node_image
+
+# Override base steps with Node.js implementations
+steps:
+  # Cache restoration
+  restore-cache:
+    image: meltwater/drone-cache:latest
+    settings:
+      backend: "filesystem"
+      restore: true
+      cache_key: "node-${DRONE_REPO_NAME}-{{ checksum \"package-lock.json\" }}"
+      mount:
+        - node_modules
+        - .npm
+        - .next/cache  # For Next.js projects
+    when:
+      - event: [push, pull_request]
+
+  # Install dependencies
+  install:
+    image: *node_image
+    environment:
+      - npm_config_cache=.npm
+    commands:
+      - node --version
+      - npm --version
+      - npm ci --prefer-offline --no-audit
+      - npm ls --depth=0 || true
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - restore-cache
+
+  # Code quality checks
+  lint:
+    image: *node_image
+    commands:
+      - npm run lint || npm run eslint || npx eslint src/
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - install
+
+  # Type checking (TypeScript)
+  type-check:
+    image: *node_image
+    commands:
+      - npm run type-check || npm run tsc || npx tsc --noEmit
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - install
+
+  # Code formatting check
+  format-check:
+    image: *node_image
+    commands:
+      - npm run format:check || npm run prettier:check || npx prettier --check .
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - install
+    failure: ignore  # Warning only
+
+  # Unit tests with coverage
+  test:
+    image: *node_image
+    environment:
+      - NODE_ENV=test
+      - CI=true
+    commands:
+      - npm run test:ci || npm test -- --ci --coverage
+      - |
+        if [ -f coverage/lcov.info ]; then
+          echo "Coverage report generated"
+          # Extract coverage summary
+          node -e "
+            const lcov = require('fs').readFileSync('coverage/lcov-report/index.html', 'utf8');
+            const match = lcov.match(/([0-9.]+)%.*statements/);
+            if (match) console.log('Coverage:', match[1] + '%');
+          " || true
+        fi
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - install
+
+  # Security audit
+  security-audit:
+    image: *node_image
+    commands:
+      - npm audit --production --audit-level=moderate || true
+      - npx better-npm-audit audit || true
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - install
+    failure: ignore
+
+  # Build application
+  build:
+    image: *node_image
+    environment:
+      - NODE_ENV=production
+    commands:
+      - npm run build
+      - |
+        # Check build output
+        if [ -d "dist" ]; then
+          echo "Build output size:"
+          du -sh dist/
+        elif [ -d "build" ]; then
+          echo "Build output size:"
+          du -sh build/
+        elif [ -d ".next" ]; then
+          echo "Next.js build size:"
+          du -sh .next/
+        fi
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - lint
+      - type-check
+      - test
+
+  # Bundle size check
+  bundle-size:
+    image: *node_image
+    commands:
+      - npx bundlesize || echo "Bundle size check not configured"
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - build
+    failure: ignore
+
+  # Save cache
+  rebuild-cache:
+    image: meltwater/drone-cache:latest
+    settings:
+      backend: "filesystem"
+      rebuild: true
+      cache_key: "node-${DRONE_REPO_NAME}-{{ checksum \"package-lock.json\" }}"
+      mount:
+        - node_modules
+        - .npm
+        - .next/cache
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - install
+
+  # Docker build for Node.js
+  docker-build:
+    image: docker:24-cli
+    commands:
+      - |
+        # Create optimized Dockerfile if not exists
+        if [ ! -f Dockerfile ]; then
+          cat > Dockerfile << 'EOF'
+        FROM node:${NODE_VERSION}-alpine AS deps
+        WORKDIR /app
+        COPY package*.json ./
+        RUN npm ci --only=production
+
+        FROM node:${NODE_VERSION}-alpine AS builder
+        WORKDIR /app
+        COPY package*.json ./
+        RUN npm ci
+        COPY . .
+        RUN npm run build
+
+        FROM node:${NODE_VERSION}-alpine AS runner
+        WORKDIR /app
+        ENV NODE_ENV production
+        RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
+        COPY --from=deps --chown=nodejs:nodejs /app/node_modules ./node_modules
+        COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
+        COPY --chown=nodejs:nodejs package*.json ./
+        USER nodejs
+        EXPOSE 3000
+        CMD ["node", "dist/index.js"]
+        EOF
+        fi
+      - docker build -t ${DRONE_REPO_NAME}:${DRONE_COMMIT_SHA:0:8} .
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - build
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+# Node.js specific matrix builds
+matrix:
+  include:
+    - NODE_VERSION: "18"
+      NODE_IMAGE: "node:18-alpine"
+    - NODE_VERSION: "20"
+      NODE_IMAGE: "node:20-alpine"
+    - NODE_VERSION: "21"
+      NODE_IMAGE: "node:21-alpine"

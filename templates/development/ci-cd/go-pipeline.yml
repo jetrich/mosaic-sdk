@@ -1,0 +1,290 @@
+# Go Pipeline Template
+# Extends base-pipeline.yml with Go specific configurations
+
+# Include base template
+include: base-pipeline.yml
+
+# Go specific variables
+variables:
+  - &go_version "1.21"
+  - &go_image "golang:1.21-alpine"
+  - &go_cache_dir "/go/pkg/mod"
+  - &build_image *go_image
+
+# Override base steps with Go implementations
+steps:
+  # Cache restoration
+  restore-cache:
+    image: meltwater/drone-cache:latest
+    settings:
+      backend: "filesystem"
+      restore: true
+      cache_key: "go-${DRONE_REPO_NAME}-{{ checksum \"go.sum\" }}"
+      mount:
+        - vendor
+        - /go/pkg/mod
+    when:
+      - event: [push, pull_request]
+
+  # Install dependencies
+  install:
+    image: *go_image
+    environment:
+      - GO111MODULE=on
+      - GOPROXY=https://proxy.golang.org,direct
+    commands:
+      - apk add --no-cache git make gcc musl-dev
+      - go version
+      - go env
+      - go mod download
+      - go mod verify
+      - go mod tidy
+      - |
+        # Check if go.mod/go.sum changed
+        if ! git diff --exit-code go.mod go.sum; then
+          echo "go.mod or go.sum was modified by go mod tidy"
+          echo "Please run 'go mod tidy' locally and commit the changes"
+          exit 1
+        fi
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - restore-cache
+
+  # Code formatting check
+  format-check:
+    image: *go_image
+    commands:
+      - |
+        # Check formatting
+        if [ -n "$(gofmt -l .)" ]; then
+          echo "The following files need formatting:"
+          gofmt -l .
+          echo "Please run 'gofmt -w .' locally"
+          exit 1
+        fi
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - install
+
+  # Go vet
+  vet:
+    image: *go_image
+    commands:
+      - go vet ./...
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - install
+
+  # Linting (golangci-lint)
+  lint:
+    image: golangci/golangci-lint:latest
+    commands:
+      - golangci-lint run -v --timeout 5m
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - install
+
+  # Security scanning (gosec)
+  security-scan:
+    image: securego/gosec:latest
+    commands:
+      - gosec -fmt json -out gosec-report.json ./... || true
+      - cat gosec-report.json
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - install
+    failure: ignore
+
+  # Vulnerability check
+  vulnerability-check:
+    image: *go_image
+    commands:
+      - go install golang.org/x/vuln/cmd/govulncheck@latest
+      - govulncheck ./... || echo "Some vulnerabilities found"
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - install
+    failure: ignore
+
+  # Unit tests with coverage
+  test:
+    image: *go_image
+    environment:
+      - CGO_ENABLED=1
+      - DATABASE_URL=postgres://test:test@postgres:5432/test_db?sslmode=disable
+      - REDIS_URL=redis://redis:6379
+    commands:
+      - apk add --no-cache gcc musl-dev
+      - go test -v -race -coverprofile=coverage.out -covermode=atomic ./...
+      - go tool cover -func=coverage.out
+      - go tool cover -html=coverage.out -o coverage.html
+      - |
+        # Check coverage threshold
+        COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | sed 's/%//')
+        echo "Total coverage: ${COVERAGE}%"
+        if [ "${COVERAGE%.*}" -lt 70 ]; then
+          echo "Coverage is below 70%"
+          exit 1
+        fi
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - install
+
+  # Benchmark tests
+  benchmark:
+    image: *go_image
+    commands:
+      - go test -bench=. -benchmem -run=^$ ./... | tee benchmark.txt
+      - |
+        # Compare with previous benchmarks if available
+        if [ -f "benchmark-base.txt" ]; then
+          go install golang.org/x/perf/cmd/benchstat@latest
+          benchstat benchmark-base.txt benchmark.txt
+        fi
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - test
+
+  # Build binaries
+  build:
+    image: *go_image
+    commands:
+      - apk add --no-cache git
+      - mkdir -p bin
+      - |
+        # Get version information
+        VERSION=$(git describe --tags --always --dirty)
+        COMMIT=$(git rev-parse --short HEAD)
+        DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+        
+        # Build flags
+        LDFLAGS="-s -w -X main.Version=${VERSION} -X main.Commit=${COMMIT} -X main.Date=${DATE}"
+        
+        # Build for multiple platforms
+        echo "Building binaries..."
+        GOOS=linux GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o bin/app-linux-amd64 ./...
+        GOOS=linux GOARCH=arm64 go build -ldflags "${LDFLAGS}" -o bin/app-linux-arm64 ./...
+        GOOS=darwin GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o bin/app-darwin-amd64 ./...
+        GOOS=darwin GOARCH=arm64 go build -ldflags "${LDFLAGS}" -o bin/app-darwin-arm64 ./...
+        GOOS=windows GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o bin/app-windows-amd64.exe ./...
+        
+        # Show binary sizes
+        ls -lh bin/
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - lint
+      - vet
+      - test
+
+  # Generate documentation
+  docs:
+    image: *go_image
+    commands:
+      - go install github.com/swaggo/swag/cmd/swag@latest
+      - swag init -g main.go -o docs || echo "Swagger generation not configured"
+      - go doc -all ./... > API_DOCS.txt || true
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - install
+    failure: ignore
+
+  # Save cache
+  rebuild-cache:
+    image: meltwater/drone-cache:latest
+    settings:
+      backend: "filesystem"
+      rebuild: true
+      cache_key: "go-${DRONE_REPO_NAME}-{{ checksum \"go.sum\" }}"
+      mount:
+        - vendor
+        - /go/pkg/mod
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - install
+
+  # Docker build for Go
+  docker-build:
+    image: docker:24-cli
+    commands:
+      - |
+        # Create optimized Dockerfile if not exists
+        if [ ! -f Dockerfile ]; then
+          cat > Dockerfile << 'EOF'
+        FROM golang:${GO_VERSION}-alpine AS builder
+        RUN apk add --no-cache git make gcc musl-dev
+        WORKDIR /build
+        COPY go.mod go.sum ./
+        RUN go mod download
+        COPY . .
+        RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
+            -ldflags="-w -s" \
+            -a -installsuffix cgo -o app .
+
+        FROM alpine:latest AS production
+        RUN apk --no-cache add ca-certificates
+        RUN addgroup -g 1000 -S appgroup && \
+            adduser -u 1000 -S appuser -G appgroup
+        WORKDIR /app
+        COPY --from=builder /build/app .
+        RUN chown -R appuser:appgroup /app
+        USER appuser
+        EXPOSE 8080
+        CMD ["./app"]
+        EOF
+        fi
+      - docker build -t ${DRONE_REPO_NAME}:${DRONE_COMMIT_SHA:0:8} .
+      - |
+        # Multi-arch build
+        docker buildx create --name multiarch --use || true
+        docker buildx build \
+          --platform linux/amd64,linux/arm64 \
+          -t ${DRONE_REPO_NAME}:${DRONE_COMMIT_SHA:0:8} \
+          --push .
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - build
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+# Go specific services
+services:
+  postgres:
+    image: postgres:17.5-alpine
+    environment:
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+      - POSTGRES_DB=test_db
+    when:
+      - event: [push, pull_request]
+
+  redis:
+    image: redis:7-alpine
+    when:
+      - event: [push, pull_request]
+
+# Go version matrix
+matrix:
+  include:
+    - GO_VERSION: "1.20"
+      GO_IMAGE: "golang:1.20-alpine"
+    - GO_VERSION: "1.21"
+      GO_IMAGE: "golang:1.21-alpine"
+    - GO_VERSION: "1.22"
+      GO_IMAGE: "golang:1.22-alpine"

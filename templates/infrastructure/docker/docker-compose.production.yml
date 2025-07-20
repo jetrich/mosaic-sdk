@@ -1,0 +1,440 @@
+version: '3.8'
+
+x-common-settings: &common-settings
+  restart: unless-stopped
+  logging:
+    driver: "json-file"
+    options:
+      max-size: "10m"
+      max-file: "3"
+      tag: "{{.Name}}/{{.ID}}"
+
+x-resource-limits: &resource-limits
+  deploy:
+    resources:
+      limits:
+        cpus: '1.0'
+        memory: 1G
+      reservations:
+        cpus: '0.25'
+        memory: 256M
+
+services:
+  # Traefik - Reverse Proxy & SSL
+  traefik:
+    <<: *common-settings
+    image: traefik:v3.0
+    container_name: mosaic-traefik
+    command:
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--metrics.prometheus=true"
+      - "--metrics.prometheus.entrypoint=metrics"
+      - "--entrypoints.metrics.address=:8082"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik-certificates:/letsencrypt
+      - traefik-logs:/logs
+    networks:
+      - mosaic-proxy
+      - mosaic-monitoring
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`traefik.${DOMAIN}`)"
+      - "traefik.http.routers.api.service=api@internal"
+      - "traefik.http.routers.api.middlewares=auth"
+      - "traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_ADMIN_PASSWORD}"
+      - "traefik.http.routers.api.tls.certresolver=letsencrypt"
+    environment:
+      - TZ=${TZ:-UTC}
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # PostgreSQL - Main Database
+  postgres:
+    <<: *common-settings
+    <<: *resource-limits
+    image: postgres:16-alpine
+    container_name: mosaic-postgres
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+      - PGDATA=/var/lib/postgresql/data/pgdata
+      - TZ=${TZ:-UTC}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - postgres-backup:/backup
+    networks:
+      - mosaic-db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+
+  # MariaDB - BookStack Database
+  mariadb:
+    <<: *common-settings
+    <<: *resource-limits
+    image: mariadb:11
+    container_name: mosaic-mariadb
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
+      - MYSQL_DATABASE=bookstack
+      - MYSQL_USER=bookstack
+      - MYSQL_PASSWORD=${BOOKSTACK_DB_PASSWORD}
+      - TZ=${TZ:-UTC}
+    volumes:
+      - mariadb-data:/var/lib/mysql
+      - mariadb-backup:/backup
+    networks:
+      - mosaic-db
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Redis - Caching & Sessions
+  redis:
+    <<: *common-settings
+    image: redis:7-alpine
+    container_name: mosaic-redis
+    command: redis-server /usr/local/etc/redis/redis.conf
+    volumes:
+      - redis-data:/data
+      - ./configs/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    networks:
+      - mosaic-cache
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # Gitea - Git Service
+  gitea:
+    <<: *common-settings
+    <<: *resource-limits
+    image: gitea/gitea:1.21
+    container_name: mosaic-gitea
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+      - GITEA__database__DB_TYPE=postgres
+      - GITEA__database__HOST=postgres:5432
+      - GITEA__database__NAME=gitea
+      - GITEA__database__USER=gitea
+      - GITEA__database__PASSWD=${GITEA_DB_PASSWORD}
+      - GITEA__service__DISABLE_REGISTRATION=${GITEA_DISABLE_REGISTRATION:-true}
+      - GITEA__server__ROOT_URL=https://git.${DOMAIN}
+      - GITEA__server__DOMAIN=git.${DOMAIN}
+      - GITEA__security__SECRET_KEY=${GITEA_SECRET_KEY}
+      - GITEA__security__INTERNAL_TOKEN=${GITEA_INTERNAL_TOKEN}
+      - GITEA__cache__ADAPTER=redis
+      - GITEA__cache__HOST=redis://redis:6379/0?pool_size=100&idle_timeout=180s
+      - GITEA__session__PROVIDER=redis
+      - GITEA__session__PROVIDER_CONFIG=redis://redis:6379/1?pool_size=100&idle_timeout=180s
+      - GITEA__queue__TYPE=redis
+      - GITEA__queue__CONN_STR=redis://redis:6379/2?pool_size=100&idle_timeout=180s
+      - TZ=${TZ:-UTC}
+    volumes:
+      - gitea-data:/data
+      - gitea-backup:/backup
+    networks:
+      - mosaic-proxy
+      - mosaic-db
+      - mosaic-cache
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.gitea.rule=Host(`git.${DOMAIN}`)"
+      - "traefik.http.routers.gitea.tls.certresolver=letsencrypt"
+      - "traefik.http.services.gitea.loadbalancer.server.port=3000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/v1/version"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # Plane - Project Management
+  plane-frontend:
+    <<: *common-settings
+    <<: *resource-limits
+    image: makeplane/plane-frontend:stable
+    container_name: mosaic-plane-frontend
+    environment:
+      - NEXT_PUBLIC_API_BASE_URL=https://api-plane.${DOMAIN}
+      - NEXT_PUBLIC_ENABLE_OAUTH=${PLANE_ENABLE_OAUTH:-0}
+      - NEXT_PUBLIC_DEPLOY_URL=https://plane.${DOMAIN}
+    networks:
+      - mosaic-proxy
+    depends_on:
+      - plane-api
+      - plane-worker
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.plane.rule=Host(`plane.${DOMAIN}`)"
+      - "traefik.http.routers.plane.tls.certresolver=letsencrypt"
+      - "traefik.http.services.plane.loadbalancer.server.port=3000"
+
+  plane-api:
+    <<: *common-settings
+    <<: *resource-limits
+    image: makeplane/plane-backend:stable
+    container_name: mosaic-plane-api
+    environment:
+      - DATABASE_URL=postgresql://plane:${PLANE_DB_PASSWORD}@postgres:5432/plane
+      - REDIS_URL=redis://redis:6379/3
+      - SECRET_KEY=${PLANE_SECRET_KEY}
+      - DEBUG=0
+      - CORS_ALLOWED_ORIGINS=https://plane.${DOMAIN}
+      - WEB_URL=https://plane.${DOMAIN}
+      - ENABLE_SIGNUP=${PLANE_ENABLE_SIGNUP:-1}
+      - DEFAULT_EMAIL=${ADMIN_EMAIL}
+      - DEFAULT_PASSWORD=${PLANE_ADMIN_PASSWORD}
+      - EMAIL_HOST=${EMAIL_HOST}
+      - EMAIL_HOST_USER=${EMAIL_HOST_USER}
+      - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
+      - EMAIL_PORT=${EMAIL_PORT:-587}
+      - EMAIL_USE_TLS=${EMAIL_USE_TLS:-1}
+      - EMAIL_FROM=${EMAIL_FROM}
+      - AWS_S3_ENDPOINT_URL=${S3_ENDPOINT_URL:-}
+      - AWS_S3_BUCKET_NAME=${S3_BUCKET_NAME:-}
+      - AWS_ACCESS_KEY_ID=${S3_ACCESS_KEY_ID:-}
+      - AWS_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY:-}
+      - AWS_REGION=${S3_REGION:-us-east-1}
+      - USE_MINIO=${USE_MINIO:-0}
+      - TZ=${TZ:-UTC}
+    volumes:
+      - plane-uploads:/code/uploads
+    networks:
+      - mosaic-proxy
+      - mosaic-db
+      - mosaic-cache
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.plane-api.rule=Host(`api-plane.${DOMAIN}`)"
+      - "traefik.http.routers.plane-api.tls.certresolver=letsencrypt"
+      - "traefik.http.services.plane-api.loadbalancer.server.port=8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  plane-worker:
+    <<: *common-settings
+    <<: *resource-limits
+    image: makeplane/plane-backend:stable
+    container_name: mosaic-plane-worker
+    command: celery -A plane worker -l info
+    environment:
+      - DATABASE_URL=postgresql://plane:${PLANE_DB_PASSWORD}@postgres:5432/plane
+      - REDIS_URL=redis://redis:6379/3
+      - SECRET_KEY=${PLANE_SECRET_KEY}
+      - DEBUG=0
+      - TZ=${TZ:-UTC}
+    volumes:
+      - plane-uploads:/code/uploads
+    networks:
+      - mosaic-db
+      - mosaic-cache
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      plane-api:
+        condition: service_healthy
+
+  plane-beat:
+    <<: *common-settings
+    image: makeplane/plane-backend:stable
+    container_name: mosaic-plane-beat
+    command: celery -A plane beat -l info
+    environment:
+      - DATABASE_URL=postgresql://plane:${PLANE_DB_PASSWORD}@postgres:5432/plane
+      - REDIS_URL=redis://redis:6379/3
+      - SECRET_KEY=${PLANE_SECRET_KEY}
+      - DEBUG=0
+      - TZ=${TZ:-UTC}
+    networks:
+      - mosaic-db
+      - mosaic-cache
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      plane-api:
+        condition: service_healthy
+
+  # BookStack - Documentation
+  bookstack:
+    <<: *common-settings
+    <<: *resource-limits
+    image: lscr.io/linuxserver/bookstack:latest
+    container_name: mosaic-bookstack
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ:-UTC}
+      - APP_URL=https://docs.${DOMAIN}
+      - DB_HOST=mariadb
+      - DB_PORT=3306
+      - DB_USER=bookstack
+      - DB_PASS=${BOOKSTACK_DB_PASSWORD}
+      - DB_DATABASE=bookstack
+      - MAIL_DRIVER=${BOOKSTACK_MAIL_DRIVER:-smtp}
+      - MAIL_HOST=${EMAIL_HOST}
+      - MAIL_PORT=${EMAIL_PORT:-587}
+      - MAIL_ENCRYPTION=${MAIL_ENCRYPTION:-tls}
+      - MAIL_USERNAME=${EMAIL_HOST_USER}
+      - MAIL_PASSWORD=${EMAIL_HOST_PASSWORD}
+      - MAIL_FROM=${EMAIL_FROM}
+      - MAIL_FROM_NAME=BookStack
+      - APP_DEFAULT_DARK_MODE=${BOOKSTACK_DARK_MODE:-true}
+      - AUTH_METHOD=${BOOKSTACK_AUTH_METHOD:-standard}
+      - CACHE_DRIVER=redis
+      - SESSION_DRIVER=redis
+      - REDIS_SERVERS=redis:6379:0
+    volumes:
+      - bookstack-data:/config
+      - bookstack-backup:/backup
+    networks:
+      - mosaic-proxy
+      - mosaic-db
+      - mosaic-cache
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.bookstack.rule=Host(`docs.${DOMAIN}`)"
+      - "traefik.http.routers.bookstack.tls.certresolver=letsencrypt"
+      - "traefik.http.services.bookstack.loadbalancer.server.port=80"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # Portainer - Container Management
+  portainer:
+    <<: *common-settings
+    image: portainer/portainer-ce:latest
+    container_name: mosaic-portainer
+    command: -H unix:///var/run/docker.sock --admin-password-file /tmp/admin_password
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - portainer-data:/data
+      - ./secrets/portainer_password:/tmp/admin_password:ro
+    networks:
+      - mosaic-proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.portainer.rule=Host(`portainer.${DOMAIN}`)"
+      - "traefik.http.routers.portainer.tls.certresolver=letsencrypt"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # Backup Service
+  backup:
+    <<: *common-settings
+    image: offen/docker-volume-backup:v2
+    container_name: mosaic-backup
+    environment:
+      - BACKUP_CRON_EXPRESSION=${BACKUP_CRON:-0 3 * * *}
+      - BACKUP_FILENAME=mosaic-backup-%Y-%m-%d-%H%M%S.tar.gz
+      - BACKUP_ARCHIVE=/archive
+      - BACKUP_RETENTION_DAYS=${BACKUP_RETENTION_DAYS:-7}
+      - BACKUP_STOP_CONTAINER_LABEL=mosaic.backup.stop
+      - BACKUP_FROM_SNAPSHOT=true
+      - NOTIFICATION_URLS=${BACKUP_NOTIFICATION_URLS:-}
+      - TZ=${TZ:-UTC}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - postgres-backup:/backup/postgres:ro
+      - mariadb-backup:/backup/mariadb:ro
+      - redis-data:/backup/redis:ro
+      - gitea-backup:/backup/gitea:ro
+      - bookstack-backup:/backup/bookstack:ro
+      - ${BACKUP_ARCHIVE_PATH:-./backups}:/archive
+    networks:
+      - mosaic-backup
+
+networks:
+  mosaic-proxy:
+    external: true
+  mosaic-db:
+    external: true
+  mosaic-cache:
+    external: true
+  mosaic-monitoring:
+    external: true
+  mosaic-backup:
+    external: true
+
+volumes:
+  # Traefik volumes
+  traefik-certificates:
+    driver: local
+  traefik-logs:
+    driver: local
+  
+  # Database volumes
+  postgres-data:
+    driver: local
+  postgres-backup:
+    driver: local
+  mariadb-data:
+    driver: local
+  mariadb-backup:
+    driver: local
+  redis-data:
+    driver: local
+  
+  # Application volumes
+  gitea-data:
+    driver: local
+  gitea-backup:
+    driver: local
+  plane-uploads:
+    driver: local
+  bookstack-data:
+    driver: local
+  bookstack-backup:
+    driver: local
+  portainer-data:
+    driver: local

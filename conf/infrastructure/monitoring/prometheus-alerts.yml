@@ -1,0 +1,178 @@
+# Prometheus Alert Rules for MosAIc Stack
+groups:
+  # System alerts
+  - name: system
+    interval: 30s
+    rules:
+      - alert: HostHighCpuLoad
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[2m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Host high CPU load (instance {{ $labels.instance }})"
+          description: "CPU load is > 80%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: HostOutOfMemory
+        expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < 10
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Host out of memory (instance {{ $labels.instance }})"
+          description: "Node memory is filling up (< 10% left)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: HostOutOfDiskSpace
+        expr: (node_filesystem_avail_bytes * 100) / node_filesystem_size_bytes < 10 and ON (instance, device, mountpoint) node_filesystem_readonly == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Host out of disk space (instance {{ $labels.instance }})"
+          description: "Disk is almost full (< 10% left)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: HostHighNetworkThroughput
+        expr: sum by (instance) (rate(node_network_receive_bytes_total[2m])) / 1024 / 1024 > 100
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Host high network throughput (instance {{ $labels.instance }})"
+          description: "Network traffic is > 100 MB/s\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+  # Container alerts
+  - name: containers
+    interval: 30s
+    rules:
+      - alert: ContainerDown
+        expr: up{job="docker"} == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Container down ({{ $labels.container_name }})"
+          description: "Container {{ $labels.container_name }} has been down for more than 5 minutes"
+
+      - alert: ContainerHighCpu
+        expr: (sum(rate(container_cpu_usage_seconds_total{name!=""}[3m])) BY (instance, name) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container high CPU usage ({{ $labels.name }})"
+          description: "Container CPU usage is above 80%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: ContainerHighMemory
+        expr: (sum(container_memory_working_set_bytes{name!=""}) BY (instance, name) / sum(container_spec_memory_limit_bytes > 0) BY (instance, name) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container high memory usage ({{ $labels.name }})"
+          description: "Container memory usage is above 80%\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+  # PostgreSQL alerts
+  - name: postgresql
+    interval: 30s
+    rules:
+      - alert: PostgresqlDown
+        expr: pg_up == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "PostgreSQL down (instance {{ $labels.instance }})"
+          description: "PostgreSQL instance is down\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PostgresqlTooManyConnections
+        expr: sum by (instance, job, server) (pg_stat_activity_count) > sum by (instance, job, server) (pg_settings_max_connections) * 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "PostgreSQL too many connections (instance {{ $labels.instance }})"
+          description: "PostgreSQL instance has too many connections (> 80%).\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: PostgresqlDeadLocks
+        expr: increase(pg_stat_database_deadlocks{datname!~"template.*"}[1m]) > 5
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "PostgreSQL dead locks (instance {{ $labels.instance }})"
+          description: "PostgreSQL has dead-locks\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+  # Redis alerts
+  - name: redis
+    interval: 30s
+    rules:
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis down (instance {{ $labels.instance }})"
+          description: "Redis instance is down\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: RedisOutOfMemory
+        expr: redis_memory_used_bytes / redis_memory_max_bytes * 100 > 90
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis out of memory (instance {{ $labels.instance }})"
+          description: "Redis is running out of memory (> 90%)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: RedisTooManyConnections
+        expr: redis_connected_clients > 100
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis too many connections (instance {{ $labels.instance }})"
+          description: "Redis has too many connections\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+  # Application endpoint alerts
+  - name: endpoints
+    interval: 30s
+    rules:
+      - alert: EndpointDown
+        expr: probe_success == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Endpoint down ({{ $labels.instance }})"
+          description: "Endpoint {{ $labels.instance }} has been down for more than 5 minutes"
+
+      - alert: EndpointSlowResponse
+        expr: probe_http_duration_seconds > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Endpoint slow response ({{ $labels.instance }})"
+          description: "Endpoint {{ $labels.instance }} response time is > 2 seconds\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: SSLCertificateExpiringSoon
+        expr: probe_ssl_earliest_cert_expiry - time() < 86400 * 30
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "SSL certificate expiring soon ({{ $labels.instance }})"
+          description: "SSL certificate expires in less than 30 days\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+  # Backup alerts
+  - name: backups
+    interval: 1h
+    rules:
+      - alert: BackupNotRunning
+        expr: time() - backup_last_success_timestamp_seconds > 86400 * 2
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "Backup not running ({{ $labels.backup_type }})"
+          description: "Backup {{ $labels.backup_type }} hasn't run successfully in 2 days"

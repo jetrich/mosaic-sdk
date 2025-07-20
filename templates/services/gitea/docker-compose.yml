@@ -1,0 +1,165 @@
+version: '3.8'
+
+networks:
+  mosaic-network:
+    driver: bridge
+
+volumes:
+  gitea-data:
+    driver: local
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+
+services:
+  # PostgreSQL Database for Gitea
+  postgres:
+    image: postgres:17.5-alpine
+    container_name: mosaicstack-postgres
+    restart: unless-stopped
+    networks:
+      - mosaicstack-internal
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-ChangeThisSecurePassword123!}
+      - POSTGRES_DB=postgres
+      - POSTGRES_MULTIPLE_DATABASES=gitea_prod
+      - POSTGRES_INITDB_ARGS="--encoding=UTF8 --lc-collate=C --lc-ctype=C"
+    volumes:
+      - /opt/mosaic/postgres/data:/var/lib/postgresql/data
+      - /opt/mosaic/postgres/init-databases.sh:/docker-entrypoint-initdb.d/init-databases.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Redis for Gitea cache and sessions
+  redis:
+    image: redis:8.0.3-alpine
+    container_name: mosaicstack-redis
+    restart: unless-stopped
+    networks:
+      - mosaicstack-internal
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    volumes:
+      - /opt/mosaic/redis/data:/data
+      - /opt/mosaic/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    command: redis-server /usr/local/etc/redis/redis.conf --requirepass ${REDIS_PASSWORD}
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Gitea Git Service
+  gitea:
+    image: gitea/gitea:1.22.6
+    container_name: mosaic-gitea
+    restart: unless-stopped
+    networks:
+      - mosaic-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      # Basic Configuration
+      - USER_UID=1000
+      - USER_GID=1000
+      - GITEA__DEFAULT__APP_NAME=Mosaic Git
+      
+      # Database Configuration
+      - GITEA__database__DB_TYPE=postgres
+      - GITEA__database__HOST=postgres:5432
+      - GITEA__database__NAME=gitea
+      - GITEA__database__USER=gitea
+      - GITEA__database__PASSWD=${POSTGRES_PASSWORD:-ChangeThisSecurePassword123!}
+      
+      # Redis Configuration
+      - GITEA__cache__ENABLED=true
+      - GITEA__cache__ADAPTER=redis
+      - GITEA__cache__HOST=redis://redis:6379/0?pool_size=100&idle_timeout=180s
+      - GITEA__session__PROVIDER=redis
+      - GITEA__session__PROVIDER_CONFIG=redis://redis:6379/1?pool_size=100&idle_timeout=180s
+      
+      # Server Configuration
+      - GITEA__server__DOMAIN=${GITEA_DOMAIN:-git.local.mosaic}
+      - GITEA__server__SSH_DOMAIN=${GITEA_DOMAIN:-git.local.mosaic}
+      - GITEA__server__ROOT_URL=http://${GITEA_DOMAIN:-git.local.mosaic}:3000/
+      - GITEA__server__SSH_PORT=2222
+      - GITEA__server__SSH_LISTEN_PORT=22
+      - GITEA__server__LFS_START_SERVER=true
+      
+      # Security Configuration
+      - GITEA__security__SECRET_KEY=${GITEA_SECRET_KEY:-ChangeThisToARandomString123456789012345678901234567890}
+      - GITEA__security__INTERNAL_TOKEN=${GITEA_INTERNAL_TOKEN:-ChangeThisToAnotherRandomString1234567890123456789012}
+      
+      # Service Configuration
+      - GITEA__service__DISABLE_REGISTRATION=false
+      - GITEA__service__REQUIRE_SIGNIN_VIEW=false
+      - GITEA__service__ENABLE_NOTIFY_MAIL=false
+      
+      # Webhook Configuration (for GitHub sync)
+      - GITEA__webhook__DELIVER_TIMEOUT=30
+      - GITEA__webhook__SKIP_TLS_VERIFY=false
+      
+      # Repository Configuration
+      - GITEA__repository__DEFAULT_BRANCH=main
+      
+      # Log Configuration
+      - GITEA__log__LEVEL=Info
+      
+    volumes:
+      - gitea-data:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "3000:3000"     # HTTP Web UI
+      - "2222:22"       # SSH Git Access
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Gitea database backup service (optional but recommended)
+  backup:
+    image: postgres:15-alpine
+    container_name: mosaic-backup
+    restart: "no"
+    networks:
+      - mosaic-network
+    depends_on:
+      - postgres
+    environment:
+      - PGPASSWORD=${POSTGRES_PASSWORD:-ChangeThisSecurePassword123!}
+    volumes:
+      - ./backups:/backups
+    entrypoint: |
+      sh -c '
+        while true; do
+          echo "Performing backup at $$(date)"
+          pg_dump -h postgres -U gitea -d gitea > /backups/gitea_backup_$$(date +%Y%m%d_%H%M%S).sql
+          # Keep only last 7 days of backups
+          find /backups -name "gitea_backup_*.sql" -mtime +7 -delete
+          # Sleep for 24 hours
+          sleep 86400
+        done
+      '
+    profiles:
+      - with-backup
