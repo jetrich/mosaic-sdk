@@ -1,15 +1,15 @@
 [submodule "mosaic-mcp"]
 	path = mosaic-mcp
-	url = https://github.com/jetrich/mosaic-mcp
+	url = https://git.mosaicstack.dev/mosaic/mosaic-mcp.git
 [submodule "mosaic"]
 	path = mosaic
-	url = https://github.com/jetrich/mosaic
+	url = https://git.mosaicstack.dev/mosaic/mosaic.git
 [submodule "mosaic-dev"]
 	path = mosaic-dev
-	url = https://github.com/jetrich/mosaic-dev
+	url = https://git.mosaicstack.dev/mosaic/mosaic-dev.git
 [submodule "tony"]
 	path = tony
-	url = https://github.com/jetrich/tony.git
+	url = https://git.mosaicstack.dev/mosaic/tony.git
 [submodule "mosaic-docs"]
 	path = mosaic-docs
-	url = https://github.com/jetrich/mosaic-docs.git
+	url = https://git.mosaicstack.dev/mosaic/mosaic-docs.git
