@@ -1,0 +1,341 @@
+{
+  "schema_version": "1.0.0",
+  "session": {
+    "session_id": "C3D4E5F6-G7H8-9012-3456-789012CDEFGH",
+    "parent_agent_id": "qa-agent",
+    "timestamp": "2025-07-12T12:00:00.000Z",
+    "agent_chain": [
+      {
+        "agent_id": "tech-lead-tony",
+        "start_time": "2025-07-12T10:00:00.000Z",
+        "end_time": "2025-07-12T10:30:00.000Z",
+        "completion_status": "handed_off",
+        "tasks_completed": [
+          "Analyzed project requirements",
+          "Created implementation strategy"
+        ]
+      },
+      {
+        "agent_id": "backend-agent",
+        "start_time": "2025-07-12T10:30:00.000Z",
+        "end_time": "2025-07-12T11:15:00.000Z",
+        "completion_status": "handed_off",
+        "tasks_completed": [
+          "Implemented JWT validation middleware",
+          "Created comprehensive unit tests"
+        ]
+      },
+      {
+        "agent_id": "qa-agent",
+        "start_time": "2025-07-12T11:15:00.000Z",
+        "end_time": "2025-07-12T12:00:00.000Z",
+        "completion_status": "failed",
+        "tasks_completed": [
+          "Executed comprehensive test suite",
+          "Performed security vulnerability scan",
+          "Identified 3 critical security issues",
+          "Generated detailed failure report"
+        ]
+      }
+    ]
+  },
+  "task_context": {
+    "current_task": {
+      "id": "T.001.01.01.01",
+      "title": "Implement JWT token validation middleware",
+      "description": "Create secure JWT token validation middleware with proper error handling and security best practices",
+      "status": "failed",
+      "priority": "critical",
+      "estimated_duration": 1800,
+      "actual_duration": 4200
+    },
+    "task_hierarchy": {
+      "epic": {
+        "id": "E.001",
+        "title": "Security Infrastructure Implementation",
+        "description": "Comprehensive security framework implementation for Tony-NG"
+      },
+      "feature": {
+        "id": "F.001.01",
+        "title": "Authentication & Authorization System"
+      },
+      "story": {
+        "id": "S.001.01.01",
+        "title": "JWT Token Management"
+      },
+      "current_path": [
+        "E.001",
+        "F.001.01",
+        "S.001.01.01",
+        "T.001.01.01.01"
+      ]
+    },
+    "dependencies": {
+      "blocking": [
+        "T.001.01.01.01.01",
+        "T.001.01.01.01.02",
+        "T.001.01.01.01.03"
+      ],
+      "blocked_by": [
+        "T.001.01.01.02",
+        "T.001.01.01.03"
+      ],
+      "related": [
+        "T.001.01.02.01",
+        "T.001.02.01.01"
+      ]
+    },
+    "phase_info": {
+      "current_phase": "phase-1",
+      "phase_status": "failed",
+      "phase_completion_percentage": 60
+    }
+  },
+  "project_state": {
+    "working_directory": "/home/jwoltje/src/tony-ng",
+    "modified_files": [
+      {
+        "path": "backend/src/security/jwt-validation.middleware.ts",
+        "status": "modified",
+        "size_change": 2845,
+        "checksum": "sha256:a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456"
+      },
+      {
+        "path": "test-evidence/jwt-validation-qa-report.md",
+        "status": "created",
+        "size_change": 4521,
+        "checksum": "sha256:e5f6g7h8i9j0123456789012345678901234def567890123def45678901234"
+      },
+      {
+        "path": "logs/security-scan-results.json",
+        "status": "created",
+        "size_change": 8734,
+        "checksum": "sha256:f6g7h8i9j0k1234567890123456789012345ef6789012345f567890123456"
+      }
+    ],
+    "git_status": {
+      "branch": "feature/security-implementation",
+      "commit_hash": "441e5ca7b2d1f3e8a9c4d5e6f7g8h9i0j1k2l3m4",
+      "is_clean": false,
+      "staged_files": [],
+      "unstaged_files": [
+        "backend/src/security/jwt-validation.middleware.ts",
+        "test-evidence/jwt-validation-qa-report.md",
+        "logs/security-scan-results.json"
+      ],
+      "untracked_files": [
+        "test-evidence/jwt-validation-qa-report.md",
+        "logs/security-scan-results.json"
+      ]
+    },
+    "environment": {
+      "node_version": "v18.17.0",
+      "npm_version": "9.6.7",
+      "os": "Linux 6.1.0-37-amd64",
+      "shell": "/bin/bash",
+      "docker_available": true
+    },
+    "build_status": {
+      "last_build_time": "2025-07-12T11:58:00.000Z",
+      "build_success": false,
+      "build_errors": [
+        "TypeError: Cannot read property 'verify' of undefined at JwtValidationMiddleware.validateToken",
+        "SecurityError: JWT secret exposure detected in error logs"
+      ]
+    }
+  },
+  "execution_context": {
+    "model_selection": {
+      "current_model": "sonnet",
+      "reason": "Security remediation requires careful analysis suitable for Sonnet",
+      "complexity_level": "complex"
+    },
+    "tool_authorizations": [
+      "Read",
+      "Edit",
+      "MultiEdit",
+      "Write",
+      "Bash",
+      "Grep",
+      "Glob",
+      "TodoWrite"
+    ],
+    "constraints": {
+      "timeout_minutes": 45,
+      "max_files_to_modify": 8,
+      "forbidden_operations": [
+        "git_push",
+        "npm_publish",
+        "docker_production"
+      ],
+      "required_validations": [
+        "build_success",
+        "tests_pass",
+        "lint_clean",
+        "security_scan"
+      ]
+    },
+    "resource_limits": {
+      "max_concurrent_operations": 3,
+      "memory_limit_mb": 2048,
+      "disk_space_limit_mb": 1024
+    }
+  },
+  "handoff_instructions": {
+    "next_agent_type": "security-agent",
+    "continuation_point": "Address critical security vulnerabilities found in JWT validation middleware",
+    "success_criteria": [
+      {
+        "criterion": "Fix JWT secret exposure in error handling",
+        "validation_method": "security_scan",
+        "target_value": "Zero secret exposures detected",
+        "priority": "required"
+      },
+      {
+        "criterion": "Resolve undefined JWT verification error",
+        "validation_method": "automated_test",
+        "target_value": "All JWT validation tests pass",
+        "priority": "required"
+      },
+      {
+        "criterion": "Implement proper error sanitization",
+        "validation_method": "manual_verification",
+        "target_value": "No sensitive data in error responses",
+        "priority": "required"
+      },
+      {
+        "criterion": "Add missing null checks and error boundaries",
+        "validation_method": "automated_test",
+        "target_value": "100% error path coverage",
+        "priority": "required"
+      },
+      {
+        "criterion": "Security scan passes with zero critical issues",
+        "validation_method": "automated_test",
+        "target_value": "Clean security scan report",
+        "priority": "required"
+      },
+      {
+        "criterion": "Performance regression tests pass",
+        "validation_method": "automated_test",
+        "target_value": "Response time <100ms maintained",
+        "priority": "preferred"
+      }
+    ],
+    "context_files": [
+      {
+        "path": "test-evidence/jwt-validation-qa-report.md",
+        "purpose": "Detailed QA findings and failure analysis",
+        "sections": ["security issues", "test failures", "recommendations"]
+      },
+      {
+        "path": "logs/security-scan-results.json",
+        "purpose": "Security vulnerability scan detailed results",
+        "sections": ["critical issues", "vulnerability details", "remediation steps"]
+      },
+      {
+        "path": "backend/src/security/jwt-validation.middleware.ts",
+        "purpose": "Code requiring security fixes",
+        "sections": ["error handling", "JWT verification", "secret management"]
+      },
+      {
+        "path": "docs/security/remediation-procedures.md",
+        "purpose": "Security remediation guidelines and procedures"
+      }
+    ],
+    "warnings": [
+      {
+        "type": "security",
+        "message": "CRITICAL: JWT secrets are being exposed in error logs - immediate remediation required",
+        "severity": "critical"
+      },
+      {
+        "type": "security", 
+        "message": "Undefined JWT verification indicates missing dependency injection or configuration",
+        "severity": "critical"
+      },
+      {
+        "type": "security",
+        "message": "Error handling is not sanitizing sensitive information before logging",
+        "severity": "high"
+      },
+      {
+        "type": "performance",
+        "message": "Security fixes should not impact response time performance requirements",
+        "severity": "medium"
+      }
+    ]
+  },
+  "evidence_tracking": {
+    "test_results": {
+      "unit_tests": {
+        "total": 24,
+        "passed": 18,
+        "failed": 6,
+        "coverage_percentage": 85,
+        "last_run": "2025-07-12T11:55:00.000Z"
+      },
+      "integration_tests": {
+        "total": 8,
+        "passed": 5,
+        "failed": 3,
+        "last_run": "2025-07-12T11:56:00.000Z"
+      },
+      "security_tests": {
+        "vulnerabilities_found": 3,
+        "critical_issues": 3,
+        "last_scan": "2025-07-12T11:57:00.000Z"
+      }
+    },
+    "coverage_metrics": {
+      "line_coverage": 85,
+      "branch_coverage": 78,
+      "function_coverage": 90,
+      "statement_coverage": 83
+    },
+    "validation_status": {
+      "overall_status": "failed",
+      "build_status": "failed",
+      "lint_status": "warnings",
+      "type_check_status": "errors",
+      "security_scan_status": "vulnerabilities",
+      "last_validation": "2025-07-12T11:58:30.000Z"
+    },
+    "artifacts": [
+      {
+        "type": "report",
+        "path": "test-evidence/jwt-validation-qa-report.md",
+        "size_bytes": 4521,
+        "created_at": "2025-07-12T11:59:00.000Z"
+      },
+      {
+        "type": "log",
+        "path": "logs/security-scan-results.json",
+        "size_bytes": 8734,
+        "created_at": "2025-07-12T11:57:30.000Z"
+      },
+      {
+        "type": "test_results",
+        "path": "test-evidence/failed-test-output.log",
+        "size_bytes": 12456,
+        "created_at": "2025-07-12T11:56:45.000Z"
+      }
+    ]
+  },
+  "metadata": {
+    "context_size_bytes": 6789,
+    "token_count_estimate": 3421,
+    "created_by": "qa-agent",
+    "validated": true,
+    "validation_errors": [],
+    "tags": [
+      "security",
+      "jwt",
+      "middleware",
+      "failed-qa",
+      "critical-issues",
+      "security-remediation-required",
+      "qa-handoff"
+    ]
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "schema_version": "1.0.0",
+  "session": {
+    "session_id": "TEST1234-5678-90AB-CDEF-1234567890AB",
+    "parent_agent_id": "test-coordinator",
+    "timestamp": "2025-07-12T15:30:00.000Z",
+    "agent_chain": [
+      {
+        "agent_id": "test-coordinator",
+        "start_time": "2025-07-12T15:30:00.000Z",
+        "completion_status": "handed_off",
+        "tasks_completed": [
+          "Created test environment",
+          "Installed Tony framework",
+          "Generated PRD.md",
+          "Prepared initial context"
+        ]
+      }
+    ]
+  },
+  "task_context": {
+    "current_task": {
+      "id": "E.001",
+      "title": "Analyze PRD and Create Implementation Plan",
+      "description": "Review the TaskMaster PRD and create a comprehensive implementation plan using the Tony Framework and UPP methodology",
+      "status": "pending",
+      "priority": "high",
+      "estimated_duration": 1800
+    },
+    "task_hierarchy": {
+      "epic": {
+        "id": "E.001",
+        "title": "TaskMaster Application Development",
+        "description": "Full implementation of TaskMaster application per PRD"
+      },
+      "current_path": ["E.001"]
+    },
+    "phase_info": {
+      "current_phase": "phase-1",
+      "phase_status": "planning",
+      "phase_completion_percentage": 0
+    }
+  },
+  "project_state": {
+    "working_directory": "/home/jwoltje/src/tony-ng/junk/test-autonomous-tony",
+    "modified_files": [
+      {
+        "path": "PRD.md",
+        "status": "created"
+      }
+    ],
+    "git_status": {
+      "branch": "main",
+      "is_clean": false,
+      "unstaged_files": ["initial-context.json"]
+    }
+  },
+  "execution_context": {
+    "model_selection": {
+      "current_model": "opus",
+      "reason": "Complex planning and architecture task requiring deep analysis",
+      "complexity_level": "architectural"
+    },
+    "tool_authorizations": ["Bash", "Read", "Write", "Edit", "Grep", "Glob", "LS", "TodoWrite", "Task"],
+    "constraints": {
+      "timeout_minutes": 30,
+      "max_files_to_modify": 50,
+      "forbidden_operations": ["git_push", "npm_publish"],
+      "required_validations": ["build_success", "tests_pass", "lint_clean"]
+    }
+  },
+  "handoff_instructions": {
+    "next_agent_type": "tech-lead-tony",
+    "continuation_point": "Analyze PRD.md and create a comprehensive implementation plan using UPP methodology. Break down the TaskMaster application into EPICs, Features, Stories, Tasks, and Atomic tasks. Generate task decomposition and prepare agent deployment commands.",
+    "success_criteria": [
+      {
+        "criterion": "Complete UPP decomposition created",
+        "validation_method": "manual_verification",
+        "priority": "required"
+      },
+      {
+        "criterion": "Agent deployment plan prepared",
+        "validation_method": "manual_verification",
+        "priority": "required"
+      },
+      {
+        "criterion": "Context handoffs configured",
+        "validation_method": "automated_test",
+        "priority": "required"
+      }
+    ],
+    "context_files": [
+      {
+        "path": "PRD.md",
+        "purpose": "Product requirements to analyze and implement"
+      },
+      {
+        "path": "framework/TONY-CORE.md",
+        "purpose": "Tony framework coordination guidelines"
+      },
+      {
+        "path": "framework/AGENT-HANDOFF-PROTOCOL.md",
+        "purpose": "Autonomous handoff protocol to follow"
+      }
+    ],
+    "warnings": []
+  },
+  "evidence_tracking": {
+    "validation_status": {
+      "overall_status": "not_validated",
+      "build_status": "not_attempted",
+      "lint_status": "not_run",
+      "type_check_status": "not_run",
+      "security_scan_status": "not_run"
+    },
+    "artifacts": []
+  }
+}

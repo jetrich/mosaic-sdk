@@ -1,0 +1,75 @@
+{
+  "name": "@tony/testing-framework",
+  "version": "1.0.0",
+  "description": "Complete testing infrastructure and SDK development tools testing for Tony Development SDK",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "npm run test:all",
+    "test:all": "npm run test:core && npm run test:development-tools && npm run test:migration-tools && npm run test:task-management && npm run test:testing-framework",
+    "test:unit": "vitest run --config vitest.config.ts --reporter=verbose",
+    "test:integration": "vitest run --config vitest.config.ts --reporter=verbose",
+    "test:performance": "vitest run --config vitest.config.ts --reporter=verbose --testTimeout=30000",
+    "test:core": "vitest run core-tests --reporter=verbose",
+    "test:development-tools": "vitest run development-tools-tests --reporter=verbose",
+    "test:migration-tools": "vitest run migration-tools-tests --reporter=verbose",
+    "test:task-management": "vitest run task-management-tests --reporter=verbose",
+    "test:testing-framework": "vitest run testing-framework-tests --reporter=verbose",
+    "test:watch": "vitest --watch",
+    "test:ui": "vitest --ui",
+    "test:debug": "vitest run --reporter=verbose --no-coverage",
+    "test:ci": "vitest run --coverage --reporter=verbose --passWithNoTests=false",
+    "coverage": "vitest run --coverage",
+    "coverage:open": "vitest run --coverage && open coverage/index.html",
+    "coverage:check": "vitest run --coverage --reporter=verbose --passWithNoTests=false",
+    "coverage:detailed": "vitest run --coverage --reporter=detailed",
+    "coverage:uncovered": "vitest run --coverage --reporter=verbose --show-uncovered",
+    "coverage:threshold": "vitest run --coverage --reporter=verbose --coverage.thresholds.global.branches=95 --coverage.thresholds.global.functions=95 --coverage.thresholds.global.lines=95 --coverage.thresholds.global.statements=95",
+    "quality:check": "npm run lint && npm run type-check && npm run test:ci",
+    "quality:fix": "npm run lint:fix && npm run test",
+    "setup": "npm install && npm run verify",
+    "verify": "npm run quality:check",
+    "verify:fast": "npm run test:core && npm run test:testing-framework",
+    "clean": "rimraf coverage dist node_modules/.cache",
+    "clean:all": "npm run clean && rimraf node_modules",
+    "lint": "eslint . --ext .ts,.js",
+    "lint:fix": "eslint . --ext .ts,.js --fix",
+    "type-check": "tsc --noEmit",
+    "docs:test": "echo 'Test documentation generated in TEST-STRUCTURE.md'"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "@vitest/coverage-v8": "^1.0.0",
+    "@vitest/ui": "^1.0.0",
+    "eslint": "^8.0.0",
+    "happy-dom": "^12.0.0",
+    "jest": "^29.0.0",
+    "jsdom": "^23.0.0",
+    "rimraf": "^5.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0"
+  },
+  "dependencies": {},
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "config": {
+    "coverage-threshold": {
+      "global": {
+        "branches": 95,
+        "functions": 95,
+        "lines": 95,
+        "statements": 95
+      }
+    },
+    "test-timeout": 30000,
+    "performance-threshold": {
+      "framework-load": 1000,
+      "plugin-load": 500,
+      "agent-spawn": 2000
+    }
+  }
+}

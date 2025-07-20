@@ -1,0 +1,17 @@
+{
+  "task_id": "",
+  "title": "",
+  "description": "",
+  "objective": "",
+  "success_criteria": [],
+  "duration_estimate_minutes": 30,
+  "complexity": "atomic",
+  "files_affected": [],
+  "testing_requirements": [],
+  "created_at": "",
+  "created_by": "tony-framework",
+  "parent_task": null,
+  "child_tasks": [],
+  "tags": [],
+  "notes": ""
+}

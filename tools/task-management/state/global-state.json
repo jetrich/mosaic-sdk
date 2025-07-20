@@ -1,0 +1,25 @@
+{
+  "framework_version": "2.1.0",
+  "deployment_timestamp": "2025-07-01T01:50:07Z",
+  "active_projects": {
+    "": {
+      "path": "",
+      "registered_at": "2025-07-01T02:21:55Z",
+      "status": "active",
+      "last_activity": "2025-07-01T02:21:55Z"
+    }
+  },
+  "global_agents": {},
+  "coordination_status": {
+    "total_active_tasks": 0,
+    "total_agents": 0,
+    "system_health": "healthy"
+  },
+  "integration_points": {
+    "athms_enabled": true,
+    "agent_bridge_enabled": true,
+    "cicd_integration": true,
+    "monitoring_enabled": false
+  },
+  "last_updated": "2025-07-01T02:21:55Z"
+}

@@ -1,0 +1,50 @@
+#!/bin/bash
+# Mock Tony executable for testing
+
+case "$1" in
+    "--version")
+        echo "Tony Framework v2.6.0-test"
+        exit 0
+        ;;
+    "--help")
+        echo "Usage: tony [options] <command>"
+        echo "Options:"
+        echo "  --version     Show version"
+        echo "  --help        Show help"
+        echo "  --context     Context file"
+        echo "  --project     Project path"
+        echo "  --environment Environment file"
+        echo "Commands:"
+        echo "  test          Run tests"
+        echo "  build         Build project"
+        echo "  deploy        Deploy project"
+        exit 0
+        ;;
+    "--context")
+        if [ -f "$2" ]; then
+            echo "Mock execution with context: $2"
+            echo "Command: $3"
+            echo "Args: ${@:4}"
+            exit 0
+        else
+            echo "Context file not found: $2"
+            exit 1
+        fi
+        ;;
+    "test")
+        echo "Mock test execution successful"
+        exit 0
+        ;;
+    "build")
+        echo "Mock build execution successful"
+        exit 0
+        ;;
+    "fail")
+        echo "Mock command failure"
+        exit 1
+        ;;
+    *)
+        echo "Unknown command: $1"
+        exit 127
+        ;;
+esac

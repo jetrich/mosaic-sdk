@@ -1,0 +1,129 @@
+{
+  "schema_version": "1.0.0",
+  "session": {
+    "session_id": "TEST1234-5678-90AB-CDEF-1234567890AB",
+    "parent_agent_id": "backend-developer-agent",
+    "timestamp": "2025-07-12T16:00:00.000Z",
+    "agent_chain": [
+      {
+        "agent_id": "test-coordinator",
+        "start_time": "2025-07-12T15:30:00.000Z",
+        "end_time": "2025-07-12T15:35:00.000Z",
+        "completion_status": "completed",
+        "tasks_completed": [
+          "Created test environment",
+          "Installed Tony framework",
+          "Generated PRD.md",
+          "Prepared initial context"
+        ]
+      },
+      {
+        "agent_id": "tech-lead-tony",
+        "start_time": "2025-07-12T15:35:00.000Z",
+        "end_time": "2025-07-12T15:45:00.000Z",
+        "completion_status": "completed",
+        "tasks_completed": [
+          "Analyzed PRD requirements",
+          "Created UPP task breakdown",
+          "Generated E.001-TASKMASTER-BREAKDOWN.md",
+          "Prepared atomic task for implementation",
+          "Created handoff context for backend-developer-agent"
+        ]
+      },
+      {
+        "agent_id": "backend-developer-agent",
+        "start_time": "2025-07-12T15:50:00.000Z",
+        "end_time": "2025-07-12T16:00:00.000Z",
+        "completion_status": "completed",
+        "tasks_completed": [
+          "Implemented database connection module",
+          "Created src/database/connection.js",
+          "Added error handling and WAL mode",
+          "Documented module with JSDoc"
+        ]
+      }
+    ]
+  },
+  "task_context": {
+    "current_task": {
+      "id": "A.001.01.01.01.01.01",
+      "title": "Validate Database Connection Module",
+      "description": "QA validation of the implemented database connection module",
+      "status": "pending",
+      "priority": "high"
+    },
+    "task_hierarchy": {
+      "epic": {
+        "id": "E.001",
+        "title": "TaskMaster MVP Implementation"
+      },
+      "feature": {
+        "id": "F.001.01",
+        "title": "User Authentication System"
+      },
+      "current_path": ["E.001", "F.001.01", "S.001.01.01", "T.001.01.01.01", "ST.001.01.01.01.01", "A.001.01.01.01.01.01"]
+    },
+    "phase_info": {
+      "current_phase": "phase-1",
+      "phase_status": "in_progress"
+    }
+  },
+  "project_state": {
+    "working_directory": "/home/jwoltje/src/tony-ng/junk/test-autonomous-tony",
+    "modified_files": [
+      {
+        "path": "src/database/connection.js",
+        "status": "created"
+      },
+      {
+        "path": "package.json",
+        "status": "modified"
+      }
+    ],
+    "git_status": {
+      "branch": "main",
+      "is_clean": false
+    }
+  },
+  "execution_context": {
+    "model_selection": {
+      "current_model": "sonnet",
+      "reason": "Standard QA validation task"
+    },
+    "tool_authorizations": ["Bash", "Read", "Write", "Edit", "Grep"],
+    "constraints": {
+      "required_validations": ["code_review", "test_creation", "functionality_check"]
+    }
+  },
+  "handoff_instructions": {
+    "next_agent_type": "qa-agent",
+    "continuation_point": "Validate the database connection module implementation. Check code quality, create unit tests, verify functionality meets requirements.",
+    "success_criteria": [
+      {
+        "criterion": "Code follows Google JavaScript Style Guide",
+        "validation_method": "manual_verification",
+        "priority": "required"
+      },
+      {
+        "criterion": "Unit tests created and passing",
+        "validation_method": "automated_test",
+        "priority": "required"
+      },
+      {
+        "criterion": "Module meets PRD requirements",
+        "validation_method": "manual_verification",
+        "priority": "required"
+      }
+    ],
+    "context_files": [
+      {
+        "path": "src/database/connection.js",
+        "purpose": "Implementation to validate"
+      },
+      {
+        "path": "implementation-handoff.json",
+        "purpose": "Original requirements and context"
+      }
+    ]
+  }
+}

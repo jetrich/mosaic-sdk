@@ -1,0 +1,41 @@
+{
+  "report_type": "comprehensive_compliance",
+  "report_id": "COMP-20250630-211004",
+  "generated_at": "2025-07-01T02:10:04Z",
+  "compliance_standards": {
+    "soc2": {
+      "status": "compliant_with_exceptions",
+      "score": 98.6,
+      "last_assessment": "2025-07-01T02:10:04Z"
+    },
+    "pci_dss": {
+      "status": "compliant",
+      "score": 100,
+      "last_assessment": "2025-07-01T02:10:04Z"
+    },
+    "gdpr": {
+      "status": "compliant",
+      "score": 95.2,
+      "last_assessment": "2025-07-01T02:10:04Z"
+    },
+    "iso27001": {
+      "status": "in_progress",
+      "score": 87.3,
+      "last_assessment": "2025-07-01T02:10:04Z"
+    }
+  },
+  "overall_compliance_score": 95.3,
+  "risk_assessment": {
+    "high_risk_findings": 0,
+    "medium_risk_findings": 2,
+    "low_risk_findings": 5,
+    "total_findings": 7
+  },
+  "recommendations": [
+    "Implement multi-factor authentication for all administrative accounts",
+    "Enhance data encryption for sensitive customer information",
+    "Establish formal incident response procedures",
+    "Conduct regular security awareness training",
+    "Implement automated vulnerability scanning"
+  ]
+}

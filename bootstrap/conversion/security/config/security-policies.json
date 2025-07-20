@@ -1,0 +1,54 @@
+{
+  "access_policies": {
+    "admin_role": {
+      "permissions": ["read", "write", "delete", "admin"],
+      "resources": ["*"],
+      "conditions": ["mfa_required", "ip_whitelist"]
+    },
+    "developer_role": {
+      "permissions": ["read", "write"],
+      "resources": ["code/*", "docs/*", "tests/*"],
+      "conditions": ["working_hours", "secure_connection"]
+    },
+    "agent_role": {
+      "permissions": ["read", "execute"],
+      "resources": ["tasks/*", "logs/read/*"],
+      "conditions": ["authenticated", "rate_limited"]
+    },
+    "readonly_role": {
+      "permissions": ["read"],
+      "resources": ["docs/*", "reports/*"],
+      "conditions": ["authenticated"]
+    }
+  },
+  "network_policies": {
+    "allowed_ips": ["127.0.0.1", "10.0.0.0/8", "192.168.0.0/16"],
+    "blocked_ips": [],
+    "rate_limits": {
+      "api_calls_per_minute": 1000,
+      "login_attempts_per_hour": 10,
+      "file_uploads_per_hour": 100
+    }
+  },
+  "data_classification": {
+    "public": {
+      "encryption": false,
+      "access_logging": false
+    },
+    "internal": {
+      "encryption": true,
+      "access_logging": true
+    },
+    "confidential": {
+      "encryption": true,
+      "access_logging": true,
+      "approval_required": true
+    },
+    "restricted": {
+      "encryption": true,
+      "access_logging": true,
+      "approval_required": true,
+      "audit_trail": true
+    }
+  }
+}
