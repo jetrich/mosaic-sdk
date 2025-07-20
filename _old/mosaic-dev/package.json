@@ -1,0 +1,124 @@
+{
+  "name": "@tony/dev-sdk",
+  "version": "1.0.0",
+  "description": "Tony Framework Development SDK - Complete development environment for Tony Framework contributors",
+  "type": "module",
+  "private": true,
+  "main": "./sdk/index.js",
+  "scripts": {
+    "dev": "npm run dev:tools",
+    "build": "npm run build:tools",
+    "test": "npm run test:all",
+    "lint": "npm run lint:tools",
+    
+    "sdk:install": "npm run install:dev-tools && npm run install:testing && npm run install:migration",
+    "sdk:setup": "npm run setup:dev-tools && npm run setup:testing && npm run setup:migration",
+    "sdk:verify": "npm run verify:dev-tools && npm run verify:testing && npm run verify:migration",
+    "sdk:clean": "npm run clean:dev-tools && npm run clean:testing && npm run clean:migration",
+    "sdk:update": "npm run update:dev-tools && npm run update:testing && npm run update:migration",
+    
+    "dev:tools": "cd sdk/development-tools && npm run dev",
+    "build:tools": "cd sdk/development-tools && npm run build",
+    
+    "test:all": "npm run test:unit && npm run test:integration && npm run test:performance",
+    "test:unit": "cd sdk/testing-framework && npm run test:unit",
+    "test:integration": "cd sdk/testing-framework && npm run test:integration", 
+    "test:performance": "cd sdk/testing-framework && npm run test:performance",
+    "coverage": "cd sdk/testing-framework && npm run coverage",
+    
+    "lint:tools": "cd sdk/development-tools && npm run lint",
+    "lint:fix": "npm run lint:tools -- --fix",
+    
+    "type-check": "npm run type-check:tools",
+    "type-check:tools": "cd sdk/development-tools && npm run type-check",
+    
+    "quality:check": "npm run lint && npm run type-check && npm run test",
+    "security:check": "npm audit --audit-level=high || echo 'Security audit completed with warnings'",
+    "format": "prettier --write '**/*.{ts,js,json,md}'",
+    
+    "release:prepare": "cd releases && npm run prepare",
+    "release:package": "cd releases && npm run package",
+    "release:deploy": "cd releases && npm run deploy",
+    
+    "migrate:prepare": "cd sdk/migration-tools && npm run prepare",
+    "migrate:execute": "cd sdk/migration-tools && npm run execute",
+    "migrate:validate": "cd sdk/migration-tools && npm run validate",
+    "migrate:rollback": "cd sdk/migration-tools && npm run rollback",
+    
+    "setup:dev-tools": "cd sdk/development-tools && npm install && npm run setup",
+    "setup:testing": "cd sdk/testing-framework && npm install && npm run setup",
+    "setup:migration": "cd sdk/migration-tools && npm install && npm run setup",
+    
+    "install:dev-tools": "cd sdk/development-tools && npm install",
+    "install:testing": "cd sdk/testing-framework && npm install", 
+    "install:migration": "cd sdk/migration-tools && npm install",
+    
+    "verify:dev-tools": "cd sdk/development-tools && npm run verify",
+    "verify:testing": "cd sdk/testing-framework && npm run verify",
+    "verify:migration": "cd sdk/migration-tools && npm run verify",
+    
+    "clean:dev-tools": "cd sdk/development-tools && npm run clean",
+    "clean:testing": "cd sdk/testing-framework && npm run clean",
+    "clean:migration": "cd sdk/migration-tools && npm run clean",
+    
+    "update:dev-tools": "cd sdk/development-tools && npm update",
+    "update:testing": "cd sdk/testing-framework && npm update",
+    "update:migration": "cd sdk/migration-tools && npm update"
+  },
+  "keywords": [
+    "tony",
+    "framework", 
+    "development",
+    "sdk",
+    "ai",
+    "orchestration",
+    "testing",
+    "migration",
+    "tools"
+  ],
+  "author": "Tony Framework Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0", 
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0",
+    "concurrently": "^8.0.0",
+    "rimraf": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jetrich/tony-dev.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jetrich/tony-dev/issues"
+  },
+  "homepage": "https://github.com/jetrich/tony-dev#readme",
+  "workspaces": [
+    "sdk/development-tools",
+    "sdk/testing-framework", 
+    "sdk/migration-tools"
+  ],
+  "config": {
+    "tony-dev": {
+      "version": "1.0.0",
+      "framework-version": "2.6.0",
+      "supported-versions": ["2.5.x", "2.6.x"],
+      "test-coverage-threshold": 95,
+      "quality-gates": {
+        "typescript": true,
+        "eslint": true,
+        "prettier": true,
+        "tests": true,
+        "coverage": true
+      }
+    }
+  }
+}

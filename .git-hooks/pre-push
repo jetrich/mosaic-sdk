@@ -1,0 +1,103 @@
+#!/bin/bash
+# MosAIc SDK Pre-push Hook
+# Final checks before pushing to remote repository
+
+set -e
+
+echo "🚀 Running pre-push checks..."
+
+remote="$1"
+url="$2"
+
+# Check if pushing to protected branch
+protected_branches="main master release"
+current_branch=$(git symbolic-ref HEAD | sed 's!refs/heads/!!')
+
+for protected in $protected_branches; do
+    if [ "$current_branch" = "$protected" ]; then
+        echo "⚠️  Warning: Pushing directly to protected branch '$protected'"
+        echo "Are you sure? This should typically be done via pull request. (y/n)"
+        read -r response
+        if [ "$response" != "y" ]; then
+            exit 1
+        fi
+    fi
+done
+
+# Run tests
+if [ -f "package.json" ] && grep -q "\"test\":" package.json; then
+    echo "Running tests..."
+    npm test || {
+        echo "❌ Error: Tests failed. Fix failing tests before pushing."
+        exit 1
+    }
+fi
+
+# Check for uncommitted changes
+if ! git diff-index --quiet HEAD --; then
+    echo "⚠️  Warning: You have uncommitted changes:"
+    git status --short
+    echo "Continue pushing? (y/n)"
+    read -r response
+    if [ "$response" != "y" ]; then
+        exit 1
+    fi
+fi
+
+# Check for untracked files
+if [ -n "$(git ls-files --others --exclude-standard)" ]; then
+    echo "ℹ️  Info: Untracked files present:"
+    git ls-files --others --exclude-standard
+fi
+
+# Verify submodules are pushed
+if [ -f ".gitmodules" ]; then
+    echo "Checking submodules..."
+    git submodule foreach '
+        if [ -n "$(git rev-list @{u}..HEAD)" ]; then
+            echo "⚠️  Warning: Submodule $name has unpushed commits"
+            exit 1
+        fi
+    ' || {
+        echo "Push submodule changes first, then push main repository."
+        exit 1
+    }
+fi
+
+# Check build
+if [ -f "package.json" ] && grep -q "\"build\":" package.json; then
+    echo "Running build..."
+    npm run build:all || {
+        echo "❌ Error: Build failed. Fix build errors before pushing."
+        exit 1
+    }
+fi
+
+# Security check
+if [ -f "package.json" ]; then
+    echo "Running security audit..."
+    npm audit --production --audit-level=high || {
+        echo "⚠️  Warning: Security vulnerabilities found."
+        echo "Continue anyway? (y/n)"
+        read -r response
+        if [ "$response" != "y" ]; then
+            exit 1
+        fi
+    }
+fi
+
+# Check for large files
+echo "Checking for large files..."
+while read -r line; do
+    sha=$(echo "$line" | awk '{print $4}')
+    size=$(git cat-file -s "$sha")
+    if [ "$size" -gt 52428800 ]; then  # 50MB
+        file=$(git rev-list --objects --all | grep "$sha" | cut -d' ' -f2)
+        echo "❌ Error: Large file detected: $file ($(($size / 1048576))MB)"
+        echo "Use Git LFS for files larger than 50MB"
+        exit 1
+    fi
+done < <(git rev-list --objects --all | git cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)')
+
+echo "✅ All pre-push checks passed!"
+echo "Pushing to $remote..."

@@ -1,0 +1,466 @@
+name: PR Quality Gates
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  pr-validation:
+    name: PR Validation
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check PR title
+        run: |
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          echo "PR Title: $PR_TITLE"
+          
+          # Check if PR title follows conventional commits format
+          if [[ ! "$PR_TITLE" =~ ^(feat|fix|docs|style|refactor|test|chore|ci|perf|build|revert)(\(.+\))?\!?:\ .+ ]]; then
+            echo "❌ PR title does not follow conventional commits format"
+            echo "Expected format: type(scope): description"
+            echo "Types: feat, fix, docs, style, refactor, test, chore, ci, perf, build, revert"
+            exit 1
+          fi
+          
+          echo "✅ PR title follows conventional commits format"
+
+      - name: Check PR description
+        run: |
+          PR_BODY="${{ github.event.pull_request.body }}"
+          
+          if [ -z "$PR_BODY" ]; then
+            echo "❌ PR description is empty"
+            echo "Please provide a description of your changes"
+            exit 1
+          fi
+          
+          # Check for required sections
+          if [[ ! "$PR_BODY" =~ "## Changes" ]] && [[ ! "$PR_BODY" =~ "## What" ]]; then
+            echo "⚠️ PR description missing 'Changes' or 'What' section"
+          fi
+          
+          if [[ ! "$PR_BODY" =~ "## Testing" ]] && [[ ! "$PR_BODY" =~ "## Test" ]]; then
+            echo "⚠️ PR description missing 'Testing' or 'Test' section"
+          fi
+          
+          echo "✅ PR description provided"
+
+      - name: Check for breaking changes
+        run: |
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          PR_BODY="${{ github.event.pull_request.body }}"
+          
+          # Check for breaking change indicators
+          if [[ "$PR_TITLE" =~ "!" ]] || [[ "$PR_BODY" =~ "BREAKING CHANGE" ]]; then
+            echo "⚠️ Breaking change detected"
+            echo "Make sure to update documentation and migration guides"
+            
+            # Check if major version bump is indicated
+            if [[ ! "$PR_BODY" =~ "major version" ]]; then
+              echo "Consider mentioning major version bump in description"
+            fi
+          fi
+
+  code-quality:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+
+      - name: Install dependencies
+        run: npm run install:all
+
+      - name: Run ESLint
+        run: |
+          echo "Running ESLint checks..."
+          npm run lint 2>&1 | tee lint-results.txt
+          
+          # Check if there are any linting errors
+          if grep -q "error" lint-results.txt; then
+            echo "❌ ESLint errors found"
+            exit 1
+          elif grep -q "warning" lint-results.txt; then
+            echo "⚠️ ESLint warnings found"
+            # Don't fail on warnings, but report them
+          else
+            echo "✅ No ESLint issues found"
+          fi
+
+      - name: Check code formatting
+        run: |
+          echo "Checking code formatting..."
+          npm run format -- --check
+          
+          if [ $? -eq 0 ]; then
+            echo "✅ Code is properly formatted"
+          else
+            echo "❌ Code formatting issues found"
+            echo "Run 'npm run format' to fix formatting issues"
+            exit 1
+          fi
+
+      - name: TypeScript type checking
+        run: |
+          echo "Running TypeScript type checks..."
+          
+          # Check backend
+          cd backend
+          npx tsc --noEmit --skipLibCheck
+          if [ $? -eq 0 ]; then
+            echo "✅ Backend TypeScript types are valid"
+          else
+            echo "❌ Backend TypeScript type errors found"
+            exit 1
+          fi
+          
+          # Check frontend
+          cd ../frontend
+          npx tsc --noEmit --skipLibCheck
+          if [ $? -eq 0 ]; then
+            echo "✅ Frontend TypeScript types are valid"
+          else
+            echo "❌ Frontend TypeScript type errors found"
+            exit 1
+          fi
+
+      - name: Check for TODO/FIXME comments
+        run: |
+          echo "Checking for TODO/FIXME comments..."
+          
+          # Find TODO/FIXME comments in code
+          TODO_COUNT=$(grep -r "TODO\|FIXME\|XXX\|HACK" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" src/ || echo "0")
+          
+          if [ "$TODO_COUNT" != "0" ]; then
+            echo "⚠️ Found TODO/FIXME comments:"
+            echo "$TODO_COUNT"
+            echo "Consider addressing these before merging"
+          else
+            echo "✅ No TODO/FIXME comments found"
+          fi
+
+      - name: Check file sizes
+        run: |
+          echo "Checking file sizes..."
+          
+          # Find large files (>500KB)
+          LARGE_FILES=$(find . -type f -size +500k -not -path "./node_modules/*" -not -path "./.git/*" -not -path "./coverage/*" -not -path "./dist/*" -not -path "./build/*" || echo "")
+          
+          if [ ! -z "$LARGE_FILES" ]; then
+            echo "⚠️ Large files detected:"
+            echo "$LARGE_FILES"
+            echo "Consider optimizing or moving large files"
+          else
+            echo "✅ No large files detected"
+          fi
+
+  dependency-audit:
+    name: Dependency Audit
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run security audit
+        run: |
+          echo "Running npm audit..."
+          npm audit --audit-level=moderate --json > audit-results.json || true
+          
+          # Parse audit results
+          CRITICAL=$(jq '.metadata.vulnerabilities.critical // 0' audit-results.json)
+          HIGH=$(jq '.metadata.vulnerabilities.high // 0' audit-results.json)
+          MODERATE=$(jq '.metadata.vulnerabilities.moderate // 0' audit-results.json)
+          
+          echo "Security audit results:"
+          echo "- Critical: $CRITICAL"
+          echo "- High: $HIGH"
+          echo "- Moderate: $MODERATE"
+          
+          if [ $CRITICAL -gt 0 ]; then
+            echo "❌ Critical vulnerabilities found"
+            exit 1
+          elif [ $HIGH -gt 0 ]; then
+            echo "⚠️ High vulnerabilities found - consider fixing"
+          else
+            echo "✅ No critical or high vulnerabilities found"
+          fi
+
+      - name: Check for new dependencies
+        run: |
+          echo "Checking for new dependencies..."
+          
+          # Get changed files
+          git diff --name-only origin/main...HEAD | grep -E "package\.json|package-lock\.json" || echo "No dependency changes"
+          
+          # If package.json changed, list new dependencies
+          if git diff --name-only origin/main...HEAD | grep -q "package\.json"; then
+            echo "⚠️ Dependencies have been modified"
+            echo "Make sure new dependencies are necessary and from trusted sources"
+          fi
+
+  test-coverage:
+    name: Test Coverage Check
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+
+      - name: Install dependencies
+        run: npm run install:all
+
+      - name: Run tests with coverage
+        run: |
+          echo "Running tests with coverage..."
+          npm run test:coverage
+
+      - name: Check coverage thresholds
+        run: |
+          echo "Checking coverage thresholds..."
+          
+          # Check backend coverage
+          if [ -f "backend/coverage/coverage-summary.json" ]; then
+            BACKEND_COVERAGE=$(node -e "console.log(JSON.parse(require('fs').readFileSync('backend/coverage/coverage-summary.json')).total.lines.pct)")
+            echo "Backend coverage: ${BACKEND_COVERAGE}%"
+            
+            if (( $(echo "$BACKEND_COVERAGE < 80" | bc -l) )); then
+              echo "❌ Backend coverage ${BACKEND_COVERAGE}% is below 80% threshold"
+              exit 1
+            fi
+          fi
+          
+          # Check frontend coverage
+          if [ -f "frontend/coverage/coverage-summary.json" ]; then
+            FRONTEND_COVERAGE=$(node -e "console.log(JSON.parse(require('fs').readFileSync('frontend/coverage/coverage-summary.json')).total.lines.pct)")
+            echo "Frontend coverage: ${FRONTEND_COVERAGE}%"
+            
+            if (( $(echo "$FRONTEND_COVERAGE < 80" | bc -l) )); then
+              echo "❌ Frontend coverage ${FRONTEND_COVERAGE}% is below 80% threshold"
+              exit 1
+            fi
+          fi
+          
+          echo "✅ Coverage thresholds met"
+
+      - name: Coverage diff
+        run: |
+          echo "Calculating coverage diff..."
+          
+          # This would calculate coverage diff between base and PR
+          # For now, we'll just report current coverage
+          echo "Coverage report generated"
+
+  build-check:
+    name: Build Check
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+
+      - name: Install dependencies
+        run: npm run install:all
+
+      - name: Build applications
+        run: |
+          echo "Building applications..."
+          npm run build
+          
+          # Check if build artifacts exist
+          if [ ! -d "backend/dist" ]; then
+            echo "❌ Backend build failed - dist directory not found"
+            exit 1
+          fi
+          
+          if [ ! -d "frontend/build" ]; then
+            echo "❌ Frontend build failed - build directory not found"
+            exit 1
+          fi
+          
+          echo "✅ Build successful"
+
+      - name: Check bundle size
+        run: |
+          echo "Checking bundle sizes..."
+          
+          # Check frontend bundle size
+          if [ -d "frontend/build/static/js" ]; then
+            BUNDLE_SIZE=$(du -sh frontend/build/static/js/*.js | awk '{print $1}' | head -1)
+            echo "Frontend bundle size: $BUNDLE_SIZE"
+            
+            # Extract numeric size in KB
+            SIZE_KB=$(echo $BUNDLE_SIZE | sed 's/[^0-9]*//g')
+            
+            if [ $SIZE_KB -gt 2000 ]; then
+              echo "⚠️ Frontend bundle size is large: $BUNDLE_SIZE"
+              echo "Consider code splitting or optimization"
+            else
+              echo "✅ Frontend bundle size is acceptable: $BUNDLE_SIZE"
+            fi
+          fi
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Semgrep
+        uses: semgrep/semgrep-action@v1
+        with:
+          config: >-
+            p/security-audit
+            p/secrets
+            p/typescript
+            p/react
+          generateSarif: "1"
+
+      - name: Upload Semgrep results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: semgrep.sarif
+
+      - name: Secret detection
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --debug --only-verified
+
+  pr-summary:
+    name: PR Summary
+    runs-on: ubuntu-latest
+    needs: [pr-validation, code-quality, dependency-audit, test-coverage, build-check, security-scan]
+    if: always()
+    steps:
+      - name: Generate PR summary
+        run: |
+          echo "## PR Quality Gate Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # PR Validation
+          if [ "${{ needs.pr-validation.result }}" == "success" ]; then
+            echo "✅ **PR Validation**: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **PR Validation**: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Code Quality
+          if [ "${{ needs.code-quality.result }}" == "success" ]; then
+            echo "✅ **Code Quality**: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Code Quality**: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Dependency Audit
+          if [ "${{ needs.dependency-audit.result }}" == "success" ]; then
+            echo "✅ **Dependency Audit**: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Dependency Audit**: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Test Coverage
+          if [ "${{ needs.test-coverage.result }}" == "success" ]; then
+            echo "✅ **Test Coverage**: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Test Coverage**: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Build Check
+          if [ "${{ needs.build-check.result }}" == "success" ]; then
+            echo "✅ **Build Check**: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Build Check**: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Security Scan
+          if [ "${{ needs.security-scan.result }}" == "success" ]; then
+            echo "✅ **Security Scan**: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Security Scan**: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          
+          # Overall status
+          PASSED_CHECKS=0
+          TOTAL_CHECKS=6
+          
+          [ "${{ needs.pr-validation.result }}" == "success" ] && PASSED_CHECKS=$((PASSED_CHECKS + 1))
+          [ "${{ needs.code-quality.result }}" == "success" ] && PASSED_CHECKS=$((PASSED_CHECKS + 1))
+          [ "${{ needs.dependency-audit.result }}" == "success" ] && PASSED_CHECKS=$((PASSED_CHECKS + 1))
+          [ "${{ needs.test-coverage.result }}" == "success" ] && PASSED_CHECKS=$((PASSED_CHECKS + 1))
+          [ "${{ needs.build-check.result }}" == "success" ] && PASSED_CHECKS=$((PASSED_CHECKS + 1))
+          [ "${{ needs.security-scan.result }}" == "success" ] && PASSED_CHECKS=$((PASSED_CHECKS + 1))
+          
+          echo "**Overall Status**: $PASSED_CHECKS/$TOTAL_CHECKS checks passed" >> $GITHUB_STEP_SUMMARY
+          
+          if [ $PASSED_CHECKS -eq $TOTAL_CHECKS ]; then
+            echo "🎉 **Ready for merge!**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "🔧 **Needs attention before merge**" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Quality gate check
+        run: |
+          # Check if all critical checks passed
+          if [ "${{ needs.pr-validation.result }}" == "success" ] && 
+             [ "${{ needs.code-quality.result }}" == "success" ] && 
+             [ "${{ needs.test-coverage.result }}" == "success" ] && 
+             [ "${{ needs.build-check.result }}" == "success" ]; then
+            echo "✅ Quality gate: PASSED"
+          else
+            echo "❌ Quality gate: FAILED"
+            echo "Critical checks must pass before merging"
+            exit 1
+          fi

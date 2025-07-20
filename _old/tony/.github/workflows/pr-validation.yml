@@ -1,0 +1,401 @@
+name: Pull Request Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches: [ main, develop ]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  statuses: write
+
+env:
+  NODE_VERSION: '18.x'
+  PYTHON_VERSION: '3.9'
+
+jobs:
+  # PR Metadata Validation
+  pr-validation:
+    name: PR Validation
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Validate PR title
+      id: semantic-check
+      uses: amannn/action-semantic-pull-request@v5
+      continue-on-error: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        types: |
+          feat
+          fix
+          docs
+          style
+          refactor
+          test
+          build
+          ci
+          chore
+          perf
+        scopes: |
+          core
+          planning
+          scripts
+          docs
+          tests
+          ci
+          deps
+        requireScope: false
+        validateSingleCommit: false
+        ignoreLabels: |
+          ignore-semantic-pull-request
+          
+    - name: Fallback PR title validation
+      if: steps.semantic-check.outcome == 'failure'
+      run: |
+        echo "🔄 Semantic PR action failed - running fallback validation"
+        PR_TITLE="${{ github.event.pull_request.title }}"
+        
+        # Basic semantic validation
+        if echo "$PR_TITLE" | grep -qE "^(feat|fix|docs|style|refactor|test|build|ci|chore|perf)(\(.+\))?: .+"; then
+          echo "✅ PR title follows semantic format (fallback validation)"
+        else
+          echo "⚠️ PR title may not follow semantic format, but allowing due to action failure"
+          echo "PR Title: $PR_TITLE"
+          echo "Expected format: type(scope): description"
+        fi
+        
+    - name: Check for breaking changes
+      run: |
+        if git log --oneline ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} | grep -i "BREAKING CHANGE"; then
+          echo "⚠️ Breaking changes detected in this PR"
+          echo "breaking_change=true" >> $GITHUB_ENV
+        else
+          echo "✅ No breaking changes detected"
+          echo "breaking_change=false" >> $GITHUB_ENV
+        fi
+        
+    - name: Validate version bump
+      if: env.breaking_change == 'true'
+      run: |
+        echo "🔍 Checking if VERSION file has been updated for breaking changes..."
+        if git diff --name-only ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} | grep -q "VERSION"; then
+          echo "✅ VERSION file updated for breaking changes"
+        else
+          echo "❌ VERSION file must be updated for breaking changes"
+          exit 1
+        fi
+
+  # Fast PR Checks
+  quick-validation:
+    name: Quick Validation
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Quick lint check
+      run: npm run lint
+      
+    - name: TypeScript compilation check
+      run: npm run type-check
+      
+    - name: Planning scripts syntax check
+      run: |
+        chmod +x scripts/tony-plan.sh
+        chmod +x scripts/test-planning-engine.sh
+        # Basic syntax check
+        bash -n scripts/tony-plan.sh
+        bash -n scripts/test-planning-engine.sh
+        
+    - name: Python syntax check
+      run: |
+        python -m py_compile scripts/planning/*.py
+        python -m py_compile scripts/planning/analysis/*.py
+
+  # Planning Architecture Tests for PRs
+  planning-pr-tests:
+    name: Planning Architecture PR Tests
+    runs-on: ubuntu-latest
+    needs: quick-validation
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Make scripts executable
+      run: |
+        chmod +x scripts/tony-plan.sh
+        chmod +x scripts/test-planning-engine.sh
+        
+    - name: Run planning engine tests
+      run: ./scripts/test-planning-engine.sh
+      
+    - name: Test CLI basic functionality
+      run: |
+        ./scripts/tony-plan.sh --help
+        ./scripts/tony-plan.sh init --project "PR-Test-${{ github.event.number }}" --methodology iterative
+        ./scripts/tony-plan.sh status
+        
+    - name: Comment test results on PR
+      if: always()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const testResult = '${{ job.status }}' === 'success' ? '✅ Passed' : '❌ Failed';
+          const body = `## Multi-Phase Planning Architecture Test Results
+          
+          **Status**: ${testResult}
+          **PR**: #${{ github.event.number }}
+          **Commit**: ${{ github.event.pull_request.head.sha }}
+          
+          ${testResult === '✅ Passed' ? 
+            '🎉 All planning architecture tests passed successfully!' : 
+            '⚠️ Some tests failed. Please check the logs for details.'}
+          
+          ### Test Coverage:
+          - Planning Engine Tests: ${testResult}
+          - CLI Interface Tests: ${testResult}
+          - Python Script Validation: ${testResult}
+          `;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: body
+          });
+
+  # Build validation for PRs
+  build-validation:
+    name: Build Validation
+    runs-on: ubuntu-latest
+    needs: quick-validation
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build TypeScript
+      run: npm run build
+      
+    - name: Verify build outputs
+      run: |
+        if [ -d "dist" ]; then
+          echo "✅ Build directory created successfully"
+          echo "📁 Build contents:"
+          find dist -type f -name "*.js" | head -10
+        else
+          echo "❌ Build directory not found"
+          exit 1
+        fi
+
+  # Size impact analysis
+  size-analysis:
+    name: Size Impact Analysis
+    runs-on: ubuntu-latest
+    needs: build-validation
+    
+    steps:
+    - name: Checkout base branch
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.base.ref }}
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies (base)
+      run: npm ci
+      
+    - name: Build base
+      run: npm run build
+      
+    - name: Calculate base size
+      run: |
+        BASE_SIZE=$(du -sk dist/ | cut -f1)
+        echo "BASE_SIZE=$BASE_SIZE" >> $GITHUB_ENV
+        
+    - name: Checkout PR branch
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.head.ref }}
+        
+    - name: Install dependencies (PR)
+      run: npm ci
+      
+    - name: Build PR
+      run: npm run build
+      
+    - name: Calculate PR size and impact
+      run: |
+        PR_SIZE=$(du -sk dist/ | cut -f1)
+        SIZE_DIFF=$((PR_SIZE - BASE_SIZE))
+        SIZE_PERCENT=$(( (SIZE_DIFF * 100) / BASE_SIZE ))
+        
+        echo "## 📊 Bundle Size Impact" >> size_report.md
+        echo "" >> size_report.md
+        echo "| Metric | Base | PR | Change |" >> size_report.md
+        echo "|--------|------|----|---------:|" >> size_report.md
+        echo "| Size (KB) | ${BASE_SIZE} | ${PR_SIZE} | ${SIZE_DIFF:+"+"}${SIZE_DIFF} |" >> size_report.md
+        echo "| Percentage | 100% | $((PR_SIZE * 100 / BASE_SIZE))% | ${SIZE_PERCENT:+"+"}${SIZE_PERCENT}% |" >> size_report.md
+        echo "" >> size_report.md
+        
+        if [ $SIZE_DIFF -gt 100 ]; then
+          echo "⚠️ **Warning**: Bundle size increased by more than 100KB" >> size_report.md
+        elif [ $SIZE_DIFF -gt 0 ]; then
+          echo "ℹ️ Bundle size increased slightly" >> size_report.md
+        else
+          echo "✅ Bundle size maintained or reduced" >> size_report.md
+        fi
+        
+    - name: Comment size analysis
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const body = fs.readFileSync('size_report.md', 'utf8');
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: body
+          });
+
+  # Security check for PRs
+  security-pr:
+    name: Security Check
+    runs-on: ubuntu-latest
+    needs: quick-validation
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run security audit
+      run: |
+        npm audit --audit-level moderate || echo "Security audit completed with warnings"
+        
+    - name: Check for sensitive files
+      run: |
+        echo "🔍 Checking for sensitive files..."
+        if find . -name "*.key" -o -name "*.pem" -o -name "*.env" -o -name "*.secret" | grep -v node_modules | grep -q .; then
+          echo "❌ Sensitive files detected in PR"
+          exit 1
+        else
+          echo "✅ No sensitive files detected"
+        fi
+
+  # Final PR status
+  pr-status:
+    name: PR Status Summary
+    runs-on: ubuntu-latest
+    needs: [pr-validation, planning-pr-tests, build-validation, size-analysis, security-pr]
+    if: always()
+    
+    steps:
+    - name: Determine PR status
+      id: status
+      run: |
+        if [[ "${{ needs.pr-validation.result }}" == "success" && 
+              "${{ needs.planning-pr-tests.result }}" == "success" && 
+              "${{ needs.build-validation.result }}" == "success" && 
+              "${{ needs.security-pr.result }}" == "success" ]]; then
+          echo "status=success" >> $GITHUB_OUTPUT
+          echo "message=All PR validation checks passed! Ready for review 🚀" >> $GITHUB_OUTPUT
+        else
+          echo "status=failure" >> $GITHUB_OUTPUT
+          echo "message=Some PR validation checks failed. Please address the issues." >> $GITHUB_OUTPUT
+        fi
+        
+    - name: Update PR status comment
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const status = '${{ steps.status.outputs.status }}';
+          const message = '${{ steps.status.outputs.message }}';
+          const emoji = status === 'success' ? '✅' : '❌';
+          
+          const body = `## ${emoji} PR Validation Summary
+          
+          **Status**: ${status === 'success' ? 'All checks passed' : 'Some checks failed'}
+          **PR**: #${{ github.event.number }}
+          **Commit**: ${{ github.event.pull_request.head.sha }}
+          
+          ### Validation Results:
+          - PR Metadata: ${{ needs.pr-validation.result == 'success' && '✅' || '❌' }}
+          - Planning Tests: ${{ needs.planning-pr-tests.result == 'success' && '✅' || '❌' }}
+          - Build Validation: ${{ needs.build-validation.result == 'success' && '✅' || '❌' }}
+          - Security Check: ${{ needs.security-pr.result == 'success' && '✅' || '❌' }}
+          
+          ${message}
+          `;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: body
+          });
+        
+    - name: Set final status
+      run: |
+        if [[ "${{ steps.status.outputs.status }}" == "failure" ]]; then
+          exit 1
+        fi

@@ -1,0 +1,340 @@
+{
+  "schema_version": "1.0.0",
+  "session": {
+    "session_id": "D4E5F6G7-H8I9-0123-4567-890123DEFGHI",
+    "parent_agent_id": "monitoring-agent",
+    "timestamp": "2025-07-12T14:30:00.000Z",
+    "agent_chain": [
+      {
+        "agent_id": "backend-agent",
+        "start_time": "2025-07-12T13:00:00.000Z",
+        "end_time": "2025-07-12T13:45:00.000Z",
+        "completion_status": "failed",
+        "tasks_completed": [
+          "Attempted database migration",
+          "Encountered connection failures"
+        ]
+      },
+      {
+        "agent_id": "devops-agent",
+        "start_time": "2025-07-12T13:45:00.000Z",
+        "end_time": "2025-07-12T14:15:00.000Z",
+        "completion_status": "failed",
+        "tasks_completed": [
+          "Attempted database recovery",
+          "Restored partial backup",
+          "Configuration rollback failed"
+        ]
+      },
+      {
+        "agent_id": "monitoring-agent",
+        "start_time": "2025-07-12T14:15:00.000Z",
+        "end_time": "2025-07-12T14:30:00.000Z",
+        "completion_status": "handed_off",
+        "tasks_completed": [
+          "Analyzed system failure patterns",
+          "Identified cascade failure scenario",
+          "Generated recovery action plan",
+          "Escalated to recovery agent"
+        ]
+      }
+    ]
+  },
+  "task_context": {
+    "current_task": {
+      "id": "T.002.03.01.01",
+      "title": "Database migration and schema update",
+      "description": "Migrate production database schema to support new authentication features",
+      "status": "failed",
+      "priority": "critical",
+      "estimated_duration": 900,
+      "actual_duration": 5400
+    },
+    "task_hierarchy": {
+      "epic": {
+        "id": "E.002",
+        "title": "Production Database Infrastructure",
+        "description": "Production-ready database infrastructure with high availability"
+      },
+      "feature": {
+        "id": "F.002.03",
+        "title": "Database Migration System"
+      },
+      "story": {
+        "id": "S.002.03.01",
+        "title": "Authentication Schema Migration"
+      },
+      "current_path": [
+        "E.002",
+        "F.002.03",
+        "S.002.03.01",
+        "T.002.03.01.01"
+      ]
+    },
+    "dependencies": {
+      "blocking": [
+        "T.001.01.01.01",
+        "T.001.01.02.01",
+        "T.003.01.01.01"
+      ],
+      "blocked_by": [],
+      "related": [
+        "T.002.01.01.01",
+        "T.002.02.01.01"
+      ]
+    },
+    "phase_info": {
+      "current_phase": "recovery",
+      "phase_status": "failed",
+      "phase_completion_percentage": 15
+    }
+  },
+  "project_state": {
+    "working_directory": "/home/jwoltje/src/tony-ng",
+    "modified_files": [
+      {
+        "path": "infrastructure/database/migrations/001_auth_schema.sql",
+        "status": "modified",
+        "size_change": 1234,
+        "checksum": "sha256:g7h8i9j0k1l2345678901234567890123456f789012345g678901234567"
+      },
+      {
+        "path": "logs/database-migration-failure.log",
+        "status": "created",
+        "size_change": 15623,
+        "checksum": "sha256:h8i9j0k1l2m3456789012345678901234567g890123456h789012345678"
+      },
+      {
+        "path": "logs/system-recovery-analysis.json",
+        "status": "created",
+        "size_change": 8901,
+        "checksum": "sha256:i9j0k1l2m3n4567890123456789012345678h901234567i890123456789"
+      }
+    ],
+    "git_status": {
+      "branch": "feature/database-migration",
+      "commit_hash": "556f7da8c3e2g4f9b0d5e6f7h8i9j0k1l2m3n4o5",
+      "is_clean": false,
+      "staged_files": [],
+      "unstaged_files": [
+        "infrastructure/database/migrations/001_auth_schema.sql",
+        "logs/database-migration-failure.log",
+        "logs/system-recovery-analysis.json"
+      ],
+      "untracked_files": [
+        "logs/database-migration-failure.log",
+        "logs/system-recovery-analysis.json"
+      ]
+    },
+    "environment": {
+      "node_version": "v18.17.0",
+      "npm_version": "9.6.7",
+      "os": "Linux 6.1.0-37-amd64",
+      "shell": "/bin/bash",
+      "docker_available": true
+    },
+    "build_status": {
+      "last_build_time": "2025-07-12T12:45:00.000Z",
+      "build_success": true,
+      "build_errors": []
+    }
+  },
+  "execution_context": {
+    "model_selection": {
+      "current_model": "opus",
+      "reason": "Critical system recovery requires complex analysis and decision-making",
+      "complexity_level": "architectural"
+    },
+    "tool_authorizations": [
+      "Read",
+      "Edit",
+      "MultiEdit",
+      "Write",
+      "Bash",
+      "Grep",
+      "Glob",
+      "TodoWrite",
+      "Task"
+    ],
+    "constraints": {
+      "timeout_minutes": 90,
+      "max_files_to_modify": 15,
+      "forbidden_operations": [
+        "git_push",
+        "npm_publish"
+      ],
+      "required_validations": [
+        "build_success",
+        "tests_pass"
+      ]
+    },
+    "resource_limits": {
+      "max_concurrent_operations": 5,
+      "memory_limit_mb": 4096,
+      "disk_space_limit_mb": 2048
+    }
+  },
+  "handoff_instructions": {
+    "next_agent_type": "recovery-agent",
+    "continuation_point": "Execute comprehensive system recovery from database migration cascade failure",
+    "success_criteria": [
+      {
+        "criterion": "Database connectivity fully restored",
+        "validation_method": "automated_test",
+        "target_value": "100% database connection success rate",
+        "priority": "required"
+      },
+      {
+        "criterion": "Data integrity verification complete",
+        "validation_method": "automated_test",
+        "target_value": "Zero data corruption detected",
+        "priority": "required"
+      },
+      {
+        "criterion": "Authentication system operational",
+        "validation_method": "automated_test",
+        "target_value": "All auth endpoints responding correctly",
+        "priority": "required"
+      },
+      {
+        "criterion": "Migration rolled back or completed successfully",
+        "validation_method": "manual_verification",
+        "target_value": "Consistent database schema state",
+        "priority": "required"
+      },
+      {
+        "criterion": "System performance restored to baseline",
+        "validation_method": "automated_test",
+        "target_value": "Response times within 10% of baseline",
+        "priority": "preferred"
+      },
+      {
+        "criterion": "All dependent services operational",
+        "validation_method": "automated_test",
+        "target_value": "100% service health checks pass",
+        "priority": "required"
+      }
+    ],
+    "context_files": [
+      {
+        "path": "logs/system-recovery-analysis.json",
+        "purpose": "Comprehensive failure analysis and recovery recommendations",
+        "sections": ["failure_timeline", "impact_analysis", "recovery_steps"]
+      },
+      {
+        "path": "logs/database-migration-failure.log",
+        "purpose": "Detailed database migration failure logs",
+        "sections": ["error_messages", "stack_traces", "transaction_logs"]
+      },
+      {
+        "path": "infrastructure/backup-recovery/scripts/disaster-recovery/restore-application.sh",
+        "purpose": "Available recovery procedures and scripts",
+        "sections": ["database_recovery", "application_recovery", "verification_steps"]
+      },
+      {
+        "path": "infrastructure/backup-recovery/docs/recovery-procedures.md",
+        "purpose": "Recovery procedures and decision tree",
+        "sections": ["failure_classification", "recovery_options", "rollback_procedures"]
+      },
+      {
+        "path": "infrastructure/database/migrations/001_auth_schema.sql",
+        "purpose": "Failed migration script for analysis",
+        "sections": ["schema_changes", "data_transformations", "rollback_statements"]
+      }
+    ],
+    "warnings": [
+      {
+        "type": "security",
+        "message": "Database failure may have left authentication system in inconsistent state - verify user access integrity",
+        "severity": "critical"
+      },
+      {
+        "type": "performance",
+        "message": "Cascade failure indicates potential connection pool exhaustion - monitor resource usage during recovery",
+        "severity": "high"
+      },
+      {
+        "type": "dependency",
+        "message": "Multiple services are blocked waiting for database recovery - coordinate recovery sequence carefully",
+        "severity": "high"
+      },
+      {
+        "type": "compatibility",
+        "message": "Partial migration state may cause version compatibility issues - verify schema consistency",
+        "severity": "high"
+      }
+    ]
+  },
+  "evidence_tracking": {
+    "test_results": {
+      "unit_tests": {
+        "total": 156,
+        "passed": 134,
+        "failed": 22,
+        "coverage_percentage": 78,
+        "last_run": "2025-07-12T14:25:00.000Z"
+      },
+      "integration_tests": {
+        "total": 45,
+        "passed": 23,
+        "failed": 22,
+        "last_run": "2025-07-12T14:26:00.000Z"
+      },
+      "security_tests": {
+        "vulnerabilities_found": 0,
+        "critical_issues": 0,
+        "last_scan": "2025-07-12T12:30:00.000Z"
+      }
+    },
+    "coverage_metrics": {
+      "line_coverage": 78,
+      "branch_coverage": 72,
+      "function_coverage": 85,
+      "statement_coverage": 76
+    },
+    "validation_status": {
+      "overall_status": "failed",
+      "build_status": "success",
+      "lint_status": "clean",
+      "type_check_status": "passed",
+      "security_scan_status": "clean",
+      "last_validation": "2025-07-12T14:27:00.000Z"
+    },
+    "artifacts": [
+      {
+        "type": "log",
+        "path": "logs/database-migration-failure.log",
+        "size_bytes": 15623,
+        "created_at": "2025-07-12T13:35:00.000Z"
+      },
+      {
+        "type": "report",
+        "path": "logs/system-recovery-analysis.json",
+        "size_bytes": 8901,
+        "created_at": "2025-07-12T14:28:00.000Z"
+      },
+      {
+        "type": "log",
+        "path": "logs/cascade-failure-timeline.log",
+        "size_bytes": 23456,
+        "created_at": "2025-07-12T14:20:00.000Z"
+      }
+    ]
+  },
+  "metadata": {
+    "context_size_bytes": 8912,
+    "token_count_estimate": 4789,
+    "created_by": "monitoring-agent",
+    "validated": true,
+    "validation_errors": [],
+    "tags": [
+      "database",
+      "migration",
+      "cascade-failure",
+      "critical-recovery",
+      "system-restore",
+      "emergency-response",
+      "recovery-handoff"
+    ]
+  }
+}

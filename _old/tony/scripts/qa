@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Tony Framework - QA Command Alias
+# Shortcut for 'tony qa'
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+exec "$SCRIPT_DIR/tony.sh" qa "$@"

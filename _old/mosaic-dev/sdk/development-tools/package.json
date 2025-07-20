@@ -1,0 +1,91 @@
+{
+  "name": "@tony/development-tools",
+  "version": "1.0.0",
+  "description": "Build tools and development environment for Tony Framework",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "setup": "npm run setup-dev-env",
+    "setup-dev-env": "npm install && npm run build:setup",
+    "build": "npm run build:production",
+    "build:production": "tsc --project tsconfig.json && npm run optimize:production",
+    "build:development": "tsc --project tsconfig.json --sourceMap",
+    "build:watch": "tsc --project tsconfig.json --watch",
+    "build:clean": "rimraf dist && rimraf coverage",
+    "build:setup": "mkdir -p dist && npm run build:development",
+    "build:version": "tsc --project version-tsconfig.json",
+    "dev": "npm run dev:watch",
+    "dev:start": "npm run build:development && npm run dev:watch",
+    "dev:watch": "tsc --project tsconfig.json --watch --incremental",
+    "dev:hot-reload": "nodemon --watch '../testing-framework' --ext ts --exec 'npm run build:development'",
+    "dev:reset": "npm run build:clean && npm run setup",
+    "dev:clean": "rimraf node_modules/.cache && npm run build:clean",
+    "dev:debug": "npm run build:development -- --listFiles",
+    "type-check": "tsc --noEmit --project tsconfig.json",
+    "type-check:watch": "tsc --noEmit --project tsconfig.json --watch",
+    "lint": "eslint 'src/**/*.ts' --cache",
+    "lint:fix": "eslint 'src/**/*.ts' --fix --cache",
+    "format": "prettier --write '**/*.{ts,js,json}'",
+    "quality:check": "npm run type-check && npm run lint && npm run format:check",
+    "format:check": "prettier --check '**/*.{ts,js,json}'",
+    "optimize:production": "npm run minify",
+    "minify": "terser dist/index.js --compress --mangle --output dist/index.min.js",
+    "analyze:bundle": "echo 'Bundle analysis not configured for development-tools'",
+    "verify": "npm run verify:config",
+    "verify:tools": "echo 'Tool verification passed for development-tools'",
+    "verify:config": "tsc --noEmit --project tsconfig.json",
+    "clean": "npm run build:clean && rimraf node_modules",
+    "reset": "npm run clean && npm install && npm run setup",
+    "update": "npm update && npm audit fix",
+    "deps:check": "npm outdated",
+    "deps:update": "npm update",
+    "deps:reset": "rimraf node_modules package-lock.json && npm install",
+    "ts:clean": "rimraf tsconfig.tsbuildinfo",
+    "ts:rebuild": "npm run ts:clean && npm run type-check",
+    "ts:verify": "tsc --showConfig --project tsconfig.json",
+    "perf:build": "time npm run build:production",
+    "perf:typecheck": "time npm run type-check",
+    "perf:analyze": "node scripts/performance-analysis.js"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "nodemon": "^3.0.0",
+    "prettier": "^3.0.0",
+    "rimraf": "^5.0.0",
+    "terser": "^5.0.0",
+    "typescript": "^5.0.0",
+    "webpack-bundle-analyzer": "^4.0.0"
+  },
+  "dependencies": {},
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "config": {
+    "typescript": {
+      "version": "^5.0.0",
+      "strict": true,
+      "exactOptionalPropertyTypes": true,
+      "isolatedModules": true
+    },
+    "build": {
+      "target": "ES2022",
+      "module": "ESNext",
+      "outDir": "./dist",
+      "sourceMap": true
+    },
+    "optimization": {
+      "minify": true,
+      "treeshake": true,
+      "compress": true
+    },
+    "development": {
+      "watch": true,
+      "incremental": true,
+      "hotReload": true
+    }
+  }
+}

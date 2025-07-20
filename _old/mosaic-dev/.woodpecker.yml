@@ -1,0 +1,160 @@
+# Woodpecker CI/CD Pipeline for MosAIc Dev SDK
+# Development tools and SDK for Tony Framework contributors
+
+when:
+  - event: [push, pull_request]
+    branch: [main, develop, feature/*, hotfix/*]
+
+# Global environment variables
+variables:
+  - &node_image "node:20-alpine"
+
+# Pipeline steps
+steps:
+  # Install dependencies
+  install:
+    image: *node_image
+    commands:
+      - npm run sdk:install
+      - npm ls
+    when:
+      - event: [push, pull_request]
+
+  # Type checking
+  typecheck:
+    image: *node_image
+    commands:
+      - npm run type-check
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - install
+
+  # Linting
+  lint:
+    image: *node_image
+    commands:
+      - npm run lint:tools
+      - npm run format -- --check
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - install
+
+  # Build validation
+  build:
+    image: *node_image
+    commands:
+      - npm run build
+      - ls -la sdk/development-tools/dist/
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - typecheck
+      - lint
+
+  # Unit tests
+  test-unit:
+    image: *node_image
+    commands:
+      - npm run test:unit
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - install
+
+  # Integration tests
+  test-integration:
+    image: *node_image
+    commands:
+      - npm run test:integration
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - build
+
+  # Performance tests
+  test-performance:
+    image: *node_image
+    commands:
+      - npm run test:performance
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - build
+
+  # Coverage report
+  coverage:
+    image: *node_image
+    commands:
+      - npm run coverage
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - test-unit
+      - test-integration
+
+  # Security audit
+  security:
+    image: *node_image
+    commands:
+      - npm run security:check
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - install
+    failure: ignore  # Don't fail build on audit issues
+
+  # Quality check
+  quality:
+    image: *node_image
+    commands:
+      - npm run quality:check
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - build
+      - test-unit
+
+  # Build Docker image (only on main branch)
+  docker-build:
+    image: plugins/docker
+    settings:
+      repo: mosaic-dev
+      tags:
+        - latest
+        - ${CI_COMMIT_SHA:0:8}
+        - 1.0.0
+      dockerfile: Dockerfile
+      dry_run: true  # Change to false when ready to push
+    when:
+      - event: push
+      - branch: main
+    depends_on:
+      - build
+      - test-unit
+      - test-integration
+
+  # Deploy notification (placeholder)
+  notify:
+    image: *node_image
+    commands:
+      - echo "Build completed successfully!"
+      - echo "Commit: ${CI_COMMIT_SHA}"
+      - echo "Branch: ${CI_COMMIT_BRANCH}"
+      - echo "Version: 1.0.0"
+    when:
+      - event: push
+      - branch: main
+    depends_on:
+      - docker-build
+
+# Matrix builds for multiple Node versions (optional)
+matrix:
+  include:
+    - NODE_VERSION: 18
+    - NODE_VERSION: 20
+    - NODE_VERSION: 22

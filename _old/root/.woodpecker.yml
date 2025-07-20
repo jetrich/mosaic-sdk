@@ -1,0 +1,167 @@
+# Woodpecker CI/CD Pipeline for MosAIc SDK
+# Meta-repository orchestrating all MosAIc components
+
+when:
+  - event: [push, pull_request]
+    branch: [main, develop, feature/*, hotfix/*]
+
+# Global environment variables
+variables:
+  - &node_image "node:20-alpine"
+  - &postgres_image "postgres:17.5-alpine"
+  - &redis_image "redis:7-alpine"
+
+# Pipeline steps
+steps:
+  # Initialize submodules
+  init-submodules:
+    image: *node_image
+    commands:
+      - apk add --no-cache git
+      - git submodule update --init --recursive
+      - git submodule status
+    when:
+      - event: [push, pull_request]
+
+  # Install dependencies for all components
+  install:
+    image: *node_image
+    commands:
+      - npm run setup
+      - npm run verify:structure
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - init-submodules
+
+  # Verify structure
+  verify:
+    image: *node_image
+    commands:
+      - npm run verify
+      - ./scripts/worktree-helper.sh list
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - install
+
+  # Build all components
+  build-all:
+    image: *node_image
+    commands:
+      - npm run build:all
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - verify
+
+  # Test all components
+  test-all:
+    image: *node_image
+    environment:
+      - DATABASE_URL=postgresql://test:test@postgres:5432/mosaic_test
+      - REDIS_URL=redis://redis:6379
+      - NODE_ENV=test
+    commands:
+      - npm test
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - build-all
+
+  # Test isolated MCP environment
+  test-mcp-isolation:
+    image: *node_image
+    commands:
+      - npm run dev:start
+      - sleep 5
+      - npm run dev:status
+      - node scripts/test-mcp.js
+      - npm run dev:stop
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - build-all
+
+  # Security audit for all components
+  security:
+    image: *node_image
+    commands:
+      - echo "Auditing root package..."
+      - npm audit --production || true
+      - echo "Auditing mosaic-mcp..."
+      - cd mosaic-mcp && npm audit --production || true
+      - echo "Auditing mosaic-dev..."
+      - cd ../mosaic-dev && npm audit --production || true
+      - echo "Auditing tony..."
+      - cd ../tony && npm audit --production || true
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - install
+    failure: ignore
+
+  # Build Docker compose stack (only on main branch)
+  docker-compose-build:
+    image: docker/compose:alpine-1.29.2
+    commands:
+      - docker-compose -f deployment/docker-compose.mosaicstack-portainer.yml config
+      - echo "Docker compose configuration validated"
+    when:
+      - event: push
+      - branch: main
+    depends_on:
+      - build-all
+      - test-all
+
+  # Create release artifacts
+  create-release:
+    image: *node_image
+    commands:
+      - echo "Creating release artifacts..."
+      - tar -czf mosaic-sdk-${CI_COMMIT_SHA:0:8}.tar.gz \
+          --exclude=node_modules \
+          --exclude=.git \
+          --exclude=dist \
+          --exclude=worktrees \
+          .
+      - ls -lh *.tar.gz
+    when:
+      - event: tag
+    depends_on:
+      - test-all
+
+  # Deploy notification
+  notify:
+    image: *node_image
+    commands:
+      - echo "Build completed successfully!"
+      - echo "Commit: ${CI_COMMIT_SHA}"
+      - echo "Branch: ${CI_COMMIT_BRANCH}"
+      - echo "MosAIc SDK Version: 0.1.0"
+      - echo "Components:"
+      - echo "  - Tony Framework: 2.8.0"
+      - echo "  - MosAIc MCP: 0.1.0"
+      - echo "  - MosAIc Dev: 1.0.0"
+    when:
+      - event: push
+      - branch: main
+    depends_on:
+      - docker-compose-build
+
+# Services for integration tests
+services:
+  postgres:
+    image: *postgres_image
+    environment:
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+      - POSTGRES_DB=mosaic_test
+    when:
+      - event: [push, pull_request]
+
+  redis:
+    image: *redis_image
+    when:
+      - event: [push, pull_request]

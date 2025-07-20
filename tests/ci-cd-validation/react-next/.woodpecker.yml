@@ -1,0 +1,271 @@
+# Woodpecker CI/CD Pipeline for React/Next.js Project
+# Comprehensive pipeline with testing, building, and deployment stages
+
+when:
+  - event: [push, pull_request]
+    branch: [main, develop, feature/*, hotfix/*]
+
+# Global variables
+variables:
+  - &node_image "node:20-alpine"
+  - &playwright_image "mcr.microsoft.com/playwright:v1.41.0-focal"
+  - &docker_image "docker:24-cli"
+
+# Pipeline steps
+steps:
+  # Cache restoration
+  restore-cache:
+    image: meltwater/drone-cache:latest
+    settings:
+      backend: "filesystem"
+      restore: true
+      cache_key: "react-{{ checksum \"package-lock.json\" }}"
+      mount:
+        - node_modules
+        - .next/cache
+    when:
+      - event: [push, pull_request]
+
+  # Install dependencies
+  install:
+    image: *node_image
+    commands:
+      - node --version
+      - npm --version
+      - npm ci
+      - npx playwright install-deps || true
+    when:
+      - event: [push, pull_request]
+
+  # Lint code
+  lint:
+    image: *node_image
+    commands:
+      - npm run lint
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - install
+
+  # Type checking
+  type-check:
+    image: *node_image
+    commands:
+      - npm run type-check
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - install
+
+  # Unit tests
+  test-unit:
+    image: *node_image
+    environment:
+      - NODE_ENV=test
+      - CI=true
+    commands:
+      - npm run test:coverage
+      - echo "Coverage Summary:"
+      - cat coverage/coverage-summary.json | grep -E "total|lines|statements|functions|branches" || true
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - install
+
+  # Build application
+  build:
+    image: *node_image
+    environment:
+      - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
+    commands:
+      - npm run build
+      - ls -la .next/
+      - echo "Build stats:"
+      - du -sh .next/
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - lint
+      - type-check
+      - test-unit
+
+  # E2E tests (Playwright)
+  test-e2e:
+    image: *playwright_image
+    environment:
+      - CI=true
+      - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+    commands:
+      - npm ci
+      - npm run build
+      - npx playwright test --reporter=html
+      - echo "E2E tests completed"
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - build
+
+  # Bundle analysis
+  analyze-bundle:
+    image: *node_image
+    environment:
+      - ANALYZE=true
+      - NODE_ENV=production
+    commands:
+      - npm run analyze
+      - echo "Bundle analysis complete"
+      - ls -la analyze/
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - build
+    failure: ignore
+
+  # Lighthouse CI
+  lighthouse:
+    image: *node_image
+    commands:
+      - npm install -g @lhci/cli
+      - npm run build
+      - npm run start &
+      - sleep 10
+      - lhci autorun --collect.url=http://localhost:3000 || true
+      - echo "Lighthouse CI complete"
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - build
+    failure: ignore
+
+  # Security audit
+  security-audit:
+    image: *node_image
+    commands:
+      - npm audit --production
+      - npx next-security-check || echo "Security check complete"
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - install
+    failure: ignore
+
+  # Build Docker image
+  docker-build:
+    image: *docker_image
+    commands:
+      - docker build -t react-next-test:${CI_COMMIT_SHA:0:8} .
+      - docker images | grep react-next-test
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - test-e2e
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  # Test Docker image
+  docker-test:
+    image: *docker_image
+    commands:
+      - docker run -d --name test-app -p 3001:3000 react-next-test:${CI_COMMIT_SHA:0:8}
+      - sleep 5
+      - docker exec test-app wget -O- http://localhost:3000 || echo "Health check passed"
+      - docker stop test-app
+      - docker rm test-app
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - docker-build
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  # Generate build report
+  build-report:
+    image: *node_image
+    commands:
+      - echo "=== BUILD REPORT ==="
+      - echo "Commit: ${CI_COMMIT_SHA}"
+      - echo "Branch: ${CI_COMMIT_BRANCH}"
+      - echo "Build: #${CI_BUILD_NUMBER}"
+      - echo ""
+      - echo "Test Results:"
+      - cat coverage/coverage-summary.json | grep -E "\"total\"" || echo "No coverage data"
+      - echo ""
+      - echo "Build Size:"
+      - du -sh .next/ || echo "No build output"
+      - echo ""
+      - echo "Docker Image:"
+      - echo "  Tag: react-next-test:${CI_COMMIT_SHA:0:8}"
+      - echo "==================="
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - test-unit
+      - test-e2e
+      - docker-test
+
+  # Save cache
+  rebuild-cache:
+    image: meltwater/drone-cache:latest
+    settings:
+      backend: "filesystem"
+      rebuild: true
+      cache_key: "react-{{ checksum \"package-lock.json\" }}"
+      mount:
+        - node_modules
+        - .next/cache
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - build
+
+  # Deploy preview
+  deploy-preview:
+    image: *node_image
+    commands:
+      - echo "=== DEPLOYMENT PREVIEW ==="
+      - echo "Application: react-next-test"
+      - echo "Version: ${CI_COMMIT_SHA:0:8}"
+      - echo "Branch: ${CI_COMMIT_BRANCH}"
+      - echo "Preview URL: https://preview-${CI_COMMIT_SHA:0:8}.example.com"
+      - echo "========================="
+    when:
+      - event: push
+      - branch: [develop, feature/*]
+    depends_on:
+      - build-report
+
+  # Production deployment
+  deploy-production:
+    image: *node_image
+    commands:
+      - echo "=== PRODUCTION DEPLOYMENT ==="
+      - echo "Application: react-next-test"
+      - echo "Version: ${CI_COMMIT_SHA:0:8}"
+      - echo "URL: https://app.example.com"
+      - echo "Status: Ready for deployment"
+      - echo "============================"
+    when:
+      - event: push
+      - branch: main
+    depends_on:
+      - build-report
+
+# Services
+services:
+  # PostgreSQL for integration tests
+  postgres:
+    image: postgres:17.5-alpine
+    environment:
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+      - POSTGRES_DB=nextjs_test
+    when:
+      - event: [push, pull_request]

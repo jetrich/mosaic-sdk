@@ -1,0 +1,13 @@
+{
+  "timestamp": "2025-07-01T02:57:57Z",
+  "system": {
+    "cpu_usage": 6.7,
+    "memory_usage": 50.9,
+    "disk_usage": 15
+  },
+  "tony_metrics": {
+    "script_count": 22,
+    "log_size_kb": 0,
+    "backup_count": 0
+  }
+}

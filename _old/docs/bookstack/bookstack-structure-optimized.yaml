@@ -1,0 +1,246 @@
+# Optimized BookStack Documentation Structure
+# Based on analysis of existing documentation
+
+version: "1.0"
+last_updated: "2025-01-19"
+
+structure:
+  # Engineering Documentation - For developers
+  - shelf:
+      name: "Engineering Documentation"
+      slug: "engineering"
+      description: "Developer guides, API references, and technical documentation"
+      books:
+        - book:
+            name: "Getting Started"
+            slug: "getting-started"
+            description: "Quick start guides and development setup"
+            chapters:
+              - chapter:
+                  name: "Prerequisites"
+                  slug: "prerequisites"
+                  pages: ["01-system-requirements", "02-development-tools", "03-environment-setup"]
+              - chapter:
+                  name: "Quick Start"
+                  slug: "quick-start"
+                  pages: ["01-first-project", "02-local-development", "03-isolated-environment"]
+              - chapter:
+                  name: "Development Workflow"
+                  slug: "development-workflow"
+                  pages: ["01-git-workflow", "02-branch-protection", "03-code-review"]
+        
+        - book:
+            name: "CI/CD Handbook"
+            slug: "cicd-handbook"
+            description: "Continuous integration and deployment guides"
+            chapters:
+              - chapter:
+                  name: "Pipeline Setup"
+                  slug: "pipeline-setup"
+                  pages: ["01-woodpecker-setup", "02-pipeline-basics", "03-pipeline-templates"]
+              - chapter:
+                  name: "Advanced Pipelines"
+                  slug: "advanced-pipelines"
+                  pages: ["01-multi-stage-builds", "02-conditional-workflows", "03-parallel-execution"]
+              - chapter:
+                  name: "Best Practices"
+                  slug: "best-practices"
+                  pages: ["01-cicd-patterns", "02-security-scanning", "03-troubleshooting"]
+        
+        - book:
+            name: "API Documentation"
+            slug: "api-documentation"
+            description: "API references and integration guides"
+            chapters:
+              - chapter:
+                  name: "REST APIs"
+                  slug: "rest-apis"
+                  pages: ["01-api-overview", "02-authentication", "03-endpoints"]
+              - chapter:
+                  name: "MCP Protocol"
+                  slug: "mcp-protocol"
+                  pages: ["01-mcp-overview", "02-mcp-integration", "03-mcp-tools"]
+              - chapter:
+                  name: "Webhooks"
+                  slug: "webhooks"
+                  pages: ["01-webhook-setup", "02-event-types", "03-webhook-security"]
+
+  # Platform Documentation - For operators and administrators
+  - shelf:
+      name: "Platform Documentation"
+      slug: "platform"
+      description: "Installation, configuration, and operational guides"
+      books:
+        - book:
+            name: "Installation Guide"
+            slug: "installation"
+            description: "Complete installation and setup documentation"
+            chapters:
+              - chapter:
+                  name: "Planning"
+                  slug: "planning"
+                  pages: ["01-architecture-overview", "02-resource-requirements", "03-network-planning"]
+              - chapter:
+                  name: "Deployment"
+                  slug: "deployment"
+                  pages: ["01-complete-guide", "02-docker-deployment", "03-portainer-setup", "04-nginx-setup"]
+              - chapter:
+                  name: "Configuration"
+                  slug: "configuration"
+                  pages: ["01-environment-variables", "02-service-configuration", "03-ssl-certificates"]
+        
+        - book:
+            name: "Service Documentation"
+            slug: "services"
+            description: "Individual service configuration and management"
+            chapters:
+              - chapter:
+                  name: "Core Services"
+                  slug: "core-services"
+                  pages: ["01-gitea", "02-postgresql", "03-redis", "04-mariadb"]
+              - chapter:
+                  name: "Application Services"
+                  slug: "application-services"
+                  pages: ["01-bookstack", "02-woodpecker", "03-plane", "04-monitoring"]
+              - chapter:
+                  name: "Supporting Services"
+                  slug: "supporting-services"
+                  pages: ["01-nginx-proxy-manager", "02-portainer", "03-prometheus", "04-grafana"]
+        
+        - book:
+            name: "Operations Manual"
+            slug: "operations"
+            description: "Day-to-day operational procedures"
+            chapters:
+              - chapter:
+                  name: "Routine Operations"
+                  slug: "routine-operations"
+                  pages: ["01-daily-checks", "02-service-management", "03-log-monitoring"]
+              - chapter:
+                  name: "Backup & Recovery"
+                  slug: "backup-recovery"
+                  pages: ["01-backup-strategy", "02-backup-procedures", "03-restore-procedures", "04-disaster-recovery"]
+              - chapter:
+                  name: "Incident Response"
+                  slug: "incident-response"
+                  pages: ["01-incident-handling", "02-emergency-procedures", "03-post-incident-review"]
+
+  # Project Documentation - For project managers and architects
+  - shelf:
+      name: "Project Documentation"
+      slug: "projects"
+      description: "Project planning, architecture decisions, and epic tracking"
+      books:
+        - book:
+            name: "Architecture & Design"
+            slug: "architecture"
+            description: "System architecture and design decisions"
+            chapters:
+              - chapter:
+                  name: "System Architecture"
+                  slug: "system-architecture"
+                  pages: ["01-overview", "02-component-design", "03-data-flow", "04-network-topology"]
+              - chapter:
+                  name: "Security Architecture"
+                  slug: "security-architecture"
+                  pages: ["01-security-model", "02-authentication", "03-authorization", "04-data-protection"]
+              - chapter:
+                  name: "Integration Patterns"
+                  slug: "integration-patterns"
+                  pages: ["01-service-mesh", "02-api-gateway", "03-event-driven", "04-orchestration"]
+        
+        - book:
+            name: "Project Management"
+            slug: "project-management"
+            description: "Project planning and tracking documentation"
+            chapters:
+              - chapter:
+                  name: "Planning & Methodology"
+                  slug: "planning-methodology"
+                  pages: ["01-project-planning", "02-upp-methodology", "03-epic-management"]
+              - chapter:
+                  name: "Active Epics"
+                  slug: "active-epics"
+                  pages: ["01-epic-e055-mosaic-stack", "02-epic-e057-mcp-integration", "03-epic-e058-bookstack"]
+              - chapter:
+                  name: "Roadmap & Milestones"
+                  slug: "roadmap-milestones"
+                  pages: ["01-version-roadmap", "02-component-milestones", "03-release-planning"]
+        
+        - book:
+            name: "Migration Guides"
+            slug: "migrations"
+            description: "System and component migration documentation"
+            chapters:
+              - chapter:
+                  name: "Tony to MosAIc"
+                  slug: "tony-to-mosaic"
+                  pages: ["01-migration-overview", "02-namespace-changes", "03-component-mapping"]
+              - chapter:
+                  name: "Version Migrations"
+                  slug: "version-migrations"
+                  pages: ["01-tony-2.7-to-2.8", "02-mcp-integration", "03-breaking-changes"]
+              - chapter:
+                  name: "Data Migrations"
+                  slug: "data-migrations"
+                  pages: ["01-database-migrations", "02-file-migrations", "03-configuration-updates"]
+
+  # Learning & Reference - For new users and reference
+  - shelf:
+      name: "Learning & Reference"
+      slug: "learning"
+      description: "Tutorials, guides, and reference documentation"
+      books:
+        - book:
+            name: "Troubleshooting Guide"
+            slug: "troubleshooting"
+            description: "Common issues and their solutions"
+            chapters:
+              - chapter:
+                  name: "Common Issues"
+                  slug: "common-issues"
+                  pages: ["01-service-startup", "02-connectivity", "03-authentication", "04-performance"]
+              - chapter:
+                  name: "Debugging Techniques"
+                  slug: "debugging"
+                  pages: ["01-log-analysis", "02-container-debugging", "03-network-debugging"]
+              - chapter:
+                  name: "FAQ"
+                  slug: "faq"
+                  pages: ["01-general-faq", "02-technical-faq", "03-operational-faq"]
+        
+        - book:
+            name: "Best Practices"
+            slug: "best-practices"
+            description: "Recommended practices and standards"
+            chapters:
+              - chapter:
+                  name: "Development Standards"
+                  slug: "development-standards"
+                  pages: ["01-coding-standards", "02-git-conventions", "03-documentation-standards"]
+              - chapter:
+                  name: "Security Practices"
+                  slug: "security-practices"
+                  pages: ["01-secure-coding", "02-secret-management", "03-access-control"]
+              - chapter:
+                  name: "Operational Excellence"
+                  slug: "operational-excellence"
+                  pages: ["01-monitoring-practices", "02-backup-strategies", "03-performance-tuning"]
+        
+        - book:
+            name: "Reference Manual"
+            slug: "reference"
+            description: "Quick reference and cheat sheets"
+            chapters:
+              - chapter:
+                  name: "Command Reference"
+                  slug: "commands"
+                  pages: ["01-docker-commands", "02-git-commands", "03-cli-tools"]
+              - chapter:
+                  name: "Configuration Reference"
+                  slug: "configuration"
+                  pages: ["01-environment-variables", "02-yaml-templates", "03-docker-compose"]
+              - chapter:
+                  name: "API Reference"
+                  slug: "api"
+                  pages: ["01-rest-endpoints", "02-graphql-schema", "03-webhook-events"]

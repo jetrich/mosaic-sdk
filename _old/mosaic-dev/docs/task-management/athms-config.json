@@ -1,0 +1,29 @@
+{
+  "version": "1.0.0",
+  "project_root": "/home/jwoltje/src/tech-lead-tony",
+  "task_numbering": {
+    "format": "P.TTT.SS.AA.MM",
+    "phase_digits": 1,
+    "task_digits": 3,
+    "subtask_digits": 2,
+    "atomic_digits": 2,
+    "micro_digits": 2
+  },
+  "automation": {
+    "auto_assign_dependencies": true,
+    "validate_completions": true,
+    "auto_recover_failed_tasks": true,
+    "git_integration": true
+  },
+  "quality_gates": {
+    "max_task_duration_minutes": 30,
+    "require_evidence": true,
+    "require_validation": true,
+    "min_success_criteria": 1
+  },
+  "agent_coordination": {
+    "max_concurrent_agents": 5,
+    "prevent_resource_conflicts": true,
+    "require_handoff_documentation": true
+  }
+}

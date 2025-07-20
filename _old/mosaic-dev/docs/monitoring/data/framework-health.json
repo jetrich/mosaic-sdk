@@ -1,0 +1,12 @@
+{
+  "timestamp": "2025-07-01T02:58:12Z",
+  "framework": {
+    "installed": true,
+    "version": "2.2.0",
+    "health_score": 75,
+    "projects": {
+      "total": 0,
+      "active": 0
+    }
+  }
+}

@@ -1,0 +1,94 @@
+# Git attributes for MosAIc SDK
+# Handle line endings automatically for files detected as text
+# and leave all files detected as binary untouched
+* text=auto
+
+# Text files
+*.txt text
+*.md text
+*.yml text
+*.yaml text
+*.json text
+*.js text
+*.ts text
+*.tsx text
+*.jsx text
+*.css text
+*.scss text
+*.sass text
+*.html text
+*.xml text
+*.svg text
+*.sh text eol=lf
+*.bash text eol=lf
+*.fish text eol=lf
+*.ps1 text eol=crlf
+*.psm1 text eol=crlf
+*.psd1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Documents
+*.doc binary
+*.docx binary
+*.pdf binary
+*.rtf binary
+
+# Images
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.bmp binary
+*.ico binary
+*.tiff binary
+*.tif binary
+*.webp binary
+
+# Fonts
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
+*.eot binary
+
+# Archives
+*.tar binary
+*.gz binary
+*.zip binary
+*.7z binary
+*.rar binary
+
+# Database
+*.db binary
+*.sqlite binary
+*.sqlite3 binary
+
+# Audio/Video
+*.mp3 binary
+*.mp4 binary
+*.avi binary
+*.mov binary
+*.mkv binary
+*.webm binary
+*.flv binary
+*.wav binary
+*.flac binary
+
+# Compiled/Binary
+*.exe binary
+*.dll binary
+*.so binary
+*.dylib binary
+*.pyc binary
+*.pyo binary
+*.pyd binary
+*.whl binary
+*.class binary
+*.jar binary
+
+# Language statistics
+*.md linguist-documentation
+*.yml linguist-detectable
+*.yaml linguist-detectable
+docs/* linguist-documentation

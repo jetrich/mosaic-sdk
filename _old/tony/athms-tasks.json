@@ -1,0 +1,107 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "lastModified": "2025-07-16T04:42:14.537Z",
+    "totalTasks": 5
+  },
+  "tasks": {
+    "E.001": {
+      "id": "E.001",
+      "uuid": "b72bac77-34e9-4547-8ef1-b4868229a230",
+      "title": "ATHMS Integration Testing",
+      "description": "Test the ATHMS functionality with tmux integration",
+      "level": "epic",
+      "childIds": [],
+      "status": "pending",
+      "priority": "high",
+      "estimatedDuration": 240,
+      "dependencies": [],
+      "blockedBy": [],
+      "createdAt": "2025-07-16T04:39:22.987Z",
+      "updatedAt": "2025-07-16T04:39:22.987Z",
+      "metadata": {},
+      "tags": []
+    },
+    "F.001.01": {
+      "id": "F.001.01",
+      "uuid": "cfd1b652-0f51-4270-a307-9e2ae89f24fd",
+      "title": "Tmux Session Management",
+      "description": "Test tmux session creation and monitoring",
+      "level": "feature",
+      "parentId": "E.001",
+      "childIds": [],
+      "status": "pending",
+      "priority": "high",
+      "estimatedDuration": 60,
+      "dependencies": [],
+      "blockedBy": [],
+      "createdAt": "2025-07-16T04:39:27.531Z",
+      "updatedAt": "2025-07-16T04:39:27.531Z",
+      "metadata": {},
+      "tags": []
+    },
+    "T.001.01.undefined.01": {
+      "id": "T.001.01.undefined.01",
+      "uuid": "cfcc7d85-0820-4bd6-aab2-555e10f59fe3",
+      "title": "Test ATHMS Task Execution",
+      "description": "Verify ATHMS can execute tasks in tmux sessions",
+      "level": "task",
+      "parentId": "F.001.01",
+      "childIds": [],
+      "status": "pending",
+      "priority": "high",
+      "estimatedDuration": 30,
+      "dependencies": [],
+      "blockedBy": [],
+      "createdAt": "2025-07-16T04:39:35.386Z",
+      "updatedAt": "2025-07-16T04:39:35.386Z",
+      "metadata": {},
+      "tags": [
+        "testing",
+        "tmux",
+        "epic-e053"
+      ]
+    },
+    "S.001.01.01": {
+      "id": "S.001.01.01",
+      "uuid": "002048e6-0985-4aa3-abd4-fac36cd227d5",
+      "title": "Test Task Execution in Tmux",
+      "description": "Verify task execution workflow",
+      "level": "story",
+      "parentId": "F.001.01",
+      "childIds": [],
+      "status": "pending",
+      "priority": "high",
+      "estimatedDuration": 45,
+      "dependencies": [],
+      "blockedBy": [],
+      "createdAt": "2025-07-16T04:40:01.621Z",
+      "updatedAt": "2025-07-16T04:40:01.621Z",
+      "metadata": {},
+      "tags": []
+    },
+    "T.001.01.01.01": {
+      "id": "T.001.01.01.01",
+      "uuid": "6bc68a89-11ab-415a-b9af-e903a8772920",
+      "title": "Test ATHMS Task Execution",
+      "description": "Verify ATHMS can execute tasks in tmux sessions",
+      "level": "task",
+      "parentId": "S.001.01.01",
+      "childIds": [],
+      "status": "pending",
+      "priority": "high",
+      "estimatedDuration": 30,
+      "dependencies": [],
+      "blockedBy": [],
+      "createdAt": "2025-07-16T04:40:10.444Z",
+      "updatedAt": "2025-07-16T04:42:14.537Z",
+      "metadata": {},
+      "tags": [
+        "testing",
+        "tmux",
+        "epic-e053"
+      ],
+      "assignedAgent": "implementation-agent"
+    }
+  }
+}

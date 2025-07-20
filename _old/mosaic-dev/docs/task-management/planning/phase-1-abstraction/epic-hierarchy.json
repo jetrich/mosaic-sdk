@@ -1,0 +1,68 @@
+{
+  "project_name": "Unknown Project",
+  "epics": [
+    {
+      "id": "E.001",
+      "title": "Project Foundation",
+      "description": "Establish core project infrastructure and architecture",
+      "business_value": "high",
+      "complexity": "medium",
+      "estimated_duration": 40,
+      "dependencies": [],
+      "success_criteria": [
+        "Infrastructure setup",
+        "Architecture documented",
+        "CI/CD pipeline"
+      ],
+      "risks": [],
+      "features": []
+    },
+    {
+      "id": "E.002",
+      "title": "Core Functionality",
+      "description": "Implement primary business logic and features",
+      "business_value": "high",
+      "complexity": "high",
+      "estimated_duration": 80,
+      "dependencies": [],
+      "success_criteria": [
+        "Core features implemented",
+        "Business logic complete",
+        "APIs functional"
+      ],
+      "risks": [],
+      "features": []
+    },
+    {
+      "id": "E.003",
+      "title": "Quality Assurance",
+      "description": "Comprehensive testing and validation",
+      "business_value": "medium",
+      "complexity": "medium",
+      "estimated_duration": 30,
+      "dependencies": [],
+      "success_criteria": [
+        "Test coverage >90%",
+        "Performance validated",
+        "Security tested"
+      ],
+      "risks": [],
+      "features": []
+    }
+  ],
+  "total_epics": 3,
+  "hierarchy_rules": {
+    "levels": [
+      "Epic",
+      "Feature",
+      "Story",
+      "Task",
+      "Subtask",
+      "Atomic"
+    ],
+    "naming_convention": "E.XXX \u2192 F.XXX.XX \u2192 S.XXX.XX.XX \u2192 T.XXX.XX.XX.XX \u2192 ST.XXX.XX.XX.XX.XX \u2192 A.XXX.XX.XX.XX.XX.XX",
+    "max_children_per_level": 7,
+    "recommended_children_per_level": 5
+  },
+  "estimated_total_duration": 150
+}

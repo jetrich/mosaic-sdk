@@ -1,0 +1,354 @@
+name: Security
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    - cron: '0 2 * * 1'  # Weekly on Monday at 2 AM UTC
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  dependency-scan:
+    name: Dependency Vulnerability Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run npm audit
+        run: |
+          echo "Running npm audit for root dependencies..."
+          npm audit --audit-level=moderate --output=json > npm-audit-root.json || true
+          
+          echo "Running npm audit for backend dependencies..."
+          cd backend && npm audit --audit-level=moderate --output=json > npm-audit-backend.json || true
+          
+          echo "Running npm audit for frontend dependencies..."
+          cd ../frontend && npm audit --audit-level=moderate --output=json > npm-audit-frontend.json || true
+
+      - name: Analyze audit results
+        run: |
+          # Check for high/critical vulnerabilities
+          ROOT_CRITICAL=$(jq '.metadata.vulnerabilities.critical // 0' npm-audit-root.json)
+          ROOT_HIGH=$(jq '.metadata.vulnerabilities.high // 0' npm-audit-root.json)
+          
+          BACKEND_CRITICAL=$(jq '.metadata.vulnerabilities.critical // 0' backend/npm-audit-backend.json)
+          BACKEND_HIGH=$(jq '.metadata.vulnerabilities.high // 0' backend/npm-audit-backend.json)
+          
+          FRONTEND_CRITICAL=$(jq '.metadata.vulnerabilities.critical // 0' frontend/npm-audit-frontend.json)
+          FRONTEND_HIGH=$(jq '.metadata.vulnerabilities.high // 0' frontend/npm-audit-frontend.json)
+          
+          echo "Root - Critical: $ROOT_CRITICAL, High: $ROOT_HIGH"
+          echo "Backend - Critical: $BACKEND_CRITICAL, High: $BACKEND_HIGH"
+          echo "Frontend - Critical: $FRONTEND_CRITICAL, High: $FRONTEND_HIGH"
+          
+          TOTAL_CRITICAL=$((ROOT_CRITICAL + BACKEND_CRITICAL + FRONTEND_CRITICAL))
+          TOTAL_HIGH=$((ROOT_HIGH + BACKEND_HIGH + FRONTEND_HIGH))
+          
+          if [ $TOTAL_CRITICAL -gt 0 ]; then
+            echo "❌ Critical vulnerabilities found: $TOTAL_CRITICAL"
+            exit 1
+          elif [ $TOTAL_HIGH -gt 5 ]; then
+            echo "⚠️  High vulnerabilities found: $TOTAL_HIGH (threshold: 5)"
+            echo "Consider updating dependencies"
+          else
+            echo "✅ No critical vulnerabilities found"
+          fi
+
+      - name: Upload audit results
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-audit-results
+          path: |
+            npm-audit-root.json
+            backend/npm-audit-backend.json
+            frontend/npm-audit-frontend.json
+          retention-days: 30
+
+  codeql-analysis:
+    name: CodeQL Security Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['javascript', 'typescript']
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-extended,security-and-quality
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+
+      - name: Install dependencies
+        run: npm run install:all
+
+      - name: Build applications
+        run: |
+          npm run build:backend
+          npm run build:frontend
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
+
+  container-security:
+    name: Container Security Scan
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [api, frontend, terminal]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build container
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.${{ matrix.service }}
+          push: false
+          tags: tony-ng-${{ matrix.service }}:security-scan
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: tony-ng-${{ matrix.service }}:security-scan
+          format: 'sarif'
+          output: 'trivy-${{ matrix.service }}-results.sarif'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-${{ matrix.service }}-results.sarif'
+
+      - name: Run Snyk container scan
+        uses: snyk/actions/docker@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          image: tony-ng-${{ matrix.service }}:security-scan
+          args: --severity-threshold=high --file=Dockerfile.${{ matrix.service }}
+        continue-on-error: true
+
+      - name: Upload Snyk results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: snyk.sarif
+
+  secret-detection:
+    name: Secret Detection
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run GitLeaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+
+      - name: Run TruffleHog
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: main
+          head: HEAD
+          extra_args: --debug --only-verified
+
+  sast-analysis:
+    name: SAST Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm run install:all
+
+      - name: Run ESLint security analysis
+        run: |
+          cd backend
+          npx eslint . --ext .ts,.js --format json --output-file eslint-backend-results.json || true
+          
+          cd ../frontend
+          npx eslint . --ext .ts,.tsx,.js,.jsx --format json --output-file eslint-frontend-results.json || true
+
+      - name: Run Semgrep SAST
+        uses: semgrep/semgrep-action@v1
+        with:
+          config: >-
+            p/security-audit
+            p/secrets
+            p/typescript
+            p/react
+            p/nestjs
+          generateSarif: "1"
+
+      - name: Upload Semgrep results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: semgrep.sarif
+
+      - name: Upload ESLint results
+        uses: actions/upload-artifact@v4
+        with:
+          name: eslint-security-results
+          path: |
+            backend/eslint-backend-results.json
+            frontend/eslint-frontend-results.json
+          retention-days: 30
+
+  license-compliance:
+    name: License Compliance
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm run install:all
+
+      - name: Check license compliance
+        run: |
+          npx license-checker --onlyAllow 'MIT;BSD;Apache-2.0;ISC;0BSD;BSD-2-Clause;BSD-3-Clause;CC0-1.0;Unlicense' --json > license-report.json || true
+          
+          # Check for any restricted licenses
+          if jq -e '.[] | select(.licenses | contains("GPL") or contains("AGPL") or contains("LGPL"))' license-report.json; then
+            echo "❌ Restricted licenses found"
+            exit 1
+          else
+            echo "✅ All licenses are compliant"
+          fi
+
+      - name: Upload license report
+        uses: actions/upload-artifact@v4
+        with:
+          name: license-compliance-report
+          path: license-report.json
+          retention-days: 30
+
+  security-scorecard:
+    name: Security Scorecard
+    runs-on: ubuntu-latest
+    needs: [dependency-scan, codeql-analysis, container-security, secret-detection, sast-analysis, license-compliance]
+    if: always()
+    steps:
+      - name: Calculate security score
+        run: |
+          # Calculate scores based on job results
+          DEPENDENCY_SCORE=$([ "${{ needs.dependency-scan.result }}" == "success" ] && echo 20 || echo 0)
+          CODEQL_SCORE=$([ "${{ needs.codeql-analysis.result }}" == "success" ] && echo 20 || echo 0)
+          CONTAINER_SCORE=$([ "${{ needs.container-security.result }}" == "success" ] && echo 20 || echo 0)
+          SECRET_SCORE=$([ "${{ needs.secret-detection.result }}" == "success" ] && echo 20 || echo 0)
+          SAST_SCORE=$([ "${{ needs.sast-analysis.result }}" == "success" ] && echo 10 || echo 0)
+          LICENSE_SCORE=$([ "${{ needs.license-compliance.result }}" == "success" ] && echo 10 || echo 0)
+          
+          TOTAL_SCORE=$((DEPENDENCY_SCORE + CODEQL_SCORE + CONTAINER_SCORE + SECRET_SCORE + SAST_SCORE + LICENSE_SCORE))
+          
+          echo "Security Scorecard:"
+          echo "- Dependency Scan: $DEPENDENCY_SCORE/20"
+          echo "- CodeQL Analysis: $CODEQL_SCORE/20"
+          echo "- Container Security: $CONTAINER_SCORE/20"
+          echo "- Secret Detection: $SECRET_SCORE/20"
+          echo "- SAST Analysis: $SAST_SCORE/10"
+          echo "- License Compliance: $LICENSE_SCORE/10"
+          echo "Total Score: $TOTAL_SCORE/100"
+          
+          # Generate security report
+          cat > security-report.json << EOF
+          {
+            "scan_time": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "commit_sha": "${{ github.sha }}",
+            "branch": "${{ github.ref_name }}",
+            "scores": {
+              "dependency_scan": $DEPENDENCY_SCORE,
+              "codeql_analysis": $CODEQL_SCORE,
+              "container_security": $CONTAINER_SCORE,
+              "secret_detection": $SECRET_SCORE,
+              "sast_analysis": $SAST_SCORE,
+              "license_compliance": $LICENSE_SCORE
+            },
+            "total_score": $TOTAL_SCORE,
+            "grade": "$([ $TOTAL_SCORE -ge 90 ] && echo 'A' || [ $TOTAL_SCORE -ge 80 ] && echo 'B' || [ $TOTAL_SCORE -ge 70 ] && echo 'C' || echo 'F')",
+            "status": "$([ $TOTAL_SCORE -ge 80 ] && echo 'PASS' || echo 'FAIL')"
+          }
+          EOF
+
+      - name: Upload security report
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-report
+          path: security-report.json
+          retention-days: 30
+
+      - name: Security gate check
+        run: |
+          TOTAL_SCORE=$(jq '.total_score' security-report.json)
+          STATUS=$(jq -r '.status' security-report.json)
+          
+          if [ "$STATUS" == "PASS" ]; then
+            echo "✅ Security gate: PASSED (Score: $TOTAL_SCORE/100)"
+          else
+            echo "❌ Security gate: FAILED (Score: $TOTAL_SCORE/100)"
+            echo "Minimum required score: 80/100"
+            exit 1
+          fi

@@ -8,21 +8,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Before doing ANYTHING else, you MUST:
 1. Type exactly: `cat .mosaic/AGENT-QUICK-REFERENCE.md`
-2. Type exactly: `cat docs/agent-management/tech-lead-tony/E055-PROGRESS.md | head -100`
-3. Confirm you understand Epic E.055 status
+2. Review the Epic E.055 status and project structure below
+3. Confirm you understand the current project state
 
 **DO NOT PROCEED WITHOUT COMPLETING THE ABOVE STEPS**
+
+## 📚 CRITICAL: Documentation MUST Follow BookStack Structure
+
+**ALL DOCUMENTATION MUST FOLLOW THE 4-LEVEL HIERARCHY:**
+- Shelf → Book → Chapter → Page
+- See `ORGANIZATIONAL-STRUCTURE.md` for domain organization rules
+- See `docs/bookstack/bookstack-structure-optimized.yaml` for documentation hierarchy
+- NEVER create documentation outside the defined structure
 
 ## 🚨 CRITICAL: Epic E.055 - MosAIc Stack Transformation In Progress
 
 ### ⚡ MANDATORY FIRST READ - ALL AGENTS
 **STOP! Before doing ANY work, you MUST:**
-1. Read: `docs/agent-management/tech-lead-tony/E055-PROGRESS.md`
-2. Check: `.mosaic/AGENT-QUICK-REFERENCE.md` for current status
+1. Check: `.mosaic/AGENT-QUICK-REFERENCE.md` for current status
+2. Review: Project structure and active work areas below
 3. Verify: Existing worktrees with `git worktree list`
 
 ### 🔒 BLOCKED AREAS - DO NOT MODIFY
-- ❌ **tony/** submodule - Tony 2.7.0 in progress by another agent
 - ❌ **mosaic/** submodule - Existing platform (NOT our @mosaic/core!)
 - ❌ GitHub repository names - Already renamed
 - ❌ User-level Tony (~/.claude/tony/) - Testing 2.8.0 here only
@@ -42,6 +49,11 @@ Before doing ANYTHING else, you MUST:
 3. **mosaic-dev** (Renamed from tony-dev)
    - Update to @mosaic/dev namespace
    - Maintain SDK testing tools
+
+4. **tony/** submodule (Framework integration)
+   - Agent persona system fully migrated here
+   - Scripts, templates, and configurations organized
+   - Ready for Tony 2.8.0 MCP integration
 
 ### 📁 Project Structure
 ```
@@ -64,7 +76,16 @@ mosaic-sdk/
 ├── mosaic/                     # Submodule (DO NOT MODIFY)
 ├── mosaic-mcp/                 # MCP server submodule
 ├── mosaic-dev/                 # Dev tools submodule
-├── tony/                       # NOT ADDED YET (waiting 2.7.0)
+├── tony/                       # Tony Framework submodule
+│   ├── personas/               # Agent persona definitions
+│   │   ├── {domain}/          # Personas by domain
+│   │   └── schemas/           # Validation schemas
+│   ├── scripts/                # Tony scripts
+│   │   └── operations/agents/  # Persona management scripts
+│   ├── templates/              # Tony templates
+│   │   └── personas/          # Persona templates
+│   └── conf/                   # Tony configuration
+│       └── paths.conf         # Centralized path config
 └── worktrees/                  # Git worktrees
     ├── mosaic-worktrees/
     │   └── core-orchestration/ # @mosaic/core (ACTIVE)
@@ -79,8 +100,9 @@ mosaic-sdk/
 - [x] @mosaic/core implemented with MCP client
 - [x] Isolated dev environment (port 3456)
 - [x] MCP integration tested successfully
-- [ ] Tony 2.7.0 completion (BLOCKING)
-- [ ] Tony 2.8.0 MCP requirement
+- [x] Agent persona system migrated to tony submodule
+- [x] Tony submodule organized for 2.8.0 integration
+- [ ] Tony 2.8.0 MCP requirement implementation
 - [ ] Full stack integration testing
 
 ### ⚠️ Critical Instructions
@@ -283,6 +305,89 @@ The MosAIc SDK includes an isolated MCP server for testing:
 - `.mosaic/stack.config.json`: Stack configuration
 - `.mosaic/version-matrix.json`: Version tracking
 
+## 🎭 Agent Persona System
+
+### Mandatory Persona Assignment
+**ALL AGENTS MUST USE A PREDEFINED PERSONA** - No exceptions!
+
+The MosAIc Framework enforces consistent agent behavior through mandatory personas:
+- **Naming Pattern**: `DOMAIN-ROLE-NAME` (e.g., BE-BACKEND-BENJAMIN)
+- **Domains**: EXECUTIVE, MANAGEMENT, DEVELOPMENT, QUALITY, SECURITY, OPERATIONS, DATA, SUPPORT
+- **Validation**: Only personas defined in `tony/personas/` are allowed
+
+### Automatic Persona Selection
+The supervisor agent (Tony) automatically selects personas based on task keywords:
+
+**Development Tasks**:
+- `backend`, `API`, `server` → **BE-BACKEND-BENJAMIN**
+- `frontend`, `UI`, `React` → **FE-FRONTEND-FIONA**
+- `full stack`, `integration` → **FS-FULLSTACK-FELIX**
+- `database`, `SQL`, `schema` → **DB-DATABASE-DIANA**
+- `machine learning`, `ML`, `AI` → **ML-LEARNING-MARCUS**
+
+**Quality & Testing**:
+- `testing`, `QA`, `quality` → **QA-QUALITY-QUINN**
+- `test automation`, `E2E` → **TEST-AUTOMATION-TARA**
+- `performance`, `load testing` → **PERF-PERFORMANCE-PETER**
+
+**Security & Compliance**:
+- `security`, `vulnerability` → **SEC-SECURITY-SARAH**
+- `compliance`, `audit` → **AUDIT-COMPLIANCE-ALEX**
+
+**Operations**:
+- `DevOps`, `deployment`, `CI/CD` → **DEVOPS-OPERATIONS-OLIVER**
+- `reliability`, `SRE`, `monitoring` → **SRE-RELIABILITY-RACHEL**
+
+**Management**:
+- `coordinate`, `orchestrate` → **TL-LEAD-TONY**
+- `project management`, `timeline` → **PM-PROJECT-PAUL**
+- `team management` → **EM-ENGINEERING-EMMA**
+
+**Executive**:
+- `strategy`, `business plan` → **CEO-STRATEGIC-SOPHIA**
+- `architecture`, `system design` → **CTO-TECHNICAL-THOMAS**
+- `product`, `user experience` → **CPO-PRODUCT-PATRICIA**
+
+### Manual Persona Override
+Supervisors can explicitly assign personas:
+```
+"Deploy BE-BACKEND-BENJAMIN for task T.055.01.02"
+"Use SEC-SECURITY-SARAH to review this code"
+```
+
+### Persona Integration with spawn-agent.sh
+```bash
+# Automatic persona injection
+./scripts/spawn-agent.sh \
+  --context context.json \
+  --agent-type backend-agent \
+  --persona BE-BACKEND-BENJAMIN
+
+# List available personas
+./tony/scripts/operations/agents/persona-loader.sh --list
+
+# Search for specific personas
+./tony/scripts/operations/agents/persona-loader.sh --search frontend
+```
+
+### Persona Enforcement Rules
+1. **Mandatory Assignment**: Every agent MUST have a persona
+2. **Domain Matching**: Persona domain must match task type
+3. **No Custom Personas**: Only predefined personas in the system
+4. **Model Respect**: Use the persona's preferred model unless overridden
+5. **Tool Authorization**: Respect persona's tool restrictions
+6. **Communication Style**: Maintain persona's communication patterns
+
+### Persona Files Location
+- **Definitions**: `tony/personas/{domain}/{PERSONA-ID}.yaml`
+- **Schema**: `tony/personas/schemas/persona-schema.json`
+- **Loader**: `tony/scripts/operations/agents/persona-loader.sh`
+- **Context**: Extended `tony/personas/schemas/agent-context-schema.json`
+- **Base Template**: `tony/templates/personas/base-persona-template.yaml`
+- **Documentation**: `docs/projects/tony/agent-management/01-persona-system.md`
+- **Requirements**: `docs/stack/setup/prerequisites/05-tony-persona-requirements.md`
+- **Path Config**: `tony/conf/paths.conf`
+
 ## Notes for Agents
 
 - The SDK uses a two-level deployment: user-level (~/.claude/tony/) and project-level
@@ -290,3 +395,4 @@ The MosAIc SDK includes an isolated MCP server for testing:
 - Documentation follows strict directory structure in `docs/`
 - Never commit without running tests and build verification
 - Use atomic commits with task IDs in commit messages
+- **ALWAYS use assigned persona traits and communication style**

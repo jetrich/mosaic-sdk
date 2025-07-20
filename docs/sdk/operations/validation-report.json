@@ -1,0 +1,2301 @@
+{
+  "timestamp": "2025-07-19T16:14:09.500594",
+  "structure_file": "docs/bookstack/bookstack-structure-optimized.yaml",
+  "docs_root": "docs",
+  "version": "1.0",
+  "summary": {
+    "errors": 247,
+    "warnings": 134,
+    "passed": false
+  },
+  "errors": [
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/projects/project-management/active-epics/01-epic-e055-mosaic-stack.md",
+      "message": "Page name '01-epic-e055-mosaic-stack' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/projects/project-management/active-epics/03-epic-e058-bookstack.md",
+      "message": "Page name '03-epic-e058-bookstack' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/projects/project-management/active-epics/02-epic-e057-mcp-integration.md",
+      "message": "Page name '02-epic-e057-mcp-integration' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/projects/project-management/active-epics/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/projects/project-management/planning-methodology/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/projects/project-management/roadmap-milestones/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/projects/migrations/version-migrations/01-tony-2.7-to-2.8.md",
+      "message": "Page name '01-tony-2.7-to-2.8' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/projects/migrations/version-migrations/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/projects/migrations/tony-to-mosaic/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/projects/migrations/data-migrations/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/projects/architecture/integration-patterns/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/projects/architecture/security-architecture/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/projects/architecture/system-architecture/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/engineering/cicd-handbook/advanced-pipelines/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/engineering/cicd-handbook/best-practices/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/engineering/cicd-handbook/pipeline-setup/04-PIPELINE-TEMPLATES.md",
+      "message": "Page name '04-PIPELINE-TEMPLATES' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/engineering/cicd-handbook/pipeline-setup/03-CI-CD-WORKFLOWS.md",
+      "message": "Page name '03-CI-CD-WORKFLOWS' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/engineering/cicd-handbook/pipeline-setup/02-CI-CD-TROUBLESHOOTING.md",
+      "message": "Page name '02-CI-CD-TROUBLESHOOTING' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/engineering/cicd-handbook/pipeline-setup/01-CI-CD-BEST-PRACTICES.md",
+      "message": "Page name '01-CI-CD-BEST-PRACTICES' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/engineering/cicd-handbook/pipeline-setup/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/engineering/getting-started/prerequisites/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/engineering/getting-started/quick-start/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/engineering/getting-started/development-workflow/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/engineering/api-documentation/rest-apis/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/engineering/api-documentation/mcp-protocol/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/engineering/api-documentation/webhooks/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/learning/reference/api/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/learning/reference/configuration/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/learning/reference/commands/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/learning/best-practices/operational-excellence/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/learning/best-practices/development-standards/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/learning/best-practices/security-practices/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/learning/troubleshooting/debugging/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/learning/troubleshooting/common-issues/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/learning/troubleshooting/faq/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/migration/tony-sdk-to-mosaic-sdk.md",
+      "message": "Page name 'tony-sdk-to-mosaic-sdk' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/migration/package-namespace-changes.md",
+      "message": "Page name 'package-namespace-changes' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/_moved/architecture.md",
+      "message": "Page name 'architecture' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/_moved/component-milestones.md",
+      "message": "Page name 'component-milestones' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/_moved/documentation-index.md",
+      "message": "Page name 'documentation-index' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/_moved/cicd-pipeline-implementation.md",
+      "message": "Page name 'cicd-pipeline-implementation' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/_moved/cicd/CI-CD-TROUBLESHOOTING.md",
+      "message": "Page name 'CI-CD-TROUBLESHOOTING' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/_moved/cicd/CI-CD-WORKFLOWS.md",
+      "message": "Page name 'CI-CD-WORKFLOWS' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/_moved/cicd/CI-CD-BEST-PRACTICES.md",
+      "message": "Page name 'CI-CD-BEST-PRACTICES' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/_moved/cicd/PIPELINE-TEMPLATES.md",
+      "message": "Page name 'PIPELINE-TEMPLATES' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/operations/backup-restore-operations.md",
+      "message": "Page name 'backup-restore-operations' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/operations/service-startup-procedures.md",
+      "message": "Page name 'service-startup-procedures' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/operations/incident-response-procedures.md",
+      "message": "Page name 'incident-response-procedures' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/operations/disaster-recovery-plan.md",
+      "message": "Page name 'disaster-recovery-plan' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/operations/handbook.md",
+      "message": "Page name 'handbook' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/operations/service-shutdown-procedures.md",
+      "message": "Page name 'service-shutdown-procedures' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/mcp-integration/TONY-2.8.0-MCP-INTEGRATION.md",
+      "message": "Page name 'TONY-2.8.0-MCP-INTEGRATION' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/mcp-integration/MIGRATION-GUIDE-2.7-TO-2.8.md",
+      "message": "Page name 'MIGRATION-GUIDE-2.7-TO-2.8' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/mcp-integration/REMAINING-WORK-SPEC.md",
+      "message": "Page name 'REMAINING-WORK-SPEC' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/mcp-integration/IMPLEMENTATION-SUMMARY.md",
+      "message": "Page name 'IMPLEMENTATION-SUMMARY' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/mcp-integration/QUICK-REFERENCE.md",
+      "message": "Page name 'QUICK-REFERENCE' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/task-management/planning/E055-QA-REMEDIATION-PLAN.md",
+      "message": "Page name 'E055-QA-REMEDIATION-PLAN' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/task-management/planning/E.057-MCP-INTEGRATION-STRATEGY.md",
+      "message": "Page name 'E.057-MCP-INTEGRATION-STRATEGY' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/task-management/active/E055-QA-REMEDIATION-BRIEF.md",
+      "message": "Page name 'E055-QA-REMEDIATION-BRIEF' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/task-management/active/E.057-MCP-INTEGRATION-PROGRESS.md",
+      "message": "Page name 'E.057-MCP-INTEGRATION-PROGRESS' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/task-management/active/E055-QA-REMEDIATION-TRACKER.md",
+      "message": "Page name 'E055-QA-REMEDIATION-TRACKER' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/task-management/active/E055-VULNERABILITY-REFERENCE.md",
+      "message": "Page name 'E055-VULNERABILITY-REFERENCE' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/deployment/nginx-proxy-manager-setup.md",
+      "message": "Page name 'nginx-proxy-manager-setup' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/deployment/portainer-deployment-guide.md",
+      "message": "Page name 'portainer-deployment-guide' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/deployment/complete-deployment-guide.md",
+      "message": "Page name 'complete-deployment-guide' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/api/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/development/gitea-push-guide.md",
+      "message": "Page name 'gitea-push-guide' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/development/quick-start.md",
+      "message": "Page name 'quick-start' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/development/worktrees-guide.md",
+      "message": "Page name 'worktrees-guide' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/development/git-workflow.md",
+      "message": "Page name 'git-workflow' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/development/branch-protection-rules.md",
+      "message": "Page name 'branch-protection-rules' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/development/isolated-environment.md",
+      "message": "Page name 'isolated-environment' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/agent-management/tech-lead-tony/E055-QA-REMEDIATION-PLAN.md",
+      "message": "Page name 'E055-QA-REMEDIATION-PLAN' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/agent-management/tech-lead-tony/E055-CORE-DECOMPOSITION.md",
+      "message": "Page name 'E055-CORE-DECOMPOSITION' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/agent-management/tech-lead-tony/E055-QA-REMEDIATION-TRACKER.md",
+      "message": "Page name 'E055-QA-REMEDIATION-TRACKER' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/agent-management/tech-lead-tony/E055-PROGRESS.md",
+      "message": "Page name 'E055-PROGRESS' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/agent-management/tech-lead-tony/QA-REPORT-E055-CORE.md",
+      "message": "Page name 'QA-REPORT-E055-CORE' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/agent-management/tech-lead-tony/E055-AGENT-ASSIGNMENTS.md",
+      "message": "Page name 'E055-AGENT-ASSIGNMENTS' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/orchestration/INTELLIGENT-ROUTING-SYSTEM.md",
+      "message": "Page name 'INTELLIGENT-ROUTING-SYSTEM' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/orchestration/ARCHITECTURE-DIAGRAMS.md",
+      "message": "Page name 'ARCHITECTURE-DIAGRAMS' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/orchestration/BENEFITS-AND-USE-CASES.md",
+      "message": "Page name 'BENEFITS-AND-USE-CASES' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/orchestration/SERVICE-PROVIDER-SPECIFICATIONS.md",
+      "message": "Page name 'SERVICE-PROVIDER-SPECIFICATIONS' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/orchestration/EXECUTIVE-SUMMARY.md",
+      "message": "Page name 'EXECUTIVE-SUMMARY' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/orchestration/PLUGIN-SYSTEM-DESIGN.md",
+      "message": "Page name 'PLUGIN-SYSTEM-DESIGN' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/orchestration/IMPLEMENTATION-PHASES.md",
+      "message": "Page name 'IMPLEMENTATION-PHASES' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/orchestration/ORCHESTRATION-ARCHITECTURE-EVOLUTION.md",
+      "message": "Page name 'ORCHESTRATION-ARCHITECTURE-EVOLUTION' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/orchestration/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/services/gitea/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/mosaic-stack/architecture.md",
+      "message": "Page name 'architecture' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/mosaic-stack/component-milestones.md",
+      "message": "Page name 'component-milestones' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/mosaic-stack/overview.md",
+      "message": "Page name 'overview' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/mosaic-stack/EPIC-E.055-BREAKDOWN.md",
+      "message": "Page name 'EPIC-E.055-BREAKDOWN' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/mosaic-stack/version-roadmap.md",
+      "message": "Page name 'version-roadmap' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/bookstack/ENFORCEMENT-SUMMARY.md",
+      "message": "Page name 'ENFORCEMENT-SUMMARY' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/bookstack/MIGRATION-PLAN.md",
+      "message": "Page name 'MIGRATION-PLAN' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/bookstack/SYNC-IMPLEMENTATION.md",
+      "message": "Page name 'SYNC-IMPLEMENTATION' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/bookstack/templates/runbook-template.md",
+      "message": "Page name 'runbook-template' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/bookstack/templates/api-template.md",
+      "message": "Page name 'api-template' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/bookstack/templates/page-template.md",
+      "message": "Page name 'page-template' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/bookstack/templates/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/architecture/service-dependencies.md",
+      "message": "Page name 'service-dependencies' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/architecture/data-flow.md",
+      "message": "Page name 'data-flow' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/architecture/overview.md",
+      "message": "Page name 'overview' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/architecture/network-topology.md",
+      "message": "Page name 'network-topology' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/architecture/security-architecture.md",
+      "message": "Page name 'security-architecture' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/_old/_moved/troubleshooting/common-issues.md",
+      "message": "Page name 'common-issues' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/platform/operations/routine-operations/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/platform/operations/incident-response/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/platform/operations/backup-recovery/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/platform/installation/deployment/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/platform/installation/configuration/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/platform/installation/planning/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/platform/services/supporting-services/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/platform/services/core-services/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "naming_convention",
+      "path": "docs/platform/services/application-services/README.md",
+      "message": "Page name 'README' doesn't match pattern '00-kebab-case'"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/MIGRATION-COMPLETION-REPORT.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/REORGANIZATION-STATUS.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/DOCUMENTATION-TRUTH-REPORT.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/MIGRATION-SCRATCHPAD.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/MIGRATION-PROGRESS-SUMMARY.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/projects/project-management/active-epics/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/projects/project-management/planning-methodology/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/projects/project-management/roadmap-milestones/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/projects/migrations/version-migrations/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/projects/migrations/tony-to-mosaic/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/projects/migrations/data-migrations/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/projects/architecture/integration-patterns/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/projects/architecture/security-architecture/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/projects/architecture/system-architecture/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/engineering/cicd-handbook/advanced-pipelines/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/engineering/cicd-handbook/best-practices/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/engineering/cicd-handbook/pipeline-setup/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/engineering/getting-started/prerequisites/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/engineering/getting-started/quick-start/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/engineering/getting-started/development-workflow/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/engineering/api-documentation/rest-apis/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/engineering/api-documentation/mcp-protocol/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/engineering/api-documentation/webhooks/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/learning/reference/api/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/learning/reference/configuration/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/learning/reference/commands/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/learning/best-practices/operational-excellence/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/learning/best-practices/development-standards/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/learning/best-practices/security-practices/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/learning/troubleshooting/debugging/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/learning/troubleshooting/common-issues/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/learning/troubleshooting/faq/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/overview.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/EPIC-E.055-BREAKDOWN.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/version-roadmap.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/migration/tony-sdk-to-mosaic-sdk.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/migration/package-namespace-changes.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/_moved/architecture.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/_moved/component-milestones.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/_moved/documentation-index.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/_moved/cicd-pipeline-implementation.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/_moved/cicd/CI-CD-TROUBLESHOOTING.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/_moved/cicd/CI-CD-WORKFLOWS.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/_moved/cicd/CI-CD-BEST-PRACTICES.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/_moved/cicd/PIPELINE-TEMPLATES.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/operations/backup-restore-operations.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/operations/service-startup-procedures.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/operations/incident-response-procedures.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/operations/disaster-recovery-plan.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/operations/handbook.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/operations/service-shutdown-procedures.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/mcp-integration/TONY-2.8.0-MCP-INTEGRATION.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/mcp-integration/MIGRATION-GUIDE-2.7-TO-2.8.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/mcp-integration/REMAINING-WORK-SPEC.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/mcp-integration/IMPLEMENTATION-SUMMARY.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/mcp-integration/QUICK-REFERENCE.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/task-management/planning/E055-QA-REMEDIATION-PLAN.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/task-management/planning/E.057-MCP-INTEGRATION-STRATEGY.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/task-management/active/E055-QA-REMEDIATION-BRIEF.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/task-management/active/E.057-MCP-INTEGRATION-PROGRESS.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/task-management/active/E055-QA-REMEDIATION-TRACKER.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/task-management/active/E055-VULNERABILITY-REFERENCE.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/deployment/nginx-proxy-manager-setup.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/deployment/portainer-deployment-guide.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/deployment/complete-deployment-guide.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/api/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/development/gitea-push-guide.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/development/quick-start.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/development/worktrees-guide.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/development/git-workflow.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/development/branch-protection-rules.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/development/isolated-environment.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/agent-management/tech-lead-tony/E055-QA-REMEDIATION-PLAN.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/agent-management/tech-lead-tony/E055-CORE-DECOMPOSITION.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/agent-management/tech-lead-tony/E055-QA-REMEDIATION-TRACKER.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/agent-management/tech-lead-tony/E055-PROGRESS.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/agent-management/tech-lead-tony/QA-REPORT-E055-CORE.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/agent-management/tech-lead-tony/E055-AGENT-ASSIGNMENTS.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/orchestration/INTELLIGENT-ROUTING-SYSTEM.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/orchestration/ARCHITECTURE-DIAGRAMS.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/orchestration/BENEFITS-AND-USE-CASES.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/orchestration/SERVICE-PROVIDER-SPECIFICATIONS.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/orchestration/EXECUTIVE-SUMMARY.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/orchestration/PLUGIN-SYSTEM-DESIGN.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/orchestration/IMPLEMENTATION-PHASES.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/orchestration/ORCHESTRATION-ARCHITECTURE-EVOLUTION.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/orchestration/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/services/gitea/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/mosaic-stack/architecture.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/mosaic-stack/component-milestones.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/mosaic-stack/overview.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/mosaic-stack/EPIC-E.055-BREAKDOWN.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/mosaic-stack/version-roadmap.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/bookstack/ENFORCEMENT-SUMMARY.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/bookstack/MIGRATION-PLAN.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/bookstack/SYNC-IMPLEMENTATION.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/bookstack/templates/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/architecture/service-dependencies.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/architecture/data-flow.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/architecture/overview.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/architecture/network-topology.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/architecture/security-architecture.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/_old/_moved/troubleshooting/common-issues.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_field",
+      "path": "docs/platform/operations/routine-operations/01-startup-procedures.md",
+      "message": "Missing required frontmatter field: last_updated"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_field",
+      "path": "docs/platform/operations/routine-operations/01-startup-procedures.md",
+      "message": "Missing required frontmatter field: author"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_field",
+      "path": "docs/platform/operations/routine-operations/02-shutdown-procedures.md",
+      "message": "Missing required frontmatter field: last_updated"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_field",
+      "path": "docs/platform/operations/routine-operations/02-shutdown-procedures.md",
+      "message": "Missing required frontmatter field: author"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/platform/operations/routine-operations/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_field",
+      "path": "docs/platform/operations/incident-response/01-incident-procedures.md",
+      "message": "Missing required frontmatter field: last_updated"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_field",
+      "path": "docs/platform/operations/incident-response/01-incident-procedures.md",
+      "message": "Missing required frontmatter field: author"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/platform/operations/incident-response/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_field",
+      "path": "docs/platform/operations/backup-recovery/01-backup-overview.md",
+      "message": "Missing required frontmatter field: last_updated"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_field",
+      "path": "docs/platform/operations/backup-recovery/01-backup-overview.md",
+      "message": "Missing required frontmatter field: author"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_field",
+      "path": "docs/platform/operations/backup-recovery/04-disaster-recovery.md",
+      "message": "Missing required frontmatter field: last_updated"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_field",
+      "path": "docs/platform/operations/backup-recovery/04-disaster-recovery.md",
+      "message": "Missing required frontmatter field: author"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_field",
+      "path": "docs/platform/operations/backup-recovery/02-backup-procedures.md",
+      "message": "Missing required frontmatter field: last_updated"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_field",
+      "path": "docs/platform/operations/backup-recovery/02-backup-procedures.md",
+      "message": "Missing required frontmatter field: author"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_field",
+      "path": "docs/platform/operations/backup-recovery/03-restore-procedures.md",
+      "message": "Missing required frontmatter field: last_updated"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_field",
+      "path": "docs/platform/operations/backup-recovery/03-restore-procedures.md",
+      "message": "Missing required frontmatter field: author"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/platform/operations/backup-recovery/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_field",
+      "path": "docs/platform/installation/deployment/01-complete-guide.md",
+      "message": "Missing required frontmatter field: order"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_field",
+      "path": "docs/platform/installation/deployment/01-complete-guide.md",
+      "message": "Missing required frontmatter field: category"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_field",
+      "path": "docs/platform/installation/deployment/01-complete-guide.md",
+      "message": "Missing required frontmatter field: tags"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_field",
+      "path": "docs/platform/installation/deployment/01-complete-guide.md",
+      "message": "Missing required frontmatter field: last_updated"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_field",
+      "path": "docs/platform/installation/deployment/01-complete-guide.md",
+      "message": "Missing required frontmatter field: author"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/platform/installation/deployment/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/platform/installation/configuration/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/platform/installation/planning/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/platform/services/supporting-services/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/platform/services/core-services/README.md",
+      "message": "Missing frontmatter section"
+    },
+    {
+      "severity": "error",
+      "rule": "frontmatter_required",
+      "path": "docs/platform/services/application-services/README.md",
+      "message": "Missing frontmatter section"
+    }
+  ],
+  "warnings": [
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/MIGRATION-COMPLETION-REPORT.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/REORGANIZATION-STATUS.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/DOCUMENTATION-TRUTH-REPORT.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/MIGRATION-SCRATCHPAD.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/MIGRATION-PROGRESS-SUMMARY.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/projects/project-management/active-epics/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/projects/project-management/planning-methodology/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/projects/project-management/roadmap-milestones/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/projects/migrations/version-migrations/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/projects/migrations/tony-to-mosaic/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/projects/migrations/data-migrations/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/projects/architecture/integration-patterns/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/projects/architecture/security-architecture/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/projects/architecture/system-architecture/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/engineering/cicd-handbook/advanced-pipelines/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/engineering/cicd-handbook/best-practices/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/engineering/cicd-handbook/pipeline-setup/04-PIPELINE-TEMPLATES.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/engineering/cicd-handbook/pipeline-setup/03-CI-CD-WORKFLOWS.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/engineering/cicd-handbook/pipeline-setup/02-CI-CD-TROUBLESHOOTING.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/engineering/cicd-handbook/pipeline-setup/01-CI-CD-BEST-PRACTICES.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/engineering/cicd-handbook/pipeline-setup/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/engineering/getting-started/prerequisites/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/engineering/getting-started/quick-start/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/engineering/getting-started/development-workflow/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/engineering/api-documentation/rest-apis/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/engineering/api-documentation/mcp-protocol/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/engineering/api-documentation/webhooks/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/learning/reference/api/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/learning/reference/configuration/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/learning/reference/commands/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/learning/best-practices/operational-excellence/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/learning/best-practices/development-standards/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/learning/best-practices/security-practices/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/learning/troubleshooting/debugging/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/learning/troubleshooting/common-issues/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/learning/troubleshooting/faq/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/overview.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/EPIC-E.055-BREAKDOWN.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/version-roadmap.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/migration/tony-sdk-to-mosaic-sdk.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/migration/package-namespace-changes.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/_moved/architecture.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/_moved/component-milestones.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/_moved/documentation-index.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/_moved/cicd-pipeline-implementation.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/_moved/cicd/CI-CD-TROUBLESHOOTING.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/_moved/cicd/CI-CD-WORKFLOWS.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/_moved/cicd/CI-CD-BEST-PRACTICES.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/_moved/cicd/PIPELINE-TEMPLATES.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/operations/backup-restore-operations.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/operations/service-startup-procedures.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/operations/incident-response-procedures.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/operations/disaster-recovery-plan.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/operations/handbook.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/operations/service-shutdown-procedures.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/operations/backup/01-backup-overview.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/mcp-integration/TONY-2.8.0-MCP-INTEGRATION.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/mcp-integration/MIGRATION-GUIDE-2.7-TO-2.8.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/mcp-integration/REMAINING-WORK-SPEC.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/mcp-integration/IMPLEMENTATION-SUMMARY.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/mcp-integration/QUICK-REFERENCE.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/task-management/planning/E055-QA-REMEDIATION-PLAN.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/task-management/planning/E.057-MCP-INTEGRATION-STRATEGY.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/task-management/active/E055-QA-REMEDIATION-BRIEF.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/task-management/active/E.057-MCP-INTEGRATION-PROGRESS.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/task-management/active/E055-QA-REMEDIATION-TRACKER.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/task-management/active/E055-VULNERABILITY-REFERENCE.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/deployment/nginx-proxy-manager-setup.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/deployment/portainer-deployment-guide.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/deployment/complete-deployment-guide.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/api/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/projects/planning/01-project-overview.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/development/gitea-push-guide.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/development/quick-start.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/development/worktrees-guide.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/development/git-workflow.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/development/branch-protection-rules.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/development/isolated-environment.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/agent-management/tech-lead-tony/E055-QA-REMEDIATION-PLAN.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/agent-management/tech-lead-tony/E055-CORE-DECOMPOSITION.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/agent-management/tech-lead-tony/E055-QA-REMEDIATION-TRACKER.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/agent-management/tech-lead-tony/E055-PROGRESS.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/agent-management/tech-lead-tony/QA-REPORT-E055-CORE.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/agent-management/tech-lead-tony/E055-AGENT-ASSIGNMENTS.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/orchestration/INTELLIGENT-ROUTING-SYSTEM.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/orchestration/ARCHITECTURE-DIAGRAMS.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/orchestration/BENEFITS-AND-USE-CASES.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/orchestration/SERVICE-PROVIDER-SPECIFICATIONS.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/orchestration/EXECUTIVE-SUMMARY.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/orchestration/PLUGIN-SYSTEM-DESIGN.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/orchestration/IMPLEMENTATION-PHASES.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/orchestration/ORCHESTRATION-ARCHITECTURE-EVOLUTION.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/orchestration/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/services/gitea/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/stack/services/01-gitea.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/stack/config/01-environment-variables.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/stack/troubleshooting/common-issues/01-service-startup.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/engineering/dev-guide/getting-started/02-environment-setup.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/engineering/dev-guide/getting-started/01-prerequisites.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/engineering/dev-guide/best-practices/01-coding-standards.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/mosaic-stack/architecture.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/mosaic-stack/component-milestones.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/mosaic-stack/overview.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/mosaic-stack/EPIC-E.055-BREAKDOWN.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/mosaic-stack/version-roadmap.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/bookstack/ENFORCEMENT-SUMMARY.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/bookstack/MIGRATION-PLAN.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/bookstack/SYNC-IMPLEMENTATION.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/bookstack/templates/runbook-template.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/bookstack/templates/api-template.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/bookstack/templates/page-template.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/bookstack/templates/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/architecture/service-dependencies.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/architecture/data-flow.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/architecture/overview.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/architecture/network-topology.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/architecture/security-architecture.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/_moved/troubleshooting/common-issues.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/git/private-repo-setup.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/_old/engineering/git-guide/workflows/01-branching-strategy.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/platform/operations/routine-operations/01-startup-procedures.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/platform/operations/routine-operations/02-shutdown-procedures.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/platform/operations/routine-operations/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/platform/operations/incident-response/01-incident-procedures.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/platform/operations/incident-response/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/platform/operations/backup-recovery/01-backup-overview.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/platform/operations/backup-recovery/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/platform/installation/deployment/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/platform/installation/configuration/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/platform/installation/planning/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/platform/services/supporting-services/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/platform/services/core-services/README.md",
+      "message": "File not defined in structure"
+    },
+    {
+      "severity": "warning",
+      "rule": "orphaned_file",
+      "path": "docs/platform/services/application-services/README.md",
+      "message": "File not defined in structure"
+    }
+  ]
+}

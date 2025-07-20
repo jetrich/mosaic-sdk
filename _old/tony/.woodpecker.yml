@@ -1,0 +1,128 @@
+# Woodpecker CI/CD Pipeline for Tony Framework
+# Core TypeScript framework with multi-phase planning architecture
+
+when:
+  - event: [push, pull_request]
+    branch: [main, develop, feature/*, hotfix/*]
+
+# Global environment variables
+variables:
+  - &node_image "node:20-alpine"
+
+# Pipeline steps
+steps:
+  # Install dependencies
+  install:
+    image: *node_image
+    commands:
+      - npm ci
+      - npm ls
+    when:
+      - event: [push, pull_request]
+
+  # Type checking
+  typecheck:
+    image: *node_image
+    commands:
+      - npm run type-check
+      - npm run type-check:strict
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - install
+
+  # Linting
+  lint:
+    image: *node_image
+    commands:
+      - npm run lint:check
+      - npm run format:check
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - install
+
+  # Build validation
+  build:
+    image: *node_image
+    commands:
+      - npm run build:prod
+      - ls -la dist/
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - typecheck
+      - lint
+
+  # Unit tests
+  test:
+    image: *node_image
+    commands:
+      - npm run test:ci
+      - npm run test:coverage
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - install
+
+  # Planning engine tests
+  test-planning:
+    image: *node_image
+    commands:
+      - npm run test:planning
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - build
+
+  # Security audit
+  security:
+    image: *node_image
+    commands:
+      - npm audit --production
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - install
+    failure: ignore  # Don't fail build on audit issues
+
+  # Build Docker image (only on main branch)
+  docker-build:
+    image: plugins/docker
+    settings:
+      repo: tony-framework
+      tags:
+        - latest
+        - ${CI_COMMIT_SHA:0:8}
+        - 2.8.0
+      dockerfile: Dockerfile
+      dry_run: true  # Change to false when ready to push
+    when:
+      - event: push
+      - branch: main
+    depends_on:
+      - build
+      - test
+      - test-planning
+
+  # Deploy notification (placeholder)
+  notify:
+    image: *node_image
+    commands:
+      - echo "Build completed successfully!"
+      - echo "Commit: ${CI_COMMIT_SHA}"
+      - echo "Branch: ${CI_COMMIT_BRANCH}"
+      - echo "Version: 2.8.0"
+    when:
+      - event: push
+      - branch: main
+    depends_on:
+      - docker-build
+
+# Matrix builds for multiple Node versions (optional)
+matrix:
+  include:
+    - NODE_VERSION: 18
+    - NODE_VERSION: 20
+    - NODE_VERSION: 22

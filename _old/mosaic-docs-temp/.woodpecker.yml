@@ -1,0 +1,47 @@
+pipeline:
+  # Validate markdown files
+  markdown-lint:
+    image: node:18-alpine
+    commands:
+      - npm install -g markdownlint-cli
+      - markdownlint '**/*.md' --ignore node_modules
+
+  # Check for broken links
+  link-check:
+    image: node:18-alpine
+    commands:
+      - npm install -g markdown-link-check
+      - find . -name "*.md" -not -path "./node_modules/*" | xargs -I {} markdown-link-check {}
+
+  # Validate documentation structure
+  structure-check:
+    image: bash:5
+    commands:
+      - ./scripts/validate-structure.sh
+
+  # Check submodule documentation completeness
+  submodule-docs-check:
+    image: bash:5
+    commands:
+      - ./scripts/check-submodule-docs.sh
+
+  # Sync to BookStack (main branch only)
+  bookstack-sync:
+    image: mosaic/bookstack-sync:latest
+    when:
+      branch: main
+      event: push
+    secrets: [bookstack_url, bookstack_token_id, bookstack_token_secret]
+    commands:
+      - ./scripts/sync-to-bookstack.sh
+
+  # Generate documentation index
+  generate-index:
+    image: node:18-alpine
+    when:
+      branch: main
+      event: push
+    commands:
+      - ./scripts/generate-index.sh > INDEX.md
+      - git add INDEX.md
+      - git diff --cached --exit-code || (git config user.email "ci@mosaic.dev" && git config user.name "MosAIc CI" && git commit -m "📚 Update documentation index [CI]" && git push)

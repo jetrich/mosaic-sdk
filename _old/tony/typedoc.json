@@ -1,0 +1,29 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "name": "Tony Core Framework",
+  "entryPoints": ["./core"],
+  "out": "../docs/api/tony-core",
+  "exclude": [
+    "**/node_modules/**",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "**/tests/**"
+  ],
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "includeVersion": true,
+  "readme": "./README.md",
+  "categoryOrder": [
+    "Planning",
+    "Agents",
+    "Plugins",
+    "Context",
+    "Utils",
+    "*"
+  ],
+  "navigationLinks": {
+    "Tony SDK": "../index.html",
+    "MCP Server": "../tony-mcp/index.html",
+    "Dev Tools": "../tony-dev/index.html"
+  }
+}

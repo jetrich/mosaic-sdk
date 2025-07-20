@@ -1,0 +1,364 @@
+#!/bin/bash
+
+# ATHMS - Automated Task Hierarchy Management System CLI
+# Epic E.053 - Tmux-First MCP Integration Strategy
+# Command-line interface for task hierarchy management with tmux integration
+
+set -euo pipefail
+
+# Script configuration
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+ATHMS_ENGINE="$PROJECT_ROOT/dist/athms/athms-cli.js"
+
+# Color codes for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
+
+# Default values
+TMUX_ENABLED=true
+VERBOSE=false
+DRY_RUN=false
+
+# Show usage information
+show_usage() {
+    cat << EOF
+${CYAN}ATHMS - Automated Task Hierarchy Management System${NC}
+${CYAN}Epic E.053 - Tmux-First MCP Integration Strategy${NC}
+
+Usage: $0 <command> [options]
+
+${CYAN}Task Management Commands:${NC}
+  create                    Create new task in hierarchy
+    --type <level>          Task level (epic|feature|story|task|subtask|atomic)
+    --title <title>         Task title
+    --description <desc>    Task description
+    --parent <id>           Parent task UPP ID
+    --priority <level>      Priority (critical|high|medium|low)
+    --duration <minutes>    Estimated duration
+    --tags <tag1,tag2>      Comma-separated tags
+
+  assign                    Assign task to agent
+    --task-id <id>          UPP task ID to assign
+    --agent <type>          Agent type (implementation-agent|qa-agent|etc.)
+    --tmux-session <name>   Custom tmux session name
+
+  update                    Update task status/progress
+    --task-id <id>          UPP task ID to update
+    --status <status>       New status (pending|in_progress|completed|failed)
+    --progress <percent>    Progress percentage (0-100)
+    --notes <text>          Update notes
+
+  show                      Display task information
+    --task-id <id>          Show specific task details
+    --level <level>         Show all tasks at level
+    --status <status>       Filter by status
+    --agent <type>          Filter by assigned agent
+
+${CYAN}Execution Commands:${NC}
+  spawn                     Spawn task execution in tmux
+    --task-id <id>          Task to execute
+    --tmux-session <name>   Custom tmux session name
+
+  monitor                   Monitor task execution
+    --task-id <id>          Monitor specific task
+    --visual                Create visual monitoring dashboard
+    --refresh <seconds>     Refresh interval (default: 5)
+
+  dashboard                 Launch ATHMS monitoring dashboard
+  ready                     Show tasks ready for execution
+  active                    Show currently executing tasks
+
+${CYAN}Hierarchy Commands:${NC}
+  tree                      Show task hierarchy tree
+    --task-id <id>          Start from specific task
+    --depth <levels>        Maximum depth to show
+
+  dependencies              Show task dependencies
+    --task-id <id>          Task to analyze
+
+  export                    Export hierarchy to JSON
+    --output <file>         Output file (default: athms-export.json)
+
+${CYAN}Tmux Integration:${NC}
+  tmux-status               Show tmux session status
+  tmux-attach               Attach to main ATHMS session
+    --task-id <id>          Attach to specific task session
+  tmux-cleanup              Clean up completed sessions
+
+${CYAN}Options:${NC}
+  --verbose                 Enable verbose output
+  --dry-run                 Show what would be done without executing
+  --no-tmux                 Disable tmux integration
+  --help                    Show this help message
+
+${CYAN}Examples:${NC}
+  # Create new epic
+  $0 create --type epic --title "User Authentication System"
+
+  # Create feature under epic
+  $0 create --type feature --title "Login Flow" --parent E.001
+
+  # Assign task to agent and spawn in tmux
+  $0 assign --task-id T.001.01.01.01 --agent implementation-agent
+  $0 spawn --task-id T.001.01.01.01
+
+  # Monitor execution with visual dashboard
+  $0 monitor --visual
+
+  # Show task hierarchy
+  $0 tree --task-id E.001
+
+  # Show ready tasks
+  $0 ready
+
+${CYAN}UPP Task Hierarchy Levels:${NC}
+  Epic (E.XXX)              Large initiatives and features
+  Feature (F.XXX.XX)        Major functional components
+  Story (S.XXX.XX.XX)       User-facing functionality
+  Task (T.XXX.XX.XX.XX)     Development work items
+  Subtask (ST.XXX.XX.XX.XX.XX)    Detailed implementation steps
+  Atomic (A.XXX.XX.XX.XX.XX.XX)   ≤30 minute work units
+
+${CYAN}Agent Types:${NC}
+  tech-lead-agent           Overall coordination and planning
+  implementation-agent      Code development and implementation
+  qa-security-agent         Testing and security validation
+  documentation-agent       Documentation and knowledge management
+  migration-agent           System migration and data transfer
+
+EOF
+}
+
+# Parse command line arguments
+parse_arguments() {
+    COMMAND=""
+    
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            create|assign|update|show|spawn|monitor|dashboard|ready|active|tree|dependencies|export|tmux-status|tmux-attach|tmux-cleanup)
+                COMMAND="$1"
+                shift
+                ;;
+            --type)
+                TASK_TYPE="$2"
+                shift 2
+                ;;
+            --title)
+                TASK_TITLE="$2"
+                shift 2
+                ;;
+            --description)
+                TASK_DESCRIPTION="$2"
+                shift 2
+                ;;
+            --parent)
+                PARENT_ID="$2"
+                shift 2
+                ;;
+            --priority)
+                PRIORITY="$2"
+                shift 2
+                ;;
+            --duration)
+                DURATION="$2"
+                shift 2
+                ;;
+            --tags)
+                TAGS="$2"
+                shift 2
+                ;;
+            --task-id)
+                TASK_ID="$2"
+                shift 2
+                ;;
+            --agent)
+                AGENT_TYPE="$2"
+                shift 2
+                ;;
+            --tmux-session)
+                TMUX_SESSION="$2"
+                shift 2
+                ;;
+            --status)
+                STATUS="$2"
+                shift 2
+                ;;
+            --progress)
+                PROGRESS="$2"
+                shift 2
+                ;;
+            --notes)
+                NOTES="$2"
+                shift 2
+                ;;
+            --level)
+                LEVEL="$2"
+                shift 2
+                ;;
+            --visual)
+                VISUAL=true
+                shift
+                ;;
+            --refresh)
+                REFRESH="$2"
+                shift 2
+                ;;
+            --depth)
+                DEPTH="$2"
+                shift 2
+                ;;
+            --output)
+                OUTPUT_FILE="$2"
+                shift 2
+                ;;
+            --verbose)
+                VERBOSE=true
+                shift
+                ;;
+            --dry-run)
+                DRY_RUN=true
+                shift
+                ;;
+            --no-tmux)
+                TMUX_ENABLED=false
+                shift
+                ;;
+            --help)
+                show_usage
+                exit 0
+                ;;
+            *)
+                echo -e "${RED}Unknown option: $1${NC}"
+                show_usage
+                exit 1
+                ;;
+        esac
+    done
+
+    if [ -z "$COMMAND" ]; then
+        echo -e "${RED}Error: Command required${NC}"
+        show_usage
+        exit 1
+    fi
+}
+
+# Check if ATHMS engine is available
+check_athms_engine() {
+    if [ ! -f "$ATHMS_ENGINE" ]; then
+        echo -e "${YELLOW}ATHMS engine not found, attempting to build...${NC}"
+        
+        # Try to build the TypeScript engine
+        if command -v npm &> /dev/null; then
+            cd "$PROJECT_ROOT"
+            npm run build:athms 2>/dev/null || {
+                echo -e "${RED}Failed to build ATHMS engine${NC}"
+                echo "Please run: cd $PROJECT_ROOT && npm install && npm run build"
+                exit 1
+            }
+        else
+            echo -e "${RED}ATHMS engine not available and npm not found${NC}"
+            echo "Please install Node.js and run: cd $PROJECT_ROOT && npm install && npm run build"
+            exit 1
+        fi
+    fi
+}
+
+# Execute ATHMS command
+execute_command() {
+    local cmd_args=()
+    
+    # Build command arguments
+    cmd_args+=("$COMMAND")
+    
+    # Add common options
+    if [ "$VERBOSE" = true ]; then
+        cmd_args+=("--verbose")
+    fi
+    
+    if [ "$DRY_RUN" = true ]; then
+        cmd_args+=("--dry-run")
+    fi
+    
+    if [ "$TMUX_ENABLED" = false ]; then
+        cmd_args+=("--no-tmux")
+    fi
+    
+    # Add command-specific arguments
+    case "$COMMAND" in
+        create)
+            [ -n "${TASK_TYPE:-}" ] && cmd_args+=("--type" "$TASK_TYPE")
+            [ -n "${TASK_TITLE:-}" ] && cmd_args+=("--title" "$TASK_TITLE")
+            [ -n "${TASK_DESCRIPTION:-}" ] && cmd_args+=("--description" "$TASK_DESCRIPTION")
+            [ -n "${PARENT_ID:-}" ] && cmd_args+=("--parent" "$PARENT_ID")
+            [ -n "${PRIORITY:-}" ] && cmd_args+=("--priority" "$PRIORITY")
+            [ -n "${DURATION:-}" ] && cmd_args+=("--duration" "$DURATION")
+            [ -n "${TAGS:-}" ] && cmd_args+=("--tags" "$TAGS")
+            ;;
+        assign)
+            [ -n "${TASK_ID:-}" ] && cmd_args+=("--task-id" "$TASK_ID")
+            [ -n "${AGENT_TYPE:-}" ] && cmd_args+=("--agent" "$AGENT_TYPE")
+            [ -n "${TMUX_SESSION:-}" ] && cmd_args+=("--tmux-session" "$TMUX_SESSION")
+            ;;
+        update)
+            [ -n "${TASK_ID:-}" ] && cmd_args+=("--task-id" "$TASK_ID")
+            [ -n "${STATUS:-}" ] && cmd_args+=("--status" "$STATUS")
+            [ -n "${PROGRESS:-}" ] && cmd_args+=("--progress" "$PROGRESS")
+            [ -n "${NOTES:-}" ] && cmd_args+=("--notes" "$NOTES")
+            ;;
+        show)
+            [ -n "${TASK_ID:-}" ] && cmd_args+=("--task-id" "$TASK_ID")
+            [ -n "${LEVEL:-}" ] && cmd_args+=("--level" "$LEVEL")
+            [ -n "${STATUS:-}" ] && cmd_args+=("--status" "$STATUS")
+            [ -n "${AGENT_TYPE:-}" ] && cmd_args+=("--agent" "$AGENT_TYPE")
+            ;;
+        spawn)
+            [ -n "${TASK_ID:-}" ] && cmd_args+=("--task-id" "$TASK_ID")
+            [ -n "${TMUX_SESSION:-}" ] && cmd_args+=("--tmux-session" "$TMUX_SESSION")
+            ;;
+        monitor)
+            [ -n "${TASK_ID:-}" ] && cmd_args+=("--task-id" "$TASK_ID")
+            [ "${VISUAL:-false}" = true ] && cmd_args+=("--visual")
+            [ -n "${REFRESH:-}" ] && cmd_args+=("--refresh" "$REFRESH")
+            ;;
+        tree)
+            [ -n "${TASK_ID:-}" ] && cmd_args+=("--task-id" "$TASK_ID")
+            [ -n "${DEPTH:-}" ] && cmd_args+=("--depth" "$DEPTH")
+            ;;
+        dependencies)
+            [ -n "${TASK_ID:-}" ] && cmd_args+=("--task-id" "$TASK_ID")
+            ;;
+        export)
+            [ -n "${OUTPUT_FILE:-}" ] && cmd_args+=("--output" "$OUTPUT_FILE")
+            ;;
+        tmux-attach)
+            [ -n "${TASK_ID:-}" ] && cmd_args+=("--task-id" "$TASK_ID")
+            ;;
+    esac
+    
+    # Execute the ATHMS engine
+    if [ "$VERBOSE" = true ]; then
+        echo -e "${CYAN}Executing: node $ATHMS_ENGINE ${cmd_args[*]}${NC}"
+    fi
+    
+    node "$ATHMS_ENGINE" "${cmd_args[@]}"
+}
+
+# Main execution
+main() {
+    # Parse command line arguments
+    parse_arguments "$@"
+    
+    # Check ATHMS engine availability
+    check_athms_engine
+    
+    # Execute the command
+    execute_command
+}
+
+# Execute main function with all arguments
+main "$@"

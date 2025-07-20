@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "mosaic-mcp": {
+      "command": "node",
+      "args": [
+        "/home/jwoltje/src/mosaic-sdk/mosaic-mcp/dist/main.js"
+      ],
+      "env": {
+        "DATABASE_PATH": "/home/jwoltje/src/mosaic-sdk/.mosaic/data/mcp.db",
+        "NODE_ENV": "development",
+        "LOG_LEVEL": "debug"
+      }
+    }
+  }
+}

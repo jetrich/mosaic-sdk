@@ -1,0 +1,317 @@
+# MosAIc Stack - Portainer Version with Bind Mounts
+# Uses /opt bind mounts to preserve existing data
+
+services:
+  # PostgreSQL - Shared database cluster (INTERNAL ONLY)
+  postgres:
+    image: postgres:17.5-alpine
+    container_name: mosaic-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_MULTIPLE_DATABASES: ${POSTGRES_MULTIPLE_DATABASES}
+    volumes:
+      - /opt/mosaic/postgres/data:/var/lib/postgresql/data
+      - /opt/mosaic/postgres/init-databases.sh:/docker-entrypoint-initdb.d/init-databases.sh:ro
+    networks:
+      mosaicstack-internal:
+        aliases:
+          - postgres
+          - db
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+
+  # Redis - Session management and caching (INTERNAL ONLY)
+  redis:
+    image: redis:8.0.3-alpine
+    container_name: mosaic-redis
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    volumes:
+      - /opt/mosaic/redis/data:/data
+      - /opt/mosaic/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    networks:
+      mosaicstack-internal:
+        aliases:
+          - redis
+          - cache
+    restart: unless-stopped
+    command: redis-server /usr/local/etc/redis/redis.conf --requirepass ${REDIS_PASSWORD}
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+
+  # Gitea - Git repository hosting (EXTERNAL + INTERNAL)
+  gitea:
+    image: gitea/gitea:1.24.3
+    container_name: mosaic-gitea
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+      - GITEA__database__DB_TYPE=postgres
+      - GITEA__database__HOST=postgres:5432
+      - GITEA__database__NAME=${POSTGRES_DB}
+      - GITEA__database__USER=${POSTGRES_USER}
+      - GITEA__database__PASSWD=${POSTGRES_PASSWORD}
+      - GITEA__server__DOMAIN=${GITEA_DOMAIN}
+      - GITEA__server__SSH_DOMAIN=${GITEA_DOMAIN}
+      - GITEA__server__ROOT_URL=https://${GITEA_DOMAIN}/
+      - GITEA__server__SSH_PORT=2222
+      - GITEA__server__SSH_LISTEN_PORT=2222
+      - GITEA__server__DISABLE_SSH=false
+      - GITEA__server__START_SSH_SERVER=true
+      - GITEA__service__DISABLE_REGISTRATION=${GITEA_DISABLE_REGISTRATION:-true}
+      - GITEA__service__REQUIRE_SIGNIN_VIEW=${GITEA_REQUIRE_SIGNIN:-true}
+      - GITEA__security__INSTALL_LOCK=true
+      - GITEA__log__LEVEL=${LOG_LEVEL}
+      - GITEA__session__PROVIDER=redis
+      - GITEA__session__PROVIDER_CONFIG=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - GITEA__cache__ENABLED=true
+      - GITEA__cache__ADAPTER=redis
+      - GITEA__cache__HOST=redis://:${REDIS_PASSWORD}@redis:6379/1
+    volumes:
+      - /opt/mosaic/gitea/data:/data
+      - /opt/mosaic/gitea/config:/etc/gitea
+    ports:
+      - "3000:3000"   # Web interface
+      - "2222:2222"   # SSH for Git operations
+    networks:
+      nginx-proxy-manager_default:  # External access
+      mosaicstack-internal:         # Database/cache access
+        aliases:
+          - gitea
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Woodpecker CI/CD Server (EXTERNAL + INTERNAL)
+  woodpecker-server:
+    image: woodpeckerci/woodpecker-server:v3.8.0
+    container_name: mosaic-woodpecker-server
+    environment:
+      - WOODPECKER_OPEN=false
+      - WOODPECKER_HOST=https://${WOODPECKER_DOMAIN}
+      - WOODPECKER_GITEA=true
+      - WOODPECKER_GITEA_URL=https://${GITEA_DOMAIN}
+      - WOODPECKER_GITEA_CLIENT=${WOODPECKER_GITEA_CLIENT}
+      - WOODPECKER_GITEA_SECRET=${WOODPECKER_GITEA_SECRET}
+      - WOODPECKER_AGENT_SECRET=${WOODPECKER_AGENT_SECRET}
+      - WOODPECKER_DATABASE_DRIVER=postgres
+      - WOODPECKER_DATABASE_DATASOURCE=postgres://postgres:${POSTGRES_PASSWORD}@postgres:5432/woodpecker_prod?sslmode=disable
+      - WOODPECKER_ADMIN=${WOODPECKER_ADMIN:-admin}
+      - WOODPECKER_LOG_LEVEL=${LOG_LEVEL}
+      - WOODPECKER_GRPC_ADDR=:9000
+    volumes:
+      - /opt/mosaic/woodpecker/data:/var/lib/woodpecker
+    ports:
+      - "8000:8000"   # Web interface
+    networks:
+      nginx-proxy-manager_default:  # External access
+      mosaicstack-internal:         # Database/agent access
+        aliases:
+          - woodpecker-server
+    depends_on:
+      postgres:
+        condition: service_healthy
+      gitea:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Woodpecker CI/CD Agent (INTERNAL + LIMITED EXTERNAL)
+  woodpecker-agent:
+    image: woodpeckerci/woodpecker-agent:v3.8.0
+    container_name: mosaic-woodpecker-agent
+    environment:
+      - WOODPECKER_SERVER=woodpecker-server:9000
+      - WOODPECKER_AGENT_SECRET=${WOODPECKER_AGENT_SECRET}
+      - WOODPECKER_MAX_WORKFLOWS=4
+      - WOODPECKER_LOG_LEVEL=${LOG_LEVEL}
+      - WOODPECKER_HEALTHCHECK=true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/mosaic/woodpecker/agent_data:/var/lib/woodpecker
+    networks:
+      mosaicstack-internal:       # Server communication
+        aliases:
+          - woodpecker-agent
+      nginx-proxy-manager_default: # External package downloads
+    depends_on:
+      - woodpecker-server
+    restart: unless-stopped
+
+  # MariaDB for BookStack (BookStack requires MySQL/MariaDB, not PostgreSQL)
+  bookstack-db:
+    image: mariadb:11
+    container_name: mosaic-bookstack-db
+    environment:
+      - MYSQL_ROOT_PASSWORD=${POSTGRES_PASSWORD}
+      - MYSQL_DATABASE=bookstack
+      - MYSQL_USER=bookstack
+      - MYSQL_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - /opt/mosaic/bookstack-db/data:/var/lib/mysql
+    networks:
+      mosaicstack-internal:
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # BookStack - Documentation (EXTERNAL + INTERNAL)
+  bookstack:
+    image: lscr.io/linuxserver/bookstack:latest
+    container_name: mosaic-bookstack
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Chicago
+      - APP_URL=https://${BOOKSTACK_DOMAIN}
+      - APP_KEY=${BOOKSTACK_APP_KEY}
+      - DB_HOST=bookstack-db
+      - DB_PORT=3306
+      - DB_USERNAME=bookstack
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+      - DB_DATABASE=bookstack
+    volumes:
+      - /opt/mosaic/bookstack/data:/config
+    ports:
+      - "8080:80"     # Web interface
+    networks:
+      nginx-proxy-manager_default:  # External access
+      mosaicstack-internal:         # Database access
+        aliases:
+          - bookstack
+    depends_on:
+      bookstack-db:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Plane.so - Project Management Frontend (EXTERNAL + INTERNAL)
+  # plane-frontend:
+  #   image: makeplane/plane-frontend:latest
+  #   container_name: mosaic-plane-frontend
+  #   environment:
+  #     - WEB_URL=https://${PLANE_DOMAIN}
+  #     - DEBUG=0
+  #     - NEXT_PUBLIC_API_BASE_URL=http://plane-backend:8000
+  #     - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/plane_prod
+  #     - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/2
+  #     - SECRET_KEY=${PLANE_SECRET_KEY}
+  #     - USE_MINIO=0
+  #     - EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
+  #   volumes:
+  #     - /opt/mosaic/plane/media:/app/media
+  #     - /opt/mosaic/plane/static:/app/static
+  #   ports:
+  #     - "3001:3000"   # Web interface
+  #   networks:
+  #     nginx-proxy-manager_default:  # External access
+  #     mosaicstack-internal:         # Database/API access
+  #       aliases:
+  #         - plane-frontend
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #     plane-backend:
+  #       condition: service_started
+  #   restart: unless-stopped
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 5
+
+  # Plane API Backend (INTERNAL ONLY)
+  # plane-backend:
+  #   image: makeplane/plane-backend:latest
+  #   container_name: mosaic-plane-backend
+  #   environment:
+  #     - DEBUG=0
+  #     - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/plane_prod
+  #     - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/2
+  #     - SECRET_KEY=${PLANE_SECRET_KEY}
+  #     - USE_MINIO=0
+  #     - EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
+  #   volumes:
+  #     - /opt/mosaic/plane/media:/app/media
+  #     - /opt/mosaic/plane/static:/app/static
+  #   networks:
+  #     mosaicstack-internal:
+  #       aliases:
+  #         - plane-backend
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #   restart: unless-stopped
+
+  # Plane Worker (INTERNAL ONLY)
+  # plane-worker:
+  #   image: makeplane/plane-worker:latest
+  #   container_name: mosaic-plane-worker
+  #   environment:
+  #     - DEBUG=0
+  #     - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/plane_prod
+  #     - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/2
+  #     - SECRET_KEY=${PLANE_SECRET_KEY}
+  #   volumes:
+  #     - /opt/mosaic/plane/media:/app/media
+  #     - /opt/mosaic/plane/static:/app/static
+  #   networks:
+  #     - mosaicstack-internal
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #     plane-backend:
+  #       condition: service_started
+  #   restart: unless-stopped
+
+# Networks
+networks:
+  # External network - create if doesn't exist
+  nginx-proxy-manager_default:
+    driver: bridge
+    name: nginx-proxy-manager_default
+  
+  # Internal network for secure service communication
+  mosaicstack-internal:
+    driver: bridge
+    internal: true
+    name: mosaicstack-internal
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+

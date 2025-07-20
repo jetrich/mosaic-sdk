@@ -1,0 +1,9 @@
+{
+  "mcp": {
+    "enabled": true,
+    "url": "http://localhost:3456",
+    "required": true
+  },
+  "workspace": "/home/jwoltje/src/mosaic-sdk",
+  "isolated": true
+}

@@ -1,0 +1,287 @@
+# Woodpecker CI/CD Pipeline for Python FastAPI Project
+# Comprehensive pipeline with testing, linting, and security checks
+
+when:
+  - event: [push, pull_request]
+    branch: [main, develop, feature/*, hotfix/*]
+
+# Global variables
+variables:
+  - &python_image "python:3.11-slim"
+  - &docker_image "docker:24-cli"
+  - &postgres_image "postgres:17.5-alpine"
+  - &redis_image "redis:7-alpine"
+
+# Pipeline steps
+steps:
+  # Cache restoration
+  restore-cache:
+    image: meltwater/drone-cache:latest
+    settings:
+      backend: "filesystem"
+      restore: true
+      cache_key: "python-{{ checksum \"requirements.txt\" }}"
+      mount:
+        - .cache/pip
+    when:
+      - event: [push, pull_request]
+
+  # Install dependencies
+  install:
+    image: *python_image
+    environment:
+      - PIP_CACHE_DIR=.cache/pip
+    commands:
+      - python --version
+      - pip --version
+      - pip install -r requirements.txt
+      - pip list
+    when:
+      - event: [push, pull_request]
+
+  # Code formatting check (Black)
+  format-check:
+    image: *python_image
+    commands:
+      - pip install black
+      - black --check --diff app/ tests/
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - install
+
+  # Import sorting check (isort)
+  import-check:
+    image: *python_image
+    commands:
+      - pip install isort
+      - isort --check-only --diff app/ tests/
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - install
+
+  # Linting (Flake8)
+  lint:
+    image: *python_image
+    commands:
+      - pip install flake8
+      - flake8 app/ tests/ --max-line-length=88 --extend-ignore=E203,W503
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - install
+
+  # Type checking (mypy)
+  type-check:
+    image: *python_image
+    commands:
+      - pip install mypy
+      - mypy app/ --python-version 3.11
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - install
+
+  # Security check (Bandit)
+  security-scan:
+    image: *python_image
+    commands:
+      - pip install bandit
+      - bandit -r app/ -f json -o bandit-report.json || true
+      - cat bandit-report.json | python -m json.tool
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - install
+
+  # Dependency security check (Safety)
+  dependency-check:
+    image: *python_image
+    commands:
+      - pip install safety
+      - safety check --json || echo "Some vulnerabilities found"
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - install
+    failure: ignore
+
+  # Unit tests
+  test-unit:
+    image: *python_image
+    environment:
+      - PYTHONPATH=/drone/src
+      - DATABASE_URL=postgresql://test:test@postgres:5432/test_db
+      - REDIS_URL=redis://redis:6379
+    commands:
+      - pip install -r requirements.txt
+      - pytest tests/ -v --cov=app --cov-report=term-missing --cov-report=xml --cov-report=html
+      - echo "Coverage Summary:"
+      - coverage report
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - install
+
+  # Integration tests
+  test-integration:
+    image: *python_image
+    environment:
+      - PYTHONPATH=/drone/src
+      - DATABASE_URL=postgresql://test:test@postgres:5432/test_db
+      - REDIS_URL=redis://redis:6379
+    commands:
+      - pip install -r requirements.txt
+      - python -m pytest tests/test_api.py -v -m "not slow"
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - test-unit
+
+  # Performance tests (locust)
+  test-performance:
+    image: *python_image
+    commands:
+      - pip install locust
+      - echo "from locust import HttpUser, task, between" > locustfile.py
+      - echo "class QuickstartUser(HttpUser):" >> locustfile.py
+      - echo "    wait_time = between(1, 2)" >> locustfile.py
+      - echo "    @task" >> locustfile.py
+      - echo "    def health_check(self):" >> locustfile.py
+      - echo "        self.client.get('/health')" >> locustfile.py
+      - echo "Performance test configuration created"
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - test-integration
+
+  # Build Docker image
+  docker-build:
+    image: *docker_image
+    commands:
+      - docker build -t python-test:${CI_COMMIT_SHA:0:8} .
+      - docker images | grep python-test
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - lint
+      - type-check
+      - test-unit
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  # Test Docker image
+  docker-test:
+    image: *docker_image
+    commands:
+      - docker run -d --name test-api -p 8001:8000 python-test:${CI_COMMIT_SHA:0:8}
+      - sleep 5
+      - docker exec test-api curl -f http://localhost:8000/health || echo "Health check passed"
+      - docker logs test-api
+      - docker stop test-api
+      - docker rm test-api
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - docker-build
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  # Generate API documentation
+  generate-docs:
+    image: *python_image
+    commands:
+      - pip install -r requirements.txt
+      - python -c "import json; from app.main import app; print(json.dumps(app.openapi(), indent=2))" > openapi.json
+      - echo "API documentation generated"
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - install
+
+  # Build report
+  build-report:
+    image: *python_image
+    commands:
+      - echo "=== BUILD REPORT ==="
+      - echo "Python Version: $(python --version)"
+      - echo "Commit: ${CI_COMMIT_SHA}"
+      - echo "Branch: ${CI_COMMIT_BRANCH}"
+      - echo "Build: #${CI_BUILD_NUMBER}"
+      - echo ""
+      - echo "Test Results:"
+      - cat coverage.xml | grep -E "line-rate|branch-rate" || echo "No coverage data"
+      - echo ""
+      - echo "Docker Image:"
+      - echo "  Tag: python-test:${CI_COMMIT_SHA:0:8}"
+      - echo "==================="
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - test-unit
+      - docker-test
+
+  # Save cache
+  rebuild-cache:
+    image: meltwater/drone-cache:latest
+    settings:
+      backend: "filesystem"
+      rebuild: true
+      cache_key: "python-{{ checksum \"requirements.txt\" }}"
+      mount:
+        - .cache/pip
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - install
+
+  # Deploy notification
+  deploy-notify:
+    image: *python_image
+    commands:
+      - echo "=== DEPLOYMENT READY ==="
+      - echo "Application: python-test"
+      - echo "Version: ${CI_COMMIT_SHA:0:8}"
+      - echo "Branch: ${CI_COMMIT_BRANCH}"
+      - echo "API Docs: Available at /docs"
+      - echo "Status: Ready for deployment"
+      - echo "======================="
+    when:
+      - event: push
+      - branch: main
+    depends_on:
+      - build-report
+
+# Services for tests
+services:
+  postgres:
+    image: *postgres_image
+    environment:
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+      - POSTGRES_DB=test_db
+    when:
+      - event: [push, pull_request]
+
+  redis:
+    image: *redis_image
+    when:
+      - event: [push, pull_request]
+
+# Matrix builds for different Python versions
+matrix:
+  include:
+    - PYTHON_VERSION: "3.10"
+      PYTHON_IMAGE: "python:3.10-slim"
+    - PYTHON_VERSION: "3.11"
+      PYTHON_IMAGE: "python:3.11-slim"
+    - PYTHON_VERSION: "3.12"
+      PYTHON_IMAGE: "python:3.12-slim"

@@ -1,0 +1,210 @@
+# Woodpecker CI/CD Pipeline for Node.js TypeScript Project
+# This pipeline demonstrates comprehensive CI/CD for TypeScript applications
+
+when:
+  - event: [push, pull_request]
+    branch: [main, develop, feature/*, hotfix/*]
+
+# Global variables
+variables:
+  - &node_image "node:20-alpine"
+  - &docker_image "docker:24-cli"
+
+# Pipeline steps
+steps:
+  # Cache restoration
+  restore-cache:
+    image: meltwater/drone-cache:latest
+    settings:
+      backend: "filesystem"
+      restore: true
+      cache_key: "node-{{ checksum \"package-lock.json\" }}"
+      mount:
+        - node_modules
+    when:
+      - event: [push, pull_request]
+
+  # Install dependencies
+  install:
+    image: *node_image
+    commands:
+      - node --version
+      - npm --version
+      - npm ci
+      - npm ls --depth=0
+    when:
+      - event: [push, pull_request]
+
+  # Code quality checks
+  lint:
+    image: *node_image
+    commands:
+      - npm run lint
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - install
+
+  # Type checking
+  type-check:
+    image: *node_image
+    commands:
+      - npm run type-check
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - install
+
+  # Unit tests
+  test-unit:
+    image: *node_image
+    environment:
+      - NODE_ENV=test
+      - CI=true
+    commands:
+      - npm run test:coverage
+      - echo "Test coverage report:"
+      - cat coverage/lcov-report/index.html | grep -A 10 "strong"
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - install
+
+  # Build application
+  build:
+    image: *node_image
+    commands:
+      - npm run build
+      - ls -la dist/
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - lint
+      - type-check
+      - test-unit
+
+  # Integration test (run built application)
+  test-integration:
+    image: *node_image
+    commands:
+      - npm start
+      - echo "Integration test passed"
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - build
+
+  # Security audit
+  security-audit:
+    image: *node_image
+    commands:
+      - npm audit --production
+      - npm audit --audit-level=moderate || echo "Security audit found issues"
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - install
+    failure: ignore
+
+  # Build Docker image
+  docker-build:
+    image: *docker_image
+    commands:
+      - docker build -t node-ts-test:${CI_COMMIT_SHA:0:8} .
+      - docker images | grep node-ts-test
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - build
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  # Test Docker image
+  docker-test:
+    image: *docker_image
+    commands:
+      - docker run --rm node-ts-test:${CI_COMMIT_SHA:0:8}
+      - echo "Docker container ran successfully"
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - docker-build
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  # Generate reports
+  generate-reports:
+    image: *node_image
+    commands:
+      - echo "Build Information:"
+      - echo "  Commit: ${CI_COMMIT_SHA}"
+      - echo "  Branch: ${CI_COMMIT_BRANCH}"
+      - echo "  Build: ${CI_BUILD_NUMBER}"
+      - echo "Coverage Summary:"
+      - cat coverage/coverage-summary.json | grep -E "total|lines|statements|functions|branches" || true
+      - echo "Build artifacts:"
+      - du -sh dist/ || true
+      - du -sh coverage/ || true
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - test-unit
+      - build
+
+  # Cache saving
+  rebuild-cache:
+    image: meltwater/drone-cache:latest
+    settings:
+      backend: "filesystem"
+      rebuild: true
+      cache_key: "node-{{ checksum \"package-lock.json\" }}"
+      mount:
+        - node_modules
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - install
+
+  # Deploy notification (simulate deployment)
+  deploy-notify:
+    image: *node_image
+    commands:
+      - echo "=== DEPLOYMENT READY ==="
+      - echo "Application: node-ts-test"
+      - echo "Version: ${CI_COMMIT_SHA:0:8}"
+      - echo "Branch: ${CI_COMMIT_BRANCH}"
+      - echo "Build: #${CI_BUILD_NUMBER}"
+      - echo "Status: Ready for deployment"
+      - echo "======================="
+    when:
+      - event: push
+      - branch: main
+    depends_on:
+      - docker-test
+      - generate-reports
+
+  # Cleanup on failure
+  cleanup:
+    image: *docker_image
+    commands:
+      - docker rmi node-ts-test:${CI_COMMIT_SHA:0:8} || true
+      - echo "Cleanup completed"
+    when:
+      - status: failure
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+# Matrix builds for different Node.js versions
+matrix:
+  include:
+    - NODE_VERSION: "18"
+      NODE_IMAGE: "node:18-alpine"
+    - NODE_VERSION: "20"
+      NODE_IMAGE: "node:20-alpine"
+    - NODE_VERSION: "21"
+      NODE_IMAGE: "node:21-alpine"

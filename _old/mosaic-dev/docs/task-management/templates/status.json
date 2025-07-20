@@ -1,0 +1,19 @@
+{
+  "task_id": "",
+  "status": "pending",
+  "assigned_agent": null,
+  "progress_percentage": 0,
+  "time_spent_minutes": 0,
+  "started_at": null,
+  "last_updated": "",
+  "completion_claimed_at": null,
+  "validated_at": null,
+  "blocked": false,
+  "blocking_reason": null,
+  "attempts": 0,
+  "failure_count": 0,
+  "last_failure_reason": null,
+  "workspace_path": "",
+  "evidence_submitted": false,
+  "validation_passed": false
+}

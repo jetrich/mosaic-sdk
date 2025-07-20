@@ -1,0 +1,92 @@
+module.exports = {
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    ecmaVersion: 2022,
+    sourceType: 'module',
+    project: './tsconfig.json',
+  },
+  plugins: ['@typescript-eslint'],
+  extends: [
+    'eslint:recommended',
+  ],
+  root: true,
+  env: {
+    node: true,
+    es6: true,
+  },
+  ignorePatterns: [
+    '.eslintrc.js',
+    'dist/',
+    'node_modules/',
+    '*.d.ts',
+    'scripts/',
+    'docs/',
+    '**/__tests__/**',
+    '**/*.test.ts',
+    '**/*.spec.ts',
+  ],
+  rules: {
+    // TypeScript specific rules
+    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    '@typescript-eslint/explicit-function-return-type': 'warn',
+    '@typescript-eslint/no-explicit-any': 'error',
+    '@typescript-eslint/prefer-nullish-coalescing': 'error',
+    '@typescript-eslint/prefer-optional-chain': 'error',
+    '@typescript-eslint/no-floating-promises': 'error',
+    '@typescript-eslint/await-thenable': 'error',
+    
+    // General code quality rules
+    'no-console': 'warn',
+    'no-debugger': 'error',
+    'no-var': 'error',
+    'prefer-const': 'error',
+    'prefer-arrow-callback': 'error',
+    'no-trailing-spaces': 'error',
+    'eol-last': 'error',
+    'comma-dangle': ['error', 'always-multiline'],
+    'semi': ['error', 'always'],
+    'quotes': ['error', 'single', { avoidEscape: true }],
+    'indent': ['error', 2, { SwitchCase: 1 }],
+    'max-len': ['warn', { code: 100, ignoreComments: true }],
+    
+    // Import/export rules
+    'no-duplicate-imports': 'error',
+    'sort-imports': ['error', { ignoreDeclarationSort: true }],
+    
+    // Security rules
+    'no-eval': 'error',
+    'no-implied-eval': 'error',
+    'no-new-func': 'error',
+    
+    // Performance rules
+    'no-loop-func': 'error',
+    'no-inner-declarations': 'error',
+  },
+  overrides: [
+    {
+      files: ['*.test.ts', '*.spec.ts'],
+      env: {
+        jest: true,
+      },
+      rules: {
+        '@typescript-eslint/no-explicit-any': 'off',
+        'no-console': 'off',
+      },
+    },
+    {
+      files: ['scripts/**/*.js'],
+      env: {
+        node: true,
+        es6: true,
+      },
+      parserOptions: {
+        ecmaVersion: 2022,
+        sourceType: 'script',
+      },
+      rules: {
+        '@typescript-eslint/no-var-requires': 'off',
+        'no-console': 'off',
+      },
+    },
+  ],
+};

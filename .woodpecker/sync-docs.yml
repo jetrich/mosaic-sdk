@@ -1,0 +1,160 @@
+# Woodpecker CI/CD Pipeline for BookStack Documentation Sync
+# Epic E.058 - Story S.058.06.03: CI/CD integration for auto-sync
+
+when:
+  - event: push
+    branch: [main, develop]
+    path:
+      include:
+        - "docs/**/*.md"
+        - "docs/bookstack/bookstack-structure.yaml"
+        - "scripts/sync-to-bookstack.py"
+  - event: manual
+
+variables:
+  - &python_image "python:3.11-slim"
+
+steps:
+  # Validate documentation structure
+  validate-structure:
+    image: *python_image
+    commands:
+      - echo "Validating BookStack documentation structure..."
+      - pip install pyyaml
+      - python scripts/validate-bookstack-structure.py docs/
+      - echo "✅ Structure validation passed"
+    when:
+      - event: [push, pull_request, manual]
+
+  # Sync to BookStack (only on main branch)
+  sync-to-bookstack:
+    image: *python_image
+    secrets: [bookstack_url, bookstack_token_id, bookstack_token_secret]
+    commands:
+      - echo "Syncing documentation to BookStack..."
+      - pip install requests pyyaml
+      - |
+        python scripts/sync-to-bookstack.py docs/ \
+          --url "$BOOKSTACK_URL" \
+          --token-id "$BOOKSTACK_TOKEN_ID" \
+          --token-secret "$BOOKSTACK_TOKEN_SECRET" \
+          --structure docs/bookstack/bookstack-structure.yaml
+      - echo "✅ Documentation synced successfully"
+    when:
+      - event: push
+      - branch: main
+    depends_on:
+      - validate-structure
+
+  # Dry run for pull requests
+  sync-dry-run:
+    image: *python_image
+    secrets: [bookstack_url, bookstack_token_id, bookstack_token_secret]
+    commands:
+      - echo "Running sync in dry-run mode..."
+      - pip install requests pyyaml
+      - |
+        python scripts/sync-to-bookstack.py docs/ \
+          --url "$BOOKSTACK_URL" \
+          --token-id "$BOOKSTACK_TOKEN_ID" \
+          --token-secret "$BOOKSTACK_TOKEN_SECRET" \
+          --structure docs/bookstack/bookstack-structure.yaml \
+          --dry-run
+      - echo "✅ Dry run completed"
+    when:
+      - event: pull_request
+    depends_on:
+      - validate-structure
+
+  # Generate sync report
+  generate-report:
+    image: *python_image
+    commands:
+      - echo "Generating sync report..."
+      - |
+        cat > sync-report.md << EOF
+        # BookStack Documentation Sync Report
+        
+        **Date**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+        **Branch**: ${CI_COMMIT_BRANCH}
+        **Commit**: ${CI_COMMIT_SHA}
+        **Author**: ${CI_COMMIT_AUTHOR}
+        
+        ## Changes Detected
+        
+        The following documentation files were modified:
+        EOF
+      - |
+        git diff --name-only HEAD~1 HEAD -- 'docs/**/*.md' | while read file; do
+          echo "- $file" >> sync-report.md
+        done
+      - |
+        cat >> sync-report.md << EOF
+        
+        ## Validation Results
+        
+        - Structure validation: ✅ Passed
+        - Frontmatter validation: ✅ Passed
+        - Naming conventions: ✅ Passed
+        
+        ## Next Steps
+        
+        The documentation has been automatically synced to BookStack.
+        Please review the changes at: ${BOOKSTACK_URL}
+        EOF
+      - cat sync-report.md
+    when:
+      - event: [push, manual]
+      - branch: main
+    depends_on:
+      - sync-to-bookstack
+
+  # Notify on failure
+  notify-failure:
+    image: curlimages/curl:latest
+    secrets: [webhook_url]
+    commands:
+      - |
+        if [ -n "$WEBHOOK_URL" ]; then
+          curl -X POST "$WEBHOOK_URL" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "text": "❌ BookStack sync failed",
+              "blocks": [{
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "Documentation sync to BookStack failed!\n*Branch*: '"${CI_COMMIT_BRANCH}"'\n*Commit*: '"${CI_COMMIT_SHA:0:8}"'\n*Author*: '"${CI_COMMIT_AUTHOR}"'"
+                }
+              }]
+            }'
+        fi
+    when:
+      - status: failure
+    failure: ignore
+
+# Services
+services:
+  # Local BookStack for testing (optional)
+  bookstack-test:
+    image: lscr.io/linuxserver/bookstack:latest
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - APP_URL=http://bookstack-test
+      - DB_HOST=bookstack-db-test
+      - DB_USER=bookstack
+      - DB_PASS=bookstack
+      - DB_DATABASE=bookstack
+    when:
+      - event: pull_request
+  
+  bookstack-db-test:
+    image: mariadb:11
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=bookstack
+      - MYSQL_USER=bookstack
+      - MYSQL_PASSWORD=bookstack
+    when:
+      - event: pull_request

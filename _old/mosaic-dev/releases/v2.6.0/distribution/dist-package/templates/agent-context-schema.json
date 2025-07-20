@@ -1,0 +1,522 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tony-framework.dev/schemas/agent-context.json",
+  "title": "Tony Framework Agent Context Schema",
+  "description": "Standardized context transfer schema for autonomous agent handoffs in the Tony-NG framework",
+  "version": "1.0.0",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "session",
+    "task_context", 
+    "project_state",
+    "execution_context",
+    "handoff_instructions"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0.0",
+      "description": "Schema version for compatibility validation"
+    },
+    "session": {
+      "type": "object",
+      "description": "Session identification and tracking information",
+      "required": ["session_id", "timestamp", "agent_chain"],
+      "properties": {
+        "session_id": {
+          "type": "string",
+          "pattern": "^[A-Z0-9]{8}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{12}$",
+          "description": "Unique session identifier (UUID format)"
+        },
+        "parent_agent_id": {
+          "type": "string",
+          "pattern": "^[a-z-]+$",
+          "description": "ID of the agent creating this context"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp of context creation"
+        },
+        "agent_chain": {
+          "type": "array",
+          "description": "Sequence of agents that have handled this session",
+          "items": {
+            "type": "object",
+            "required": ["agent_id", "start_time", "completion_status"],
+            "properties": {
+              "agent_id": {
+                "type": "string",
+                "pattern": "^[a-z-]+$"
+              },
+              "start_time": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "end_time": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "completion_status": {
+                "type": "string",
+                "enum": ["completed", "handed_off", "failed", "interrupted"]
+              },
+              "tasks_completed": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "task_context": {
+      "type": "object",
+      "description": "Current task and hierarchy information",
+      "required": ["current_task", "task_hierarchy", "phase_info"],
+      "properties": {
+        "current_task": {
+          "type": "object",
+          "required": ["id", "title", "status", "priority"],
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[EPFSTA]\\.[0-9]{3}(\\.[0-9]{2}){0,5}$",
+              "description": "UPP task ID (E.XXX.XX.XX format)"
+            },
+            "title": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "description": {
+              "type": "string",
+              "maxLength": 1000
+            },
+            "status": {
+              "type": "string",
+              "enum": ["pending", "in_progress", "blocked", "completed", "failed"]
+            },
+            "priority": {
+              "type": "string",
+              "enum": ["critical", "high", "medium", "low"]
+            },
+            "estimated_duration": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1800,
+              "description": "Estimated completion time in seconds (max 30 minutes)"
+            },
+            "actual_duration": {
+              "type": "integer",
+              "description": "Actual time spent in seconds"
+            }
+          }
+        },
+        "task_hierarchy": {
+          "type": "object",
+          "description": "Complete task hierarchy context",
+          "required": ["epic", "current_path"],
+          "properties": {
+            "epic": {
+              "type": "object",
+              "required": ["id", "title"],
+              "properties": {
+                "id": { "type": "string", "pattern": "^E\\.[0-9]{3}$" },
+                "title": { "type": "string" },
+                "description": { "type": "string" }
+              }
+            },
+            "feature": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string", "pattern": "^F\\.[0-9]{3}\\.[0-9]{2}$" },
+                "title": { "type": "string" }
+              }
+            },
+            "story": {
+              "type": "object", 
+              "properties": {
+                "id": { "type": "string", "pattern": "^S\\.[0-9]{3}\\.[0-9]{2}\\.[0-9]{2}$" },
+                "title": { "type": "string" }
+              }
+            },
+            "current_path": {
+              "type": "array",
+              "description": "Complete path from epic to current task",
+              "items": { "type": "string" }
+            }
+          }
+        },
+        "dependencies": {
+          "type": "object",
+          "properties": {
+            "blocking": {
+              "type": "array",
+              "description": "Tasks that must complete before current task",
+              "items": { "type": "string" }
+            },
+            "blocked_by": {
+              "type": "array", 
+              "description": "Tasks blocked by current task",
+              "items": { "type": "string" }
+            },
+            "related": {
+              "type": "array",
+              "description": "Related tasks for context",
+              "items": { "type": "string" }
+            }
+          }
+        },
+        "phase_info": {
+          "type": "object",
+          "required": ["current_phase", "phase_status"],
+          "properties": {
+            "current_phase": {
+              "type": "string",
+              "pattern": "^(phase-[0-9]+|recovery|maintenance)$"
+            },
+            "phase_status": {
+              "type": "string",
+              "enum": ["planning", "in_progress", "qa", "completed", "failed"]
+            },
+            "phase_completion_percentage": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            }
+          }
+        }
+      }
+    },
+    "project_state": {
+      "type": "object",
+      "description": "Current state of project and environment", 
+      "required": ["working_directory", "git_status"],
+      "properties": {
+        "working_directory": {
+          "type": "string",
+          "description": "Absolute path to project root"
+        },
+        "modified_files": {
+          "type": "array",
+          "description": "Files modified in current session",
+          "items": {
+            "type": "object",
+            "required": ["path", "status"],
+            "properties": {
+              "path": { "type": "string" },
+              "status": { 
+                "type": "string",
+                "enum": ["created", "modified", "deleted", "renamed"]
+              },
+              "size_change": { "type": "integer" },
+              "checksum": { "type": "string" }
+            }
+          }
+        },
+        "git_status": {
+          "type": "object",
+          "required": ["branch", "is_clean"],
+          "properties": {
+            "branch": { "type": "string" },
+            "commit_hash": { "type": "string" },
+            "is_clean": { "type": "boolean" },
+            "staged_files": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "unstaged_files": {
+              "type": "array", 
+              "items": { "type": "string" }
+            },
+            "untracked_files": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        },
+        "environment": {
+          "type": "object",
+          "properties": {
+            "node_version": { "type": "string" },
+            "npm_version": { "type": "string" },
+            "os": { "type": "string" },
+            "shell": { "type": "string" },
+            "docker_available": { "type": "boolean" }
+          }
+        },
+        "build_status": {
+          "type": "object",
+          "properties": {
+            "last_build_time": { "type": "string", "format": "date-time" },
+            "build_success": { "type": "boolean" },
+            "build_errors": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "execution_context": {
+      "type": "object",
+      "description": "Agent execution environment and constraints",
+      "required": ["model_selection", "tool_authorizations"],
+      "properties": {
+        "model_selection": {
+          "type": "object",
+          "required": ["current_model", "reason"],
+          "properties": {
+            "current_model": {
+              "type": "string",
+              "enum": ["sonnet", "opus", "claude-3-5-sonnet", "claude-3-opus"]
+            },
+            "reason": {
+              "type": "string",
+              "description": "Justification for model choice"
+            },
+            "complexity_level": {
+              "type": "string",
+              "enum": ["simple", "moderate", "complex", "architectural"]
+            }
+          }
+        },
+        "tool_authorizations": {
+          "type": "array",
+          "description": "Authorized tools for next agent",
+          "items": {
+            "type": "string",
+            "enum": [
+              "Bash", "Glob", "Grep", "LS", "Read", "Edit", "MultiEdit", 
+              "Write", "TodoWrite", "Task", "WebFetch", "WebSearch",
+              "NotebookRead", "NotebookEdit"
+            ]
+          }
+        },
+        "constraints": {
+          "type": "object",
+          "properties": {
+            "timeout_minutes": {
+              "type": "integer",
+              "minimum": 5,
+              "maximum": 180
+            },
+            "max_files_to_modify": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            },
+            "forbidden_operations": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["git_push", "npm_publish", "docker_production", "secrets_access"]
+              }
+            },
+            "required_validations": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["build_success", "tests_pass", "lint_clean", "security_scan"]
+              }
+            }
+          }
+        },
+        "resource_limits": {
+          "type": "object",
+          "properties": {
+            "max_concurrent_operations": { "type": "integer", "maximum": 5 },
+            "memory_limit_mb": { "type": "integer" },
+            "disk_space_limit_mb": { "type": "integer" }
+          }
+        }
+      }
+    },
+    "handoff_instructions": {
+      "type": "object",
+      "description": "Instructions for the next agent",
+      "required": ["next_agent_type", "continuation_point", "success_criteria"],
+      "properties": {
+        "next_agent_type": {
+          "type": "string",
+          "enum": [
+            "tech-lead-tony", "implementation-agent", "qa-agent", 
+            "security-agent", "devops-agent", "frontend-agent",
+            "backend-agent", "database-agent", "documentation-agent",
+            "testing-agent", "recovery-agent", "monitoring-agent"
+          ]
+        },
+        "continuation_point": {
+          "type": "string",
+          "description": "Specific point where next agent should continue"
+        },
+        "success_criteria": {
+          "type": "array",
+          "description": "Measurable criteria for task completion",
+          "items": {
+            "type": "object",
+            "required": ["criterion", "validation_method"],
+            "properties": {
+              "criterion": { "type": "string" },
+              "validation_method": {
+                "type": "string",
+                "enum": ["automated_test", "manual_verification", "build_check", "coverage_check"]
+              },
+              "target_value": { "type": "string" },
+              "priority": {
+                "type": "string", 
+                "enum": ["required", "preferred", "optional"]
+              }
+            }
+          }
+        },
+        "context_files": {
+          "type": "array",
+          "description": "Key files the next agent should read",
+          "items": {
+            "type": "object",
+            "required": ["path", "purpose"],
+            "properties": {
+              "path": { "type": "string" },
+              "purpose": { "type": "string" },
+              "sections": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          }
+        },
+        "warnings": {
+          "type": "array",
+          "description": "Important warnings for next agent",
+          "items": {
+            "type": "object",
+            "required": ["type", "message"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["security", "performance", "compatibility", "dependency"]
+              },
+              "message": { "type": "string" },
+              "severity": {
+                "type": "string",
+                "enum": ["critical", "high", "medium", "low"]
+              }
+            }
+          }
+        }
+      }
+    },
+    "evidence_tracking": {
+      "type": "object",
+      "description": "Evidence and validation tracking",
+      "properties": {
+        "test_results": {
+          "type": "object",
+          "properties": {
+            "unit_tests": {
+              "type": "object",
+              "properties": {
+                "total": { "type": "integer" },
+                "passed": { "type": "integer" },
+                "failed": { "type": "integer" },
+                "coverage_percentage": { "type": "number", "minimum": 0, "maximum": 100 },
+                "last_run": { "type": "string", "format": "date-time" }
+              }
+            },
+            "integration_tests": {
+              "type": "object",
+              "properties": {
+                "total": { "type": "integer" },
+                "passed": { "type": "integer" },
+                "failed": { "type": "integer" },
+                "last_run": { "type": "string", "format": "date-time" }
+              }
+            },
+            "security_tests": {
+              "type": "object",
+              "properties": {
+                "vulnerabilities_found": { "type": "integer" },
+                "critical_issues": { "type": "integer" },
+                "last_scan": { "type": "string", "format": "date-time" }
+              }
+            }
+          }
+        },
+        "coverage_metrics": {
+          "type": "object",
+          "properties": {
+            "line_coverage": { "type": "number", "minimum": 0, "maximum": 100 },
+            "branch_coverage": { "type": "number", "minimum": 0, "maximum": 100 },
+            "function_coverage": { "type": "number", "minimum": 0, "maximum": 100 },
+            "statement_coverage": { "type": "number", "minimum": 0, "maximum": 100 }
+          }
+        },
+        "validation_status": {
+          "type": "object",
+          "required": ["overall_status"],
+          "properties": {
+            "overall_status": {
+              "type": "string",
+              "enum": ["not_validated", "in_progress", "passed", "failed", "blocked"]
+            },
+            "build_status": {
+              "type": "string",
+              "enum": ["success", "failed", "not_attempted"]
+            },
+            "lint_status": {
+              "type": "string", 
+              "enum": ["clean", "warnings", "errors", "not_run"]
+            },
+            "type_check_status": {
+              "type": "string",
+              "enum": ["passed", "errors", "not_run"]
+            },
+            "security_scan_status": {
+              "type": "string",
+              "enum": ["clean", "warnings", "vulnerabilities", "not_run"]
+            },
+            "last_validation": { "type": "string", "format": "date-time" }
+          }
+        },
+        "artifacts": {
+          "type": "array",
+          "description": "Generated artifacts and logs",
+          "items": {
+            "type": "object",
+            "required": ["type", "path"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["log", "report", "coverage", "build_output", "test_results"]
+              },
+              "path": { "type": "string" },
+              "size_bytes": { "type": "integer" },
+              "created_at": { "type": "string", "format": "date-time" }
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional context metadata",
+      "properties": {
+        "context_size_bytes": { "type": "integer" },
+        "token_count_estimate": { "type": "integer" },
+        "created_by": { "type": "string" },
+        "validated": { "type": "boolean" },
+        "validation_errors": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

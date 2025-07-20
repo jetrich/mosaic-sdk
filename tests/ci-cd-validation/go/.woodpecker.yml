@@ -1,0 +1,307 @@
+# Woodpecker CI/CD Pipeline for Go Project
+# Comprehensive pipeline with testing, security scanning, and multi-arch builds
+
+when:
+  - event: [push, pull_request]
+    branch: [main, develop, feature/*, hotfix/*]
+
+# Global variables
+variables:
+  - &go_image "golang:1.21-alpine"
+  - &docker_image "docker:24-cli"
+  - &postgres_image "postgres:17.5-alpine"
+  - &redis_image "redis:7-alpine"
+
+# Pipeline steps
+steps:
+  # Cache restoration
+  restore-cache:
+    image: meltwater/drone-cache:latest
+    settings:
+      backend: "filesystem"
+      restore: true
+      cache_key: "go-{{ checksum \"go.sum\" }}"
+      mount:
+        - vendor
+        - /go/pkg/mod
+    when:
+      - event: [push, pull_request]
+
+  # Download dependencies
+  deps:
+    image: *go_image
+    commands:
+      - apk add --no-cache git make gcc musl-dev
+      - go version
+      - go mod download
+      - go mod verify
+      - go mod tidy
+      - git diff --exit-code go.mod go.sum
+    when:
+      - event: [push, pull_request]
+
+  # Code formatting check
+  fmt:
+    image: *go_image
+    commands:
+      - gofmt -l .
+      - test -z "$(gofmt -l .)"
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - deps
+
+  # Linting
+  lint:
+    image: golangci/golangci-lint:latest
+    commands:
+      - golangci-lint run -v --timeout 5m
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - deps
+
+  # Go vet
+  vet:
+    image: *go_image
+    commands:
+      - go vet ./...
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - deps
+
+  # Security scanning
+  security:
+    image: securego/gosec:latest
+    commands:
+      - gosec -fmt json -out gosec-report.json ./... || true
+      - cat gosec-report.json
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - deps
+
+  # Unit tests
+  test-unit:
+    image: *go_image
+    environment:
+      - CGO_ENABLED=1
+      - DATABASE_URL=postgres://test:test@postgres:5432/test_db?sslmode=disable
+      - REDIS_URL=redis://redis:6379
+    commands:
+      - apk add --no-cache gcc musl-dev
+      - go test -v -race -coverprofile=coverage.out -covermode=atomic ./...
+      - go tool cover -func=coverage.out
+      - go tool cover -html=coverage.out -o coverage.html
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - deps
+
+  # Benchmark tests
+  test-benchmark:
+    image: *go_image
+    commands:
+      - go test -bench=. -benchmem -run=^$ ./... | tee benchmark.txt
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - test-unit
+
+  # Integration tests
+  test-integration:
+    image: *go_image
+    environment:
+      - DATABASE_URL=postgres://test:test@postgres:5432/test_db?sslmode=disable
+      - REDIS_URL=redis://redis:6379
+      - INTEGRATION_TEST=true
+    commands:
+      - apk add --no-cache curl
+      - go build -o app ./cmd/api
+      - ./app &
+      - sleep 5
+      - curl -f http://localhost:8080/health
+      - pkill app
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - test-unit
+
+  # Build binary
+  build:
+    image: *go_image
+    commands:
+      - apk add --no-cache git
+      - mkdir -p bin
+      - CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s -X main.Version=$(git describe --tags --always --dirty)" -o bin/app-linux-amd64 ./cmd/api
+      - CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags="-w -s -X main.Version=$(git describe --tags --always --dirty)" -o bin/app-linux-arm64 ./cmd/api
+      - CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -ldflags="-w -s -X main.Version=$(git describe --tags --always --dirty)" -o bin/app-darwin-amd64 ./cmd/api
+      - CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags="-w -s -X main.Version=$(git describe --tags --always --dirty)" -o bin/app-darwin-arm64 ./cmd/api
+      - CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags="-w -s -X main.Version=$(git describe --tags --always --dirty)" -o bin/app-windows-amd64.exe ./cmd/api
+      - ls -la bin/
+    when:
+      - event: [push, pull_request]
+    depends_on:
+      - lint
+      - vet
+      - test-unit
+
+  # Generate swagger docs
+  swagger:
+    image: *go_image
+    commands:
+      - go install github.com/swaggo/swag/cmd/swag@latest
+      - swag init -g cmd/api/main.go -o docs
+      - ls -la docs/
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - build
+
+  # Build Docker image
+  docker-build:
+    image: *docker_image
+    commands:
+      - docker build -t go-test:${CI_COMMIT_SHA:0:8} .
+      - docker images | grep go-test
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - build
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  # Test Docker image
+  docker-test:
+    image: *docker_image
+    commands:
+      - docker run -d --name test-api -p 8081:8080 go-test:${CI_COMMIT_SHA:0:8}
+      - sleep 5
+      - docker exec test-api wget -O- http://localhost:8080/health
+      - docker logs test-api
+      - docker stop test-api
+      - docker rm test-api
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - docker-build
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  # Vulnerability scanning
+  vulnerability-scan:
+    image: *go_image
+    commands:
+      - go install golang.org/x/vuln/cmd/govulncheck@latest
+      - govulncheck ./... || echo "Vulnerabilities found"
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - deps
+    failure: ignore
+
+  # License check
+  license-check:
+    image: *go_image
+    commands:
+      - go install github.com/google/go-licenses@latest
+      - go-licenses check ./... || echo "License check complete"
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - deps
+    failure: ignore
+
+  # Build report
+  build-report:
+    image: *go_image
+    commands:
+      - echo "=== BUILD REPORT ==="
+      - echo "Go Version: $(go version)"
+      - echo "Commit: ${CI_COMMIT_SHA}"
+      - echo "Branch: ${CI_COMMIT_BRANCH}"
+      - echo "Build: #${CI_BUILD_NUMBER}"
+      - echo ""
+      - echo "Test Coverage:"
+      - go tool cover -func=coverage.out | tail -1 || echo "No coverage data"
+      - echo ""
+      - echo "Binary Sizes:"
+      - ls -lh bin/ || echo "No binaries"
+      - echo ""
+      - echo "Docker Image:"
+      - echo "  Tag: go-test:${CI_COMMIT_SHA:0:8}"
+      - echo "==================="
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - test-unit
+      - build
+      - docker-test
+
+  # Save cache
+  rebuild-cache:
+    image: meltwater/drone-cache:latest
+    settings:
+      backend: "filesystem"
+      rebuild: true
+      cache_key: "go-{{ checksum \"go.sum\" }}"
+      mount:
+        - vendor
+        - /go/pkg/mod
+    when:
+      - event: push
+      - branch: [main, develop]
+    depends_on:
+      - deps
+
+  # Deploy notification
+  deploy-notify:
+    image: *go_image
+    commands:
+      - echo "=== DEPLOYMENT READY ==="
+      - echo "Application: go-test"
+      - echo "Version: ${CI_COMMIT_SHA:0:8}"
+      - echo "Branch: ${CI_COMMIT_BRANCH}"
+      - echo "API Docs: Available at /swagger"
+      - echo "Binaries: Available for linux/darwin/windows"
+      - echo "Status: Ready for deployment"
+      - echo "======================="
+    when:
+      - event: push
+      - branch: main
+    depends_on:
+      - build-report
+
+# Services for tests
+services:
+  postgres:
+    image: *postgres_image
+    environment:
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+      - POSTGRES_DB=test_db
+    when:
+      - event: [push, pull_request]
+
+  redis:
+    image: *redis_image
+    when:
+      - event: [push, pull_request]
+
+# Matrix builds for different Go versions
+matrix:
+  include:
+    - GO_VERSION: "1.20"
+      GO_IMAGE: "golang:1.20-alpine"
+    - GO_VERSION: "1.21"
+      GO_IMAGE: "golang:1.21-alpine"
+    - GO_VERSION: "1.22"
+      GO_IMAGE: "golang:1.22-alpine"

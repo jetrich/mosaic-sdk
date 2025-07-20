@@ -1,0 +1,47 @@
+{
+  "project_type": "web_application",
+  "technology_stack": [
+    "Node.js",
+    "JavaScript"
+  ],
+  "existing_structure": {
+    "directories": [
+      ".claude",
+      "node_modules",
+      "releases",
+      "sdk",
+      "bootstrap",
+      ".github",
+      "examples",
+      "framework-source",
+      "docs",
+      ".git",
+      "logs"
+    ],
+    "key_files": [
+      "package-lock.json",
+      "MIGRATION-COMPLETION-REPORT.md",
+      "CONTRIBUTING.md",
+      "TONY-DEV-MIGRATION-VALIDATION.md",
+      ".eslintrc.json",
+      "package.json",
+      "README.md",
+      "CLAUDE.md"
+    ],
+    "test_structure": null,
+    "documentation": []
+  },
+  "requirements": [
+    "Documentation exists - analyze for detailed requirements"
+  ],
+  "complexity_assessment": "medium",
+  "business_domain": "software_development",
+  "stakeholders": [
+    "development_team",
+    "product_owner"
+  ],
+  "constraints": [
+    "time",
+    "resources"
+  ]
+}

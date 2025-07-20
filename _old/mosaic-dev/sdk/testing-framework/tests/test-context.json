@@ -1,0 +1,25 @@
+{
+    "metadata": {
+        "command": "test",
+        "description": "Test command",
+        "timestamp": "2025-07-13T08:06:03Z",
+        "wrapper_version": "2.6.0",
+        "pid": 2801005
+    },
+    "project": {
+        "path": "/home/jwoltje/src/tony-ng/tony/tests/mock-project",
+        "git": {
+            "branch": "main",
+            "modified_files": 0,
+            "remote": "https://github.com/test/repo.git"
+        }
+    },
+    "execution": {
+        "args": ["test", "arg1", "arg2"],
+        "env": {
+            "USER": "testuser",
+            "PWD": "/home/jwoltje/src/tony-ng/tony/tests/mock-project",
+            "SHELL": "/bin/bash"
+        }
+    }
+}

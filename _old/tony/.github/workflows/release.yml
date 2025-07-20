@@ -1,0 +1,374 @@
+name: Release Pipeline
+
+on:
+  release:
+    types: [published, edited]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v2.7.0)'
+        required: true
+        type: string
+      prerelease:
+        description: 'Is this a pre-release?'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  NODE_VERSION: '18.x'
+  PYTHON_VERSION: '3.9'
+
+jobs:
+  # Validate release prerequisites
+  release-validation:
+    name: Release Validation
+    runs-on: ubuntu-latest
+    
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      is-prerelease: ${{ steps.version.outputs.is-prerelease }}
+      
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Determine version and type
+      id: version
+      run: |
+        if [[ "${{ github.event_name }}" == "release" ]]; then
+          VERSION="${{ github.event.release.tag_name }}"
+          IS_PRERELEASE="${{ github.event.release.prerelease }}"
+        else
+          VERSION="${{ github.event.inputs.version }}"
+          IS_PRERELEASE="${{ github.event.inputs.prerelease }}"
+        fi
+        
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "is-prerelease=$IS_PRERELEASE" >> $GITHUB_OUTPUT
+        
+        echo "🏷️ Release Version: $VERSION"
+        echo "🔖 Pre-release: $IS_PRERELEASE"
+        
+    - name: Validate version format
+      run: |
+        VERSION="${{ steps.version.outputs.version }}"
+        if [[ ! $VERSION =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.-]+)?$ ]]; then
+          echo "❌ Invalid version format: $VERSION"
+          echo "Expected format: v1.2.3 or v1.2.3-beta.1"
+          exit 1
+        fi
+        echo "✅ Version format is valid"
+        
+    - name: Check if VERSION file matches
+      run: |
+        RELEASE_VERSION="${{ steps.version.outputs.version }}"
+        RELEASE_VERSION=${RELEASE_VERSION#v}  # Remove 'v' prefix
+        
+        if grep -q "^$RELEASE_VERSION" VERSION; then
+          echo "✅ VERSION file matches release version"
+        else
+          echo "❌ VERSION file does not match release version"
+          echo "Expected: $RELEASE_VERSION"
+          echo "Found:"
+          cat VERSION
+          exit 1
+        fi
+
+  # Full test suite for releases
+  release-tests:
+    name: Release Test Suite
+    runs-on: ubuntu-latest
+    needs: release-validation
+    
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node-version: ['16.x', '18.x', '20.x']
+        
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run linting
+      run: npm run lint
+      
+    - name: Build TypeScript
+      run: npm run build
+      
+    - name: Make scripts executable (Unix-like)
+      if: runner.os != 'Windows'
+      run: |
+        chmod +x scripts/tony-plan.sh
+        chmod +x scripts/test-planning-engine.sh
+        
+    - name: Run Multi-Phase Planning tests (Unix-like)
+      if: runner.os != 'Windows'
+      run: ./scripts/test-planning-engine.sh
+      
+    - name: Test CLI interface (Unix-like)
+      if: runner.os != 'Windows'
+      run: |
+        ./scripts/tony-plan.sh --help
+        ./scripts/tony-plan.sh init --project "Release-Test-${{ matrix.os }}-${{ matrix.node-version }}" --methodology iterative
+        ./scripts/tony-plan.sh status
+        
+    - name: Test Windows compatibility
+      if: runner.os == 'Windows'
+      run: |
+        echo "Testing Windows compatibility..."
+        # Test Python scripts directly
+        python scripts/planning/abstraction.py "{\"workspacePath\": \"test\"}"
+        echo "Windows compatibility verified"
+
+  # Build release artifacts
+  build-release:
+    name: Build Release Artifacts
+    runs-on: ubuntu-latest
+    needs: [release-validation, release-tests]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build production
+      run: npm run build
+      
+    - name: Create release package
+      run: |
+        VERSION="${{ needs.release-validation.outputs.version }}"
+        PACKAGE_NAME="tony-framework-$VERSION"
+        
+        mkdir -p release-artifacts/$PACKAGE_NAME
+        
+        # Copy essential files
+        cp -r core/ release-artifacts/$PACKAGE_NAME/
+        cp -r scripts/ release-artifacts/$PACKAGE_NAME/
+        cp -r templates/ release-artifacts/$PACKAGE_NAME/
+        cp -r docs/ release-artifacts/$PACKAGE_NAME/
+        cp -r dist/ release-artifacts/$PACKAGE_NAME/
+        cp package.json release-artifacts/$PACKAGE_NAME/
+        cp package-lock.json release-artifacts/$PACKAGE_NAME/
+        cp VERSION release-artifacts/$PACKAGE_NAME/
+        cp README.md release-artifacts/$PACKAGE_NAME/
+        cp LICENSE release-artifacts/$PACKAGE_NAME/
+        cp install.sh release-artifacts/$PACKAGE_NAME/
+        cp tsconfig.json release-artifacts/$PACKAGE_NAME/
+        
+        # Make scripts executable
+        chmod +x release-artifacts/$PACKAGE_NAME/scripts/*.sh
+        chmod +x release-artifacts/$PACKAGE_NAME/install.sh
+        
+        # Create compressed archives
+        cd release-artifacts
+        tar -czf $PACKAGE_NAME.tar.gz $PACKAGE_NAME/
+        zip -r $PACKAGE_NAME.zip $PACKAGE_NAME/
+        
+    - name: Generate checksums
+      run: |
+        cd release-artifacts
+        sha256sum *.tar.gz *.zip > checksums.txt
+        
+    - name: Upload release artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: release-artifacts
+        path: release-artifacts/
+        retention-days: 90
+
+  # Create GitHub release
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [release-validation, build-release]
+    if: github.event_name == 'workflow_dispatch'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Download release artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: release-artifacts
+        path: release-artifacts/
+        
+    - name: Generate release notes
+      run: |
+        VERSION="${{ needs.release-validation.outputs.version }}"
+        
+        echo "# Tony Framework $VERSION" > release-notes.md
+        echo "" >> release-notes.md
+        echo "## Multi-Phase Planning Architecture" >> release-notes.md
+        echo "" >> release-notes.md
+        echo "Enterprise-grade project planning with 4-phase methodology:" >> release-notes.md
+        echo "- **Phase 1**: Abstraction & Epic Definition" >> release-notes.md
+        echo "- **Phase 2**: Decomposition & Task Breakdown" >> release-notes.md
+        echo "- **Phase 3**: Optimization & Critical Path Analysis" >> release-notes.md
+        echo "- **Phase 4**: Certification & Final Validation" >> release-notes.md
+        echo "" >> release-notes.md
+        echo "## Installation" >> release-notes.md
+        echo "" >> release-notes.md
+        echo "\`\`\`bash" >> release-notes.md
+        echo "# Download and extract" >> release-notes.md
+        echo "wget https://github.com/jetrich/tony/releases/download/$VERSION/tony-framework-$VERSION.tar.gz" >> release-notes.md
+        echo "tar -xzf tony-framework-$VERSION.tar.gz" >> release-notes.md
+        echo "cd tony-framework-$VERSION" >> release-notes.md
+        echo "" >> release-notes.md
+        echo "# Install" >> release-notes.md
+        echo "./install.sh" >> release-notes.md
+        echo "\`\`\`" >> release-notes.md
+        echo "" >> release-notes.md
+        echo "## Verification" >> release-notes.md
+        echo "" >> release-notes.md
+        echo "Verify installation with:" >> release-notes.md
+        echo "\`\`\`bash" >> release-notes.md
+        echo "~/.tony/scripts/test-planning-engine.sh" >> release-notes.md
+        echo "\`\`\`" >> release-notes.md
+        echo "" >> release-notes.md
+        echo "## Checksums" >> release-notes.md
+        echo "\`\`\`" >> release-notes.md
+        cat release-artifacts/checksums.txt >> release-notes.md
+        echo "\`\`\`" >> release-notes.md
+        
+    - name: Create GitHub Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ needs.release-validation.outputs.version }}
+        release_name: Tony Framework ${{ needs.release-validation.outputs.version }}
+        body_path: release-notes.md
+        draft: false
+        prerelease: ${{ needs.release-validation.outputs.is-prerelease }}
+
+  # Upload release assets
+  upload-assets:
+    name: Upload Release Assets
+    runs-on: ubuntu-latest
+    needs: [release-validation, build-release]
+    if: github.event_name == 'release'
+    
+    steps:
+    - name: Download release artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: release-artifacts
+        path: release-artifacts/
+        
+    - name: Upload tar.gz asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: release-artifacts/tony-framework-${{ needs.release-validation.outputs.version }}.tar.gz
+        asset_name: tony-framework-${{ needs.release-validation.outputs.version }}.tar.gz
+        asset_content_type: application/gzip
+        
+    - name: Upload zip asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: release-artifacts/tony-framework-${{ needs.release-validation.outputs.version }}.zip
+        asset_name: tony-framework-${{ needs.release-validation.outputs.version }}.zip
+        asset_content_type: application/zip
+        
+    - name: Upload checksums
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: release-artifacts/checksums.txt
+        asset_name: checksums.txt
+        asset_content_type: text/plain
+
+  # Deploy to production (if applicable)
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [release-validation, release-tests, build-release]
+    if: needs.release-validation.outputs.is-prerelease == 'false'
+    environment: production
+    
+    steps:
+    - name: Download release artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: release-artifacts
+        path: release-artifacts/
+        
+    - name: Deploy to production environment
+      run: |
+        echo "🚀 Deploying Tony Framework ${{ needs.release-validation.outputs.version }} to production"
+        echo "📦 Release artifacts ready for deployment"
+        
+        # Add actual deployment steps here
+        # This could include:
+        # - Uploading to package registries
+        # - Updating distribution servers
+        # - Notifying deployment systems
+        
+        echo "✅ Production deployment completed"
+
+  # Post-release activities
+  post-release:
+    name: Post-Release Activities
+    runs-on: ubuntu-latest
+    needs: [release-validation, release-tests, build-release]
+    if: always() && needs.release-tests.result == 'success'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Update documentation
+      run: |
+        echo "📚 Updating documentation for release ${{ needs.release-validation.outputs.version }}"
+        # Add documentation update steps here
+        
+    - name: Create release summary
+      run: |
+        echo "## 🎉 Release Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Version**: ${{ needs.release-validation.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Type**: ${{ needs.release-validation.outputs.is-prerelease == 'true' && 'Pre-release' || 'Stable Release' }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Status**: ${{ needs.release-tests.result == 'success' && '✅ Success' || '❌ Failed' }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🏗️ Build Results:" >> $GITHUB_STEP_SUMMARY
+        echo "- Validation: ${{ needs.release-validation.result == 'success' && '✅' || '❌' }}" >> $GITHUB_STEP_SUMMARY
+        echo "- Cross-platform Tests: ${{ needs.release-tests.result == 'success' && '✅' || '❌' }}" >> $GITHUB_STEP_SUMMARY
+        echo "- Release Artifacts: ${{ needs.build-release.result == 'success' && '✅' || '❌' }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📦 Release Artifacts:" >> $GITHUB_STEP_SUMMARY
+        echo "- tony-framework-${{ needs.release-validation.outputs.version }}.tar.gz" >> $GITHUB_STEP_SUMMARY
+        echo "- tony-framework-${{ needs.release-validation.outputs.version }}.zip" >> $GITHUB_STEP_SUMMARY
+        echo "- checksums.txt" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "🚀 **Tony Framework ${{ needs.release-validation.outputs.version }} is ready!**" >> $GITHUB_STEP_SUMMARY

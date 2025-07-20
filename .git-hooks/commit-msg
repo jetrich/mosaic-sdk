@@ -1,0 +1,59 @@
+#!/bin/bash
+# MosAIc SDK Commit Message Hook
+# Ensures commit messages follow Conventional Commits format
+
+commit_regex='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?: .{1,50}'
+merge_regex='^Merge '
+
+error_msg="❌ Commit message does not follow Conventional Commits format!
+
+Expected format: <type>(<scope>): <subject>
+
+Types:
+  feat:     New feature
+  fix:      Bug fix
+  docs:     Documentation only changes
+  style:    Code style changes (formatting, etc)
+  refactor: Code change that neither fixes a bug nor adds a feature
+  perf:     Performance improvements
+  test:     Adding missing tests or correcting existing tests
+  build:    Changes that affect the build system
+  ci:       Changes to CI configuration files and scripts
+  chore:    Other changes that don't modify src or test files
+  revert:   Reverts a previous commit
+
+Examples:
+  feat: add WebSocket support to MCP server
+  fix(auth): resolve token expiration issue
+  docs: update installation instructions
+  feat(mcp)!: add breaking change to API
+
+Your commit message:"
+
+# Read commit message
+commit_message=$(cat "$1")
+
+# Allow merge commits
+if echo "$commit_message" | grep -qE "$merge_regex"; then
+    exit 0
+fi
+
+# Check format
+if ! echo "$commit_message" | grep -qE "$commit_regex"; then
+    echo "$error_msg"
+    echo "$commit_message"
+    exit 1
+fi
+
+# Check message length
+first_line=$(echo "$commit_message" | head -n1)
+if [ ${#first_line} -gt 72 ]; then
+    echo "⚠️  Warning: First line of commit message is ${#first_line} characters (recommended: <72)"
+fi
+
+# Check for references to issues (recommended)
+if ! echo "$commit_message" | grep -qE "#[0-9]+|[A-Z]+-[0-9]+"; then
+    echo "ℹ️  Info: No issue reference found. Consider adding one if applicable."
+fi
+
+exit 0

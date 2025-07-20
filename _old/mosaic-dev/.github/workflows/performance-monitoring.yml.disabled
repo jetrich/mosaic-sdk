@@ -1,0 +1,280 @@
+name: Performance Monitoring
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # Every 6 hours
+  workflow_dispatch:       # Manual trigger
+    inputs:
+      test_type:
+        description: 'Type of performance test'
+        required: true
+        default: 'load'
+        type: choice
+        options:
+        - load
+        - stress
+        - soak
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  performance-monitoring:
+    name: 🔄 Performance Monitoring
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: tony_ng_monitor
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+          
+      redis:
+        image: redis:alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm run install:all
+      
+    - name: Install k6
+      run: |
+        sudo gpg -k
+        sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+        echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+        sudo apt-get update
+        sudo apt-get install k6
+        
+    - name: Setup monitoring database
+      run: |
+        cd backend
+        npm run migration:run
+        npm run seed:monitoring
+        
+    - name: Build and start application
+      run: |
+        npm run build
+        npm run docker:up &
+        sleep 120
+        
+    - name: Wait for application readiness
+      run: |
+        timeout 300 bash -c 'until curl -f http://localhost:3001/api/health; do sleep 5; done'
+        
+    - name: Run scheduled performance test
+      run: |
+        TEST_TYPE="${{ github.event.inputs.test_type || 'load' }}"
+        echo "Running $TEST_TYPE test"
+        
+        case $TEST_TYPE in
+          "load")
+            k6 run tests/performance/load-test.js
+            ;;
+          "stress")
+            k6 run tests/performance/stress-test.js
+            ;;
+          "soak")
+            k6 run tests/performance/soak-test.js
+            ;;
+          *)
+            echo "Unknown test type: $TEST_TYPE"
+            exit 1
+            ;;
+        esac
+        
+    - name: Generate performance baseline
+      run: |
+        TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+        TEST_TYPE="${{ github.event.inputs.test_type || 'load' }}"
+        
+        # Create performance baseline record
+        cat > performance-baseline-$TIMESTAMP.json << EOF
+        {
+          "timestamp": "$TIMESTAMP",
+          "test_type": "$TEST_TYPE",
+          "commit_sha": "${{ github.sha }}",
+          "branch": "${{ github.ref_name }}",
+          "baseline_file": "test-results/${TEST_TYPE}-test-summary.json"
+        }
+        EOF
+        
+    - name: Compare with previous baseline
+      run: |
+        if [ -f "test-results/load-test-summary.json" ]; then
+          echo "📊 Performance comparison:"
+          
+          # Extract key metrics for comparison
+          CURRENT_P95=$(cat test-results/load-test-summary.json | jq -r '.p95ResponseTime // 0')
+          CURRENT_ERROR_RATE=$(cat test-results/load-test-summary.json | jq -r '.errorRate // 0')
+          
+          echo "Current P95 Response Time: ${CURRENT_P95}ms"
+          echo "Current Error Rate: ${CURRENT_ERROR_RATE}%"
+          
+          # Simple threshold checks
+          if (( $(echo "$CURRENT_P95 > 1000" | bc -l) )); then
+            echo "⚠️ WARNING: P95 response time above 1000ms threshold"
+          fi
+          
+          if (( $(echo "$CURRENT_ERROR_RATE > 0.05" | bc -l) )); then
+            echo "⚠️ WARNING: Error rate above 5% threshold"
+          fi
+        fi
+        
+    - name: Upload performance results
+      uses: actions/upload-artifact@v4
+      with:
+        name: performance-monitoring-${{ github.run_number }}
+        path: |
+          test-results/
+          performance-baseline-*.json
+        retention-days: 90
+        
+    - name: Create performance issue on degradation
+      if: failure()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const title = `🚨 Performance Degradation Detected - ${{ github.event.inputs.test_type || 'load' }} test`;
+          const body = `
+          ## Performance Alert
+          
+          **Test Type:** ${{ github.event.inputs.test_type || 'load' }}
+          **Commit:** ${{ github.sha }}
+          **Branch:** ${{ github.ref_name }}
+          **Timestamp:** ${new Date().toISOString()}
+          
+          ### Issue Details
+          Performance monitoring detected degradation during automated testing.
+          
+          ### Action Required
+          - [ ] Review performance test results
+          - [ ] Identify root cause of degradation
+          - [ ] Implement performance improvements
+          - [ ] Validate fix with performance tests
+          
+          ### Artifacts
+          Performance test results are available in the workflow artifacts.
+          
+          /label performance,bug,monitoring
+          `;
+          
+          github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: title,
+            body: body,
+            labels: ['performance', 'bug', 'monitoring', 'automated']
+          });
+
+  # Long-running soak test (only on manual trigger)
+  soak-test:
+    name: 🏃‍♂️ Extended Soak Test
+    runs-on: ubuntu-latest
+    if: github.event.inputs.test_type == 'soak' || github.event_name == 'workflow_dispatch'
+    
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: tony_ng_soak
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm run install:all
+      
+    - name: Install k6
+      run: |
+        sudo gpg -k
+        sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+        echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+        sudo apt-get update
+        sudo apt-get install k6
+        
+    - name: Setup soak test database
+      run: |
+        cd backend
+        npm run migration:run
+        npm run seed:soak
+        
+    - name: Build and start application with monitoring
+      run: |
+        npm run build
+        npm run docker:up &
+        sleep 120
+        
+        # Start system monitoring
+        ./scripts/monitor-resources.sh &
+        
+    - name: Run extended soak test
+      timeout-minutes: 90  # 1.5 hours max
+      run: k6 run tests/performance/soak-test.js
+      
+    - name: Analyze soak test results
+      run: |
+        if [ -f "test-results/soak-test-summary.json" ]; then
+          MEMORY_LEAK=$(cat test-results/soak-test-summary.json | jq -r '.memoryLeakDetected // false')
+          PERFORMANCE_DEGRADATION=$(cat test-results/soak-test-summary.json | jq -r '.performanceDegradation // 0')
+          
+          echo "Memory Leak Detected: $MEMORY_LEAK"
+          echo "Performance Degradation: $PERFORMANCE_DEGRADATION%"
+          
+          if [ "$MEMORY_LEAK" = "true" ]; then
+            echo "🚨 CRITICAL: Memory leak detected during soak test"
+            exit 1
+          fi
+          
+          if (( $(echo "$PERFORMANCE_DEGRADATION > 15" | bc -l) )); then
+            echo "⚠️ WARNING: Significant performance degradation detected"
+            exit 1
+          fi
+        fi
+        
+    - name: Upload soak test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: soak-test-results-${{ github.run_number }}
+        path: |
+          test-results/
+          system-monitoring/
+        retention-days: 90

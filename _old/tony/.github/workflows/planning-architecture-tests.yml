@@ -1,0 +1,450 @@
+name: Multi-Phase Planning Architecture Tests
+
+on:
+  push:
+    branches: [ main, develop, feature/* ]
+    paths:
+      - 'scripts/planning/**'
+      - 'core/planning/**'
+      - 'templates/planning/**'
+      - 'scripts/tony-plan.sh'
+      - 'scripts/test-planning-engine.sh'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'scripts/planning/**'
+      - 'core/planning/**'
+      - 'templates/planning/**'
+      - 'scripts/tony-plan.sh'
+      - 'scripts/test-planning-engine.sh'
+  schedule:
+    # Run planning tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '18.x'
+  PYTHON_VERSION: '3.9'
+
+jobs:
+  # Planning Architecture Validation
+  planning-validation:
+    name: Planning Architecture Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install Node.js dependencies
+      run: npm ci
+      
+    - name: Validate Python script syntax
+      run: |
+        echo "🐍 Validating Python script syntax..."
+        python -m py_compile scripts/planning/abstraction.py
+        python -m py_compile scripts/planning/decomposition.py
+        python -m py_compile scripts/planning/optimization.py
+        python -m py_compile scripts/planning/certification.py
+        python -m py_compile scripts/planning/analysis/critical_path.py
+        python -m py_compile scripts/planning/analysis/resource_optimizer.py
+        python -m py_compile scripts/planning/analysis/risk_assessor.py
+        echo "✅ All Python scripts have valid syntax"
+        
+    - name: Validate bash script syntax
+      run: |
+        echo "🐚 Validating Bash script syntax..."
+        bash -n scripts/tony-plan.sh
+        bash -n scripts/test-planning-engine.sh
+        bash -n scripts/lib/logging-utils.sh
+        bash -n scripts/lib/common-utils.sh
+        echo "✅ All Bash scripts have valid syntax"
+        
+    - name: Check TypeScript planning interfaces
+      run: |
+        echo "🔧 Checking TypeScript planning interfaces..."
+        npx tsc --noEmit core/planning/interfaces/index.ts
+        npx tsc --noEmit core/planning/types/index.ts
+        npx tsc --noEmit core/planning/PhasePlanningEngine.ts
+        echo "✅ All TypeScript planning files compile successfully"
+
+  # Phase Engine Tests
+  phase-engine-tests:
+    name: Phase Engine Tests
+    runs-on: ubuntu-latest
+    needs: planning-validation
+    
+    strategy:
+      matrix:
+        phase: [1, 2, 3, 4]
+        methodology: ['iterative', 'waterfall', 'agile']
+        
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Make scripts executable
+      run: |
+        chmod +x scripts/tony-plan.sh
+        chmod +x scripts/test-planning-engine.sh
+        
+    - name: Test Phase ${{ matrix.phase }} with ${{ matrix.methodology }} methodology
+      run: |
+        echo "🎯 Testing Phase ${{ matrix.phase }} with ${{ matrix.methodology }} methodology"
+        
+        # Initialize planning session
+        ./scripts/tony-plan.sh init \
+          --project "Phase${{ matrix.phase }}-${{ matrix.methodology }}-Test" \
+          --methodology ${{ matrix.methodology }}
+          
+        # Execute the specific phase
+        ./scripts/tony-plan.sh phase${{ matrix.phase }}
+        
+        # Verify outputs
+        if find docs/task-management/planning -name "phase-${{ matrix.phase }}-*" -type d | grep -q .; then
+          echo "✅ Phase ${{ matrix.phase }} output directory created"
+        else
+          echo "❌ Phase ${{ matrix.phase }} output directory not found"
+          exit 1
+        fi
+        
+        # Check for required output files
+        PHASE_DIR=$(find docs/task-management/planning -name "phase-${{ matrix.phase }}-*" -type d | head -1)
+        if [ -n "$PHASE_DIR" ] && [ "$(ls -A $PHASE_DIR)" ]; then
+          echo "✅ Phase ${{ matrix.phase }} generated output files"
+          echo "📁 Generated files:"
+          ls -la "$PHASE_DIR"
+        else
+          echo "❌ Phase ${{ matrix.phase }} did not generate output files"
+          exit 1
+        fi
+        
+    - name: Upload phase test artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: phase-${{ matrix.phase }}-${{ matrix.methodology }}-artifacts
+        path: docs/task-management/planning/
+        retention-days: 3
+
+  # Comprehensive Planning Workflow Tests
+  workflow-tests:
+    name: Complete Planning Workflow Tests
+    runs-on: ubuntu-latest
+    needs: planning-validation
+    
+    strategy:
+      matrix:
+        project-type: ['web-app', 'mobile-app', 'api-service', 'data-pipeline']
+        
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Make scripts executable
+      run: |
+        chmod +x scripts/tony-plan.sh
+        chmod +x scripts/test-planning-engine.sh
+        
+    - name: Execute complete planning workflow for ${{ matrix.project-type }}
+      run: |
+        echo "🚀 Testing complete planning workflow for ${{ matrix.project-type }}"
+        
+        PROJECT_NAME="E2E-Test-${{ matrix.project-type }}-$(date +%s)"
+        
+        # Initialize planning session
+        ./scripts/tony-plan.sh init \
+          --project "$PROJECT_NAME" \
+          --methodology iterative
+          
+        echo "📊 Initial status:"
+        ./scripts/tony-plan.sh status
+        
+        # Execute all phases sequentially
+        echo "🎯 Executing Phase 1: Abstraction and Epic Definition"
+        ./scripts/tony-plan.sh phase1
+        
+        echo "📋 Status after Phase 1:"
+        ./scripts/tony-plan.sh status
+        
+        echo "🔧 Executing Phase 2: Decomposition and Task Breakdown"
+        ./scripts/tony-plan.sh phase2
+        
+        echo "📋 Status after Phase 2:"
+        ./scripts/tony-plan.sh status
+        
+        echo "⚡ Executing Phase 3: Optimization and Critical Path Analysis"
+        ./scripts/tony-plan.sh phase3
+        
+        echo "📋 Status after Phase 3:"
+        ./scripts/tony-plan.sh status
+        
+        echo "🎉 Executing Phase 4: Certification and Final Validation"
+        ./scripts/tony-plan.sh phase4
+        
+        echo "📋 Final status:"
+        ./scripts/tony-plan.sh status
+        
+        echo "📊 Generating comprehensive report:"
+        ./scripts/tony-plan.sh report
+        
+    - name: Validate workflow outputs
+      run: |
+        echo "🔍 Validating complete workflow outputs..."
+        
+        # Check that all phase directories exist
+        for phase in 1 2 3 4; do
+          if find docs/task-management/planning -name "phase-${phase}-*" -type d | grep -q .; then
+            echo "✅ Phase $phase directory exists"
+          else
+            echo "❌ Phase $phase directory missing"
+            exit 1
+          fi
+        done
+        
+        # Check for essential planning artifacts
+        PLANNING_DIR="docs/task-management/planning"
+        
+        if [ -f "$PLANNING_DIR/planning-state.json" ]; then
+          echo "✅ Planning state file exists"
+        else
+          echo "❌ Planning state file missing"
+          exit 1
+        fi
+        
+        # Validate JSON structure of critical files
+        echo "🔍 Validating JSON structure..."
+        find $PLANNING_DIR -name "*.json" -exec python -m json.tool {} \; > /dev/null
+        echo "✅ All JSON files have valid structure"
+        
+    - name: Upload workflow test artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: workflow-test-${{ matrix.project-type }}-artifacts
+        path: docs/task-management/planning/
+        retention-days: 7
+
+  # Planning Engine Test Suite
+  engine-test-suite:
+    name: Planning Engine Test Suite
+    runs-on: ubuntu-latest
+    needs: planning-validation
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Make scripts executable
+      run: |
+        chmod +x scripts/tony-plan.sh
+        chmod +x scripts/test-planning-engine.sh
+        
+    - name: Run comprehensive planning engine tests
+      run: |
+        echo "🧪 Running comprehensive planning engine test suite..."
+        ./scripts/test-planning-engine.sh
+        
+    - name: Parse test results
+      run: |
+        echo "📊 Parsing test results..."
+        
+        # Extract test metrics
+        if grep -q "Total Tests:" test_output.log 2>/dev/null; then
+          TOTAL_TESTS=$(grep "Total Tests:" test_output.log | awk '{print $3}')
+          PASSED_TESTS=$(grep "Passed:" test_output.log | awk '{print $2}')
+          FAILED_TESTS=$(grep "Failed:" test_output.log | awk '{print $2}')
+          SUCCESS_RATE=$(grep "Success Rate:" test_output.log | awk '{print $3}')
+          
+          echo "📈 Test Results Summary:"
+          echo "  Total Tests: $TOTAL_TESTS"
+          echo "  Passed: $PASSED_TESTS"
+          echo "  Failed: $FAILED_TESTS"
+          echo "  Success Rate: $SUCCESS_RATE"
+          
+          # Set output for subsequent steps
+          echo "total_tests=$TOTAL_TESTS" >> $GITHUB_ENV
+          echo "passed_tests=$PASSED_TESTS" >> $GITHUB_ENV
+          echo "success_rate=$SUCCESS_RATE" >> $GITHUB_ENV
+        fi
+        
+    - name: Upload test logs
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: planning-engine-test-logs
+        path: |
+          test_output.log
+          /tmp/tony-planning*/
+        retention-days: 7
+
+  # Performance Tests
+  performance-tests:
+    name: Planning Performance Tests
+    runs-on: ubuntu-latest
+    needs: planning-validation
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Make scripts executable
+      run: |
+        chmod +x scripts/tony-plan.sh
+        chmod +x scripts/test-planning-engine.sh
+        
+    - name: Performance benchmarking
+      run: |
+        echo "⚡ Running performance benchmarks..."
+        
+        for i in {1..5}; do
+          echo "🔄 Performance test iteration $i"
+          
+          START_TIME=$(date +%s%N)
+          
+          ./scripts/tony-plan.sh init \
+            --project "Perf-Test-$i" \
+            --methodology iterative
+            
+          ./scripts/tony-plan.sh phase1
+          ./scripts/tony-plan.sh phase2
+          ./scripts/tony-plan.sh phase3
+          ./scripts/tony-plan.sh phase4
+          
+          END_TIME=$(date +%s%N)
+          DURATION=$((($END_TIME - $START_TIME) / 1000000))  # Convert to milliseconds
+          
+          echo "⏱️  Iteration $i completed in ${DURATION}ms"
+          echo "$DURATION" >> performance_results.txt
+          
+          # Clean up for next iteration
+          ./scripts/tony-plan.sh clean
+        done
+        
+        # Calculate average performance
+        AVERAGE=$(awk '{ total += $1; count++ } END { print total/count }' performance_results.txt)
+        echo "📊 Average planning time: ${AVERAGE}ms"
+        
+        # Performance threshold check (adjust as needed)
+        THRESHOLD=30000  # 30 seconds
+        if (( $(echo "$AVERAGE < $THRESHOLD" | bc -l) )); then
+          echo "✅ Performance test passed (${AVERAGE}ms < ${THRESHOLD}ms)"
+        else
+          echo "⚠️  Performance test warning (${AVERAGE}ms >= ${THRESHOLD}ms)"
+        fi
+        
+    - name: Upload performance results
+      uses: actions/upload-artifact@v4
+      with:
+        name: performance-test-results
+        path: performance_results.txt
+        retention-days: 30
+
+  # Test Result Summary
+  test-summary:
+    name: Planning Architecture Test Summary
+    runs-on: ubuntu-latest
+    needs: [planning-validation, phase-engine-tests, workflow-tests, engine-test-suite, performance-tests]
+    if: always()
+    
+    steps:
+    - name: Generate test summary
+      run: |
+        echo "## 🎯 Multi-Phase Planning Architecture Test Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        echo "### Test Job Results:" >> $GITHUB_STEP_SUMMARY
+        echo "- Planning Validation: ${{ needs.planning-validation.result == 'success' && '✅ Passed' || '❌ Failed' }}" >> $GITHUB_STEP_SUMMARY
+        echo "- Phase Engine Tests: ${{ needs.phase-engine-tests.result == 'success' && '✅ Passed' || '❌ Failed' }}" >> $GITHUB_STEP_SUMMARY
+        echo "- Workflow Tests: ${{ needs.workflow-tests.result == 'success' && '✅ Passed' || '❌ Failed' }}" >> $GITHUB_STEP_SUMMARY
+        echo "- Engine Test Suite: ${{ needs.engine-test-suite.result == 'success' && '✅ Passed' || '❌ Failed' }}" >> $GITHUB_STEP_SUMMARY
+        echo "- Performance Tests: ${{ needs.performance-tests.result == 'success' && '✅ Passed' || '❌ Failed' }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if [[ "${{ needs.planning-validation.result }}" == "success" && 
+              "${{ needs.phase-engine-tests.result }}" == "success" && 
+              "${{ needs.workflow-tests.result }}" == "success" && 
+              "${{ needs.engine-test-suite.result }}" == "success" && 
+              "${{ needs.performance-tests.result }}" == "success" ]]; then
+          echo "### 🎉 Overall Result: **ALL TESTS PASSED**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The Multi-Phase Planning Architecture is functioning correctly across all test scenarios." >> $GITHUB_STEP_SUMMARY
+        else
+          echo "### ⚠️ Overall Result: **SOME TESTS FAILED**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Please review the failed tests and address any issues before merging." >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🔗 Test Artifacts:" >> $GITHUB_STEP_SUMMARY
+        echo "- Phase test artifacts available for download" >> $GITHUB_STEP_SUMMARY
+        echo "- Workflow test results available for review" >> $GITHUB_STEP_SUMMARY
+        echo "- Performance benchmarks completed" >> $GITHUB_STEP_SUMMARY
+        echo "- Planning engine logs available" >> $GITHUB_STEP_SUMMARY

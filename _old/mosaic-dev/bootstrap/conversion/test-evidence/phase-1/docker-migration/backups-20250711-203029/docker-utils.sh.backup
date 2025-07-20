@@ -1,0 +1,364 @@
+#!/bin/bash
+
+# Tony Framework - Docker Utilities
+# Enforce modern Docker Compose v2 usage and best practices
+
+set -euo pipefail
+
+# Source logging utilities
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/logging-utils.sh"
+
+# Docker configuration
+REQUIRED_DOCKER_COMPOSE_CMD="docker compose"
+DEPRECATED_DOCKER_COMPOSE_CMD="docker compose"
+
+# Initialize docker utilities
+init_docker_utils() {
+    log_debug "Initializing Docker utilities"
+    
+    # Check if Docker is installed
+    if ! command -v docker >/dev/null 2>&1; then
+        log_error "Docker is not installed"
+        return 1
+    fi
+    
+    # Check Docker Compose v2 availability
+    if ! docker compose version >/dev/null 2>&1; then
+        log_error "Docker Compose v2 is not available"
+        log_error "Please upgrade to Docker Desktop or install Docker Compose v2"
+        return 1
+    fi
+    
+    log_debug "Docker utilities initialized successfully"
+    return 0
+}
+
+# Validate Docker Compose setup
+validate_docker_compose() {
+    log_info "Validating Docker Compose configuration"
+    
+    # Check for Docker Compose v2
+    if ! docker compose version >/dev/null 2>&1; then
+        log_error "❌ Docker Compose v2 not available"
+        log_error "Required: 'docker compose' command"
+        log_error "Install: Docker Desktop or Docker Compose v2 plugin"
+        return 1
+    fi
+    
+    # Get Docker Compose version
+    local compose_version
+    compose_version=$(docker compose version --short 2>/dev/null || echo "unknown")
+    log_success "✅ Docker Compose v2 available: $compose_version"
+    
+    # Check if deprecated docker compose exists and warn
+    if command -v docker compose >/dev/null 2>&1; then
+        local old_version
+        old_version=$(docker compose version --short 2>/dev/null || echo "unknown")
+        log_warning "⚠️  Deprecated 'docker compose' found (v$old_version)"
+        log_warning "Please use 'docker compose' (v2) instead"
+    fi
+    
+    return 0
+}
+
+# Scan project for Docker Compose files
+scan_docker_compose_files() {
+    local project_dir="${1:-.}"
+    
+    log_debug "Scanning for Docker Compose files in: $project_dir"
+    
+    local compose_files=()
+    local found_files
+    
+    # Find compose files
+    while IFS= read -r -d '' file; do
+        compose_files+=("$file")
+    done < <(find "$project_dir" -maxdepth 2 -name "docker compose*.yml" -o -name "docker compose*.yaml" -o -name "compose*.yml" -o -name "compose*.yaml" -print0 2>/dev/null)
+    
+    if [ ${#compose_files[@]} -eq 0 ]; then
+        log_debug "No Docker Compose files found"
+        return 1
+    fi
+    
+    log_info "Found ${#compose_files[@]} Docker Compose file(s):"
+    for file in "${compose_files[@]}"; do
+        echo "  📄 $file"
+    done
+    
+    return 0
+}
+
+# Check for deprecated docker compose usage in files
+check_deprecated_docker_compose_usage() {
+    local project_dir="${1:-.}"
+    
+    log_info "Checking for deprecated 'docker compose' usage"
+    
+    local deprecated_files=()
+    local script_files
+    
+    # Find script files that might contain docker compose
+    while IFS= read -r -d '' file; do
+        if grep -l "docker compose" "$file" 2>/dev/null; then
+            deprecated_files+=("$file")
+        fi
+    done < <(find "$project_dir" -type f \( -name "*.sh" -o -name "*.bash" -o -name "*.zsh" -o -name "Makefile" -o -name "*.mk" \) -print0 2>/dev/null)
+    
+    # Also check common CI/CD files
+    local ci_files=(".github/workflows/"*.yml ".github/workflows/"*.yaml ".gitlab-ci.yml" "Jenkinsfile" ".circleci/config.yml")
+    for pattern in "${ci_files[@]}"; do
+        while IFS= read -r -d '' file; do
+            if [ -f "$file" ] && grep -l "docker compose" "$file" 2>/dev/null; then
+                deprecated_files+=("$file")
+            fi
+        done < <(find "$project_dir" -path "*$pattern" -print0 2>/dev/null)
+    done
+    
+    if [ ${#deprecated_files[@]} -eq 0 ]; then
+        log_success "✅ No deprecated 'docker compose' usage found"
+        return 0
+    fi
+    
+    log_warning "⚠️  Found deprecated 'docker compose' usage in ${#deprecated_files[@]} file(s):"
+    for file in "${deprecated_files[@]}"; do
+        local line_numbers
+        line_numbers=$(grep -n "docker compose" "$file" 2>/dev/null | cut -d: -f1 | tr '\n' ',' | sed 's/,$//')
+        echo "  ❌ $file (lines: $line_numbers)"
+    done
+    
+    echo ""
+    log_warning "🔧 Required Action: Replace 'docker compose' with 'docker compose'"
+    echo "  Example: sed -i 's/docker compose/docker compose/g' script.sh"
+    
+    return 1
+}
+
+# Validate Docker Compose file syntax
+validate_compose_file() {
+    local compose_file="$1"
+    
+    log_debug "Validating Docker Compose file: $compose_file"
+    
+    if [ ! -f "$compose_file" ]; then
+        log_error "Compose file not found: $compose_file"
+        return 1
+    fi
+    
+    # Use docker compose config to validate
+    if docker compose -f "$compose_file" config >/dev/null 2>&1; then
+        log_success "✅ Valid Docker Compose file: $compose_file"
+        return 0
+    else
+        log_error "❌ Invalid Docker Compose file: $compose_file"
+        return 1
+    fi
+}
+
+# Generate Docker Compose best practices report
+generate_docker_best_practices_report() {
+    local project_dir="${1:-.}"
+    local output_file="${2:-docs/audit/docker/docker-best-practices-report.md}"
+    
+    log_info "Generating Docker best practices report"
+    
+    # Create output directory
+    mkdir -p "$(dirname "$output_file")"
+    
+    # Generate report
+    cat > "$output_file" << EOF
+# Docker Best Practices Report
+
+**Project**: $(basename "$(pwd)")  
+**Date**: $(date +%Y-%m-%d)  
+**Analysis**: Docker Compose v2 compliance and best practices  
+
+## Executive Summary
+
+$(validate_docker_compose && echo "✅ **COMPLIANT** - Docker Compose v2 properly configured" || echo "❌ **NON-COMPLIANT** - Docker Compose issues detected")
+
+## Docker Compose Version Analysis
+
+### Required Configuration
+- **Command**: \`docker compose\` (v2)
+- **Deprecated**: \`docker compose\` (v1) - DO NOT USE
+
+### Current Environment
+EOF
+
+    # Add version information
+    if docker compose version >/dev/null 2>&1; then
+        local compose_version
+        compose_version=$(docker compose version --short 2>/dev/null || echo "unknown")
+        echo "- **Docker Compose v2**: ✅ Available (v$compose_version)" >> "$output_file"
+    else
+        echo "- **Docker Compose v2**: ❌ Not available" >> "$output_file"
+    fi
+    
+    if command -v docker compose >/dev/null 2>&1; then
+        local old_version
+        old_version=$(docker compose version --short 2>/dev/null || echo "unknown")
+        echo "- **Docker Compose v1**: ⚠️  Deprecated version found (v$old_version)" >> "$output_file"
+    else
+        echo "- **Docker Compose v1**: ✅ Not installed (good)" >> "$output_file"
+    fi
+    
+    cat >> "$output_file" << EOF
+
+## Project Analysis
+
+### Docker Compose Files
+EOF
+    
+    # Add compose files analysis
+    if scan_docker_compose_files "$project_dir" >/dev/null 2>&1; then
+        echo "" >> "$output_file"
+        while IFS= read -r -d '' file; do
+            local relative_path
+            relative_path=$(realpath --relative-to="$project_dir" "$file")
+            if validate_compose_file "$file" >/dev/null 2>&1; then
+                echo "- ✅ **$relative_path** - Valid syntax" >> "$output_file"
+            else
+                echo "- ❌ **$relative_path** - Invalid syntax" >> "$output_file"
+            fi
+        done < <(find "$project_dir" -maxdepth 2 -name "docker compose*.yml" -o -name "docker compose*.yaml" -o -name "compose*.yml" -o -name "compose*.yaml" -print0 2>/dev/null)
+    else
+        echo "- No Docker Compose files found" >> "$output_file"
+    fi
+    
+    cat >> "$output_file" << EOF
+
+### Deprecated Usage Analysis
+EOF
+    
+    # Add deprecated usage analysis
+    if check_deprecated_docker_compose_usage "$project_dir" >/dev/null 2>&1; then
+        echo "- ✅ No deprecated 'docker compose' usage found" >> "$output_file"
+    else
+        echo "- ❌ Deprecated 'docker compose' usage detected" >> "$output_file"
+        echo "" >> "$output_file"
+        echo "**Files requiring updates:**" >> "$output_file"
+        
+        # Find files with deprecated usage
+        while IFS= read -r -d '' file; do
+            if grep -l "docker compose" "$file" 2>/dev/null; then
+                local relative_path
+                relative_path=$(realpath --relative-to="$project_dir" "$file")
+                local line_numbers
+                line_numbers=$(grep -n "docker compose" "$file" 2>/dev/null | cut -d: -f1 | tr '\n' ',' | sed 's/,$//')
+                echo "- \`$relative_path\` (lines: $line_numbers)" >> "$output_file"
+            fi
+        done < <(find "$project_dir" -type f \( -name "*.sh" -o -name "*.bash" -o -name "*.zsh" -o -name "Makefile" -o -name "*.mk" \) -print0 2>/dev/null)
+    fi
+    
+    cat >> "$output_file" << EOF
+
+## Recommendations
+
+### High Priority
+EOF
+    
+    if ! docker compose version >/dev/null 2>&1; then
+        cat >> "$output_file" << EOF
+- **Install Docker Compose v2**: Required for modern Docker workflows
+  - Docker Desktop: Automatically includes Compose v2
+  - Manual install: \`curl -SL https://github.com/docker/compose/releases/latest/download/docker compose-linux-x86_64 -o /usr/local/bin/docker compose\`
+EOF
+    fi
+    
+    if check_deprecated_docker_compose_usage "$project_dir" >/dev/null 2>&1; then
+        :  # No deprecated usage
+    else
+        cat >> "$output_file" << EOF
+- **Replace deprecated commands**: Update all scripts to use \`docker compose\`
+  - Find and replace: \`sed -i 's/docker compose/docker compose/g' script.sh\`
+  - Verify changes: \`grep -r "docker compose" .\`
+EOF
+    fi
+    
+    cat >> "$output_file" << EOF
+
+### Best Practices
+- Use \`docker compose\` command (v2) exclusively
+- Validate compose files: \`docker compose config\`
+- Use specific image tags (avoid \`latest\`)
+- Implement health checks for services
+- Use multi-stage builds for optimization
+- Secure secrets with Docker secrets or external vaults
+
+### Migration Guide
+\`\`\`bash
+# Replace deprecated docker compose with docker compose
+find . -type f -name "*.sh" -exec sed -i 's/docker compose/docker compose/g' {} +
+find . -type f -name "Makefile" -exec sed -i 's/docker compose/docker compose/g' {} +
+
+# Validate compose files
+docker compose config
+
+# Test services
+docker compose up --dry-run
+\`\`\`
+
+---
+
+**Report Generated**: $(date)  
+**Tool**: Tony Framework Docker Analysis v2.1  
+**Compliance**: Docker Compose v2 Standards
+EOF
+    
+    log_success "Docker best practices report generated: $output_file"
+    echo "$output_file"
+}
+
+# Auto-fix deprecated docker compose usage
+auto_fix_deprecated_usage() {
+    local project_dir="${1:-.}"
+    local backup="${2:-true}"
+    
+    log_info "Auto-fixing deprecated 'docker compose' usage"
+    
+    local fixed_files=()
+    
+    # Find files with deprecated usage
+    while IFS= read -r -d '' file; do
+        if grep -l "docker compose" "$file" 2>/dev/null; then
+            # Create backup if requested
+            if [ "$backup" = true ]; then
+                cp "$file" "$file.backup"
+                log_debug "Created backup: $file.backup"
+            fi
+            
+            # Replace docker compose with docker compose
+            sed -i 's/docker compose/docker compose/g' "$file"
+            fixed_files+=("$file")
+            log_info "Fixed: $file"
+        fi
+    done < <(find "$project_dir" -type f \( -name "*.sh" -o -name "*.bash" -o -name "*.zsh" -o -name "Makefile" -o -name "*.mk" \) -print0 2>/dev/null)
+    
+    if [ ${#fixed_files[@]} -eq 0 ]; then
+        log_info "No files required fixing"
+        return 0
+    fi
+    
+    log_success "✅ Fixed ${#fixed_files[@]} file(s):"
+    for file in "${fixed_files[@]}"; do
+        echo "  📝 $file"
+    done
+    
+    echo ""
+    log_info "🔧 Next steps:"
+    echo "  1. Test the updated scripts"
+    echo "  2. Commit the changes: git add . && git commit -m 'fix: update to docker compose v2'"
+    echo "  3. Remove backup files when satisfied: rm *.backup"
+    
+    return 0
+}
+
+# Export functions
+export -f init_docker_utils
+export -f validate_docker_compose
+export -f scan_docker_compose_files
+export -f check_deprecated_docker_compose_usage
+export -f validate_compose_file
+export -f generate_docker_best_practices_report
+export -f auto_fix_deprecated_usage

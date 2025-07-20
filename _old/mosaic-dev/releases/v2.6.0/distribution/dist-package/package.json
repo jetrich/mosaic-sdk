@@ -1,0 +1,61 @@
+{
+  "name": "@tony/core",
+  "version": "2.6.0",
+  "description": "Tony Framework Core - Production-Ready AI Orchestration Platform",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./plugin-system": {
+      "import": "./dist/plugin-system.js",
+      "types": "./dist/plugin-system.d.ts"
+    },
+    "./hot-reload": {
+      "import": "./dist/hot-reload-manager.js",
+      "types": "./dist/hot-reload-manager.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "scripts",
+    "templates",
+    "docs",
+    "README.md",
+    "LICENSE",
+    "VERSION"
+  ],
+  "scripts": {
+    "postinstall": "node scripts/install-check.js"
+  },
+  "keywords": [
+    "tony",
+    "framework",
+    "ai",
+    "orchestration",
+    "automation",
+    "plugins",
+    "hot-reload",
+    "production-ready"
+  ],
+  "author": "Tony Framework Team",
+  "license": "MIT",
+  "peerDependencies": {
+    "node": ">=16.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jetrich/tony-ng.git",
+    "directory": "tony"
+  },
+  "bugs": {
+    "url": "https://github.com/jetrich/tony-ng/issues"
+  },
+  "homepage": "https://github.com/jetrich/tony-ng#readme"
+}

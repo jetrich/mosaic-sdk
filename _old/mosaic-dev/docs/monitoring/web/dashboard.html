@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tony Framework Health Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .metric-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .metric-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .metric-icon {
+            font-size: 2em;
+            margin-right: 15px;
+        }
+        
+        .metric-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .metric-score {
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .metric-status {
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+        
+        .score-excellent { color: #4CAF50; }
+        .score-good { color: #8BC34A; }
+        .score-fair { color: #FF9800; }
+        .score-poor { color: #F44336; }
+        
+        .status-excellent { background: #E8F5E8; color: #2E7D32; }
+        .status-good { background: #F1F8E9; color: #558B2F; }
+        .status-fair { background: #FFF3E0; color: #F57C00; }
+        .status-poor { background: #FFEBEE; color: #C62828; }
+        
+        .overall-health {
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .overall-score {
+            font-size: 4em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .components-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .component-details {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .component-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+        
+        .status-enabled { color: #4CAF50; font-weight: 500; }
+        .status-disabled { color: #F44336; font-weight: 500; }
+        
+        .refresh-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            margin-top: 20px;
+        }
+        
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .timestamp {
+            text-align: center;
+            color: #666;
+            margin-top: 20px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="header">
+            <h1>🤖 Tony Framework Health Dashboard</h1>
+            <p>Real-time monitoring and health assessment</p>
+        </div>
+        
+        <div class="overall-health">
+            <div class="overall-score" id="overallScore">--</div>
+            <div class="metric-status" id="overallStatus">Loading...</div>
+        </div>
+        
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-icon">🔧</div>
+                    <div class="metric-title">Framework</div>
+                </div>
+                <div class="metric-score score-excellent" id="frameworkScore">--</div>
+                <div class="metric-status" id="frameworkStatus">Loading...</div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-icon">📋</div>
+                    <div class="metric-title">ATHMS</div>
+                </div>
+                <div class="metric-score score-good" id="athmsScore">--</div>
+                <div class="metric-status" id="athmsStatus">Loading...</div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-icon">🔗</div>
+                    <div class="metric-title">Integration</div>
+                </div>
+                <div class="metric-score score-excellent" id="integrationScore">--</div>
+                <div class="metric-status" id="integrationStatus">Loading...</div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-icon">🛡️</div>
+                    <div class="metric-title">Security</div>
+                </div>
+                <div class="metric-score score-excellent" id="securityScore">--</div>
+                <div class="metric-status" id="securityStatus">Loading...</div>
+            </div>
+        </div>
+        
+        <div class="components-grid" id="componentsGrid">
+            <!-- Component details will be populated by JavaScript -->
+        </div>
+        
+        <div class="text-center">
+            <button class="refresh-btn" onclick="refreshDashboard()">🔄 Refresh Dashboard</button>
+        </div>
+        
+        <div class="timestamp" id="timestamp">Last updated: --</div>
+    </div>
+    
+    <script>
+        // Dashboard JavaScript functionality
+        async function loadHealthData() {
+            try {
+                // In a real implementation, this would fetch from the health data files
+                // For now, we'll simulate the data structure
+                return {
+                    generated_at: new Date().toISOString(),
+                    overall_health_score: 88,
+                    components: {
+                        framework: {
+                            health_score: 100,
+                            installed: true,
+                            version: "2.2.0",
+                            projects: { total: 3, active: 3 }
+                        },
+                        athms: {
+                            health_score: 75,
+                            planning_status: "planning_complete",
+                            tasks: { total: 50, completed: 35, active: 15, failed: 0 }
+                        },
+                        integration: {
+                            health_score: 100,
+                            components: {
+                                agent_bridge: "enabled",
+                                state_management: "enabled",
+                                cicd_integration: "enabled",
+                                cross_project_sync: "enabled"
+                            }
+                        },
+                        security: {
+                            health_score: 75,
+                            components: {
+                                security_framework: "enabled",
+                                vulnerability_scanning: "enabled",
+                                audit_logging: "disabled",
+                                compliance_reporting: "disabled"
+                            }
+                        }
+                    }
+                };
+            } catch (error) {
+                console.error('Error loading health data:', error);
+                return null;
+            }
+        }
+        
+        function getScoreClass(score) {
+            if (score >= 90) return 'score-excellent';
+            if (score >= 70) return 'score-good';
+            if (score >= 50) return 'score-fair';
+            return 'score-poor';
+        }
+        
+        function getStatusText(score) {
+            if (score >= 90) return 'EXCELLENT';
+            if (score >= 70) return 'GOOD';
+            if (score >= 50) return 'FAIR';
+            return 'POOR';
+        }
+        
+        function updateDashboard(data) {
+            if (!data) return;
+            
+            // Update overall health
+            const overallScore = Math.round(data.overall_health_score);
+            document.getElementById('overallScore').textContent = overallScore;
+            document.getElementById('overallStatus').textContent = getStatusText(overallScore);
+            
+            // Update component scores
+            document.getElementById('frameworkScore').textContent = data.components.framework.health_score;
+            document.getElementById('frameworkScore').className = 'metric-score ' + getScoreClass(data.components.framework.health_score);
+            document.getElementById('frameworkStatus').textContent = `Version ${data.components.framework.version}`;
+            
+            document.getElementById('athmsScore').textContent = data.components.athms.health_score;
+            document.getElementById('athmsScore').className = 'metric-score ' + getScoreClass(data.components.athms.health_score);
+            document.getElementById('athmsStatus').textContent = `${data.components.athms.tasks.completed}/${data.components.athms.tasks.total} tasks completed`;
+            
+            document.getElementById('integrationScore').textContent = data.components.integration.health_score;
+            document.getElementById('integrationScore').className = 'metric-score ' + getScoreClass(data.components.integration.health_score);
+            document.getElementById('integrationStatus').textContent = 'All systems operational';
+            
+            document.getElementById('securityScore').textContent = data.components.security.health_score;
+            document.getElementById('securityScore').className = 'metric-score ' + getScoreClass(data.components.security.health_score);
+            document.getElementById('securityStatus').textContent = 'Security framework active';
+            
+            // Update timestamp
+            document.getElementById('timestamp').textContent = `Last updated: ${new Date(data.generated_at).toLocaleString()}`;
+        }
+        
+        async function refreshDashboard() {
+            const data = await loadHealthData();
+            updateDashboard(data);
+        }
+        
+        // Initial load
+        refreshDashboard();
+        
+        // Auto-refresh every 30 seconds
+        setInterval(refreshDashboard, 30000);
+    </script>
+</body>
+</html>

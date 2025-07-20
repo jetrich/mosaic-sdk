@@ -1,0 +1,124 @@
+# MosAIc Development Tools .gitignore
+
+# Dependencies
+node_modules/
+.pnpm-store/
+.yarn/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Build outputs
+dist/
+build/
+lib/
+types/
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Testing
+coverage/
+.nyc_output/
+.coverage/
+test-results/
+junit.xml
+*.lcov
+
+# Environment files
+.env
+.env.local
+.env.*.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.bak
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+.temp/
+*.tmp
+*.temp
+
+# User configuration directories
+~/
+.tony/
+.mosaic/
+
+# Compiled JavaScript in TypeScript projects
+*.js.map
+*.d.ts.map
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+.pid
+.socket
+
+# Cache directories
+.cache/
+.parcel-cache/
+
+# Optional npm cache directory
+.npm/
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# Security
+*.key
+*.pem
+*.crt
+*.p12
+.secrets/
+
+# Development specific
+.sandbox/
+.dev/
+playground/
+
+# Tony Framework Development (managed separately)
+framework-source/

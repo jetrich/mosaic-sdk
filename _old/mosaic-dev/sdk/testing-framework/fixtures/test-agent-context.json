@@ -1,0 +1,88 @@
+{
+  "schema_version": "1.0.0",
+  "session": {
+    "session_id": "A1B2C3D4-E5F6-G7H8-I9J0-K1L2M3N4O5P6",
+    "timestamp": "2025-07-13T13:20:00Z",
+    "agent_chain": [
+      {
+        "agent_id": "tech-lead-tony",
+        "task_completed": "E.002 QA Remediation",
+        "completion_time": "2025-07-13T13:15:00Z"
+      }
+    ],
+    "parent_session_id": null
+  },
+  "task_context": {
+    "epic_id": "E.003",
+    "epic_name": "Production Deployment & Release Preparation",
+    "task_id": "T.003.01.01.TEST",
+    "task_name": "Validate spawn-agent.sh functionality",
+    "task_description": "Test agent spawning infrastructure after TypeScript compilation fixes",
+    "priority": "HIGH",
+    "estimated_duration": "5 minutes",
+    "dependencies": ["E.002"],
+    "assignee": "test-validation-agent"
+  },
+  "project_state": {
+    "repository": {
+      "path": "/home/jwoltje/src/tony-ng/tony",
+      "branch": "main",
+      "last_commit": "441e5ca",
+      "status": "clean"
+    },
+    "framework": {
+      "version": "2.6.0",
+      "status": "production-ready",
+      "compilation_status": "clean",
+      "test_status": "96.7% pass rate"
+    },
+    "completed_epics": ["E.001", "E.002"],
+    "current_phase": "Phase 1 Completion"
+  },
+  "execution_context": {
+    "environment": {
+      "os": "linux",
+      "node_version": "22.17.0",
+      "working_directory": "/home/jwoltje/src/tony-ng/tony"
+    },
+    "tools_required": ["Read", "Bash", "LS"],
+    "permissions": ["file_read", "command_execution"],
+    "constraints": [
+      "This is a validation test only",
+      "Should complete within 5 minutes",
+      "Must verify context injection works properly"
+    ]
+  },
+  "handoff_instructions": {
+    "objective": "Verify that the agent spawning system works correctly after TypeScript compilation fixes",
+    "success_criteria": [
+      "Agent successfully spawned and receives context",
+      "Agent can access project files", 
+      "Agent reports back successfully",
+      "No ES module or compilation errors"
+    ],
+    "tasks": [
+      {
+        "task": "Confirm context reception",
+        "instruction": "Acknowledge receipt of this context and verify all fields are accessible"
+      },
+      {
+        "task": "Verify file access",
+        "instruction": "List 3 files from the project root to verify access"
+      },
+      {
+        "task": "Check compilation",
+        "instruction": "Run 'npm run build' to verify TypeScript compilation is clean"
+      },
+      {
+        "task": "Report capabilities", 
+        "instruction": "Provide a summary of your operational capabilities and status"
+      }
+    ],
+    "context_preservation": {
+      "maintain_session_chain": true,
+      "preserve_project_state": true,
+      "log_actions": true
+    }
+  }
+}

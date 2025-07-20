@@ -31,7 +31,19 @@ Develop and test MosAIc without affecting your other projects:
 cd ~/other-project && tony plan  # Still uses your current Tony version
 ```
 
-See [Isolated Environment Guide](docs/development/isolated-environment.md) for details.
+See [Isolated Environment Guide](mosaic-docs/engineering/getting-started/quick-start/03-isolated-environment.md) for details.
+
+## 📚 Documentation
+
+### SDK Documentation
+- [Organizational Structure](docs/sdk/architecture/ORGANIZATIONAL-STRUCTURE.md) - 4-domain architecture
+- [Repository Structure](docs/sdk/architecture/REPOSITORY-STRUCTURE.md) - Component overview  
+- [Git Setup Guide](docs/sdk/development/GIT-SETUP-SUMMARY.md) - Version control setup
+- [Pre-Push Checklist](docs/sdk/development/PRE-PUSH-CHECKLIST.md) - Quality checks
+- [Project Status](docs/sdk/operations/STATUS.md) - Current state
+
+### Full Documentation
+Complete documentation is available in the [mosaic-docs](mosaic-docs/) submodule.
 
 ## 🚀 Quick Start
 
@@ -103,23 +115,33 @@ See the [Migration Guide](docs/migration/tony-sdk-to-mosaic-sdk.md) for detailed
 
 ## 🎯 Key Features
 
+### Agent Persona System
+- **Consistent Agent Behaviors**: 20+ predefined personas across all development domains
+- **Personality-Driven Interactions**: Each agent has unique communication style and expertise
+- **Automatic Persona Selection**: Tony intelligently assigns personas based on task keywords
+- **Domain Specialization**: From CEO-level strategy to backend implementation
+- **Tool & Model Optimization**: Each persona uses appropriate tools and AI models
+
 ### For Individual Developers
 - Tony Framework with AI-powered development
 - Local MCP server for coordination
 - CLI-driven workflow
 - Minimal infrastructure requirements
+- Personality-driven agent assistance
 
 ### For Teams
 - Multi-project orchestration
 - Real-time collaboration
 - Shared resource management
 - Web-based dashboards
+- Consistent agent behaviors across team
 
 ### For Enterprises
 - Kubernetes-native deployment
 - Advanced security and compliance
 - Multi-region support
 - Enterprise SLAs
+- Standardized agent personas for quality control
 
 ## 🛠️ Development
 
@@ -127,6 +149,9 @@ See the [Migration Guide](docs/migration/tony-sdk-to-mosaic-sdk.md) for detailed
 - Node.js >= 18.0.0
 - Git
 - npm or yarn
+- yq (YAML processor) - Required for Agent Persona System
+  - macOS: `brew install yq`
+  - Linux: `sudo snap install yq` or see [persona requirements](.mosaic/templates/agents/requirements.txt)
 
 ### Building from Source
 
@@ -146,6 +171,54 @@ npm run dev
 
 ### Repository Structure
 
+```
+mosaic-sdk/
+├── .woodpecker.yml       # CI/CD pipeline configuration
+├── Dockerfile            # Development environment container
+├── tony/                 # Tony Framework (submodule)
+├── mosaic/              # MosAIc Platform (submodule)
+├── mosaic-mcp/          # MCP Server (submodule)
+├── mosaic-dev/          # Development SDK (submodule)
+└── worktrees/           # Git worktrees for development
+```
+
+## 🚀 CI/CD Pipeline
+
+MosAIc SDK uses Woodpecker CI for continuous integration across all components:
+
+### Pipeline Features
+- **Submodule Management**: Automatic initialization and updates
+- **Component Testing**: Parallel testing of all SDK components
+- **Integration Testing**: Cross-component integration validation
+- **Isolated MCP Testing**: Validates isolated development environment
+- **Security Auditing**: Vulnerability scanning across all dependencies
+- **Docker Support**: Multi-component containerization
+- **Release Automation**: Automated release artifact creation
+
+### Running CI/CD Locally
+```bash
+# Verify structure and submodules
+npm run verify
+
+# Build all components
+npm run build:all
+
+# Run all tests
+npm test
+
+# Test isolated MCP environment
+npm run dev:start
+npm run dev:status
+npm run dev:stop
+```
+
+### Docker Images
+Each component has its own optimized Docker image:
+- **tony-framework**: CLI framework with planning engine
+- **mosaic-frontend**: React web interface
+- **mosaic-backend**: NestJS API server
+- **mosaic-mcp**: MCP coordination server
+- **mosaic-dev**: Development tools container
 ```
 mosaic-sdk/
 ├── tony/           # Tony Framework (@tony/core) - Added after 2.7.0

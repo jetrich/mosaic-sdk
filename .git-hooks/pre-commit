@@ -1,0 +1,87 @@
+#!/bin/bash
+# MosAIc SDK Pre-commit Hook
+# This hook runs before every commit to ensure code quality
+
+set -e
+
+echo "🔍 Running pre-commit checks..."
+
+# Check if we're in the right directory
+if [ ! -f "package.json" ]; then
+    echo "❌ Error: Not in project root directory"
+    exit 1
+fi
+
+# 1. Check for merge conflicts
+echo "Checking for merge conflicts..."
+if grep -rn "^<<<<<<< \|^======= \|^>>>>>>> " --include="*.ts" --include="*.js" --include="*.json" .; then
+    echo "❌ Error: Merge conflicts detected. Please resolve before committing."
+    exit 1
+fi
+
+# 2. Check for console.log statements (excluding test files)
+echo "Checking for console.log statements..."
+if git diff --cached --name-only | grep -E '\.(ts|js)$' | grep -v test | xargs grep -l "console\.log" 2>/dev/null; then
+    echo "⚠️  Warning: console.log statements found. Consider using proper logging."
+    echo "Continue anyway? (y/n)"
+    read -r response
+    if [ "$response" != "y" ]; then
+        exit 1
+    fi
+fi
+
+# 3. Check for sensitive information
+echo "Checking for sensitive information..."
+if git diff --cached --name-only | xargs grep -E "(password\s*=|api_key\s*=|secret\s*=|private_key)" 2>/dev/null; then
+    echo "❌ Error: Possible sensitive information detected. Please review your changes."
+    exit 1
+fi
+
+# 4. Run linting (if available)
+if [ -f "package.json" ] && grep -q "\"lint\":" package.json; then
+    echo "Running linter..."
+    npm run lint || {
+        echo "❌ Error: Linting failed. Please fix errors before committing."
+        exit 1
+    }
+fi
+
+# 5. Check TypeScript compilation (for staged .ts files)
+if git diff --cached --name-only | grep -q "\.ts$"; then
+    if [ -f "tsconfig.json" ]; then
+        echo "Checking TypeScript compilation..."
+        npx tsc --noEmit || {
+            echo "❌ Error: TypeScript compilation failed."
+            exit 1
+        }
+    fi
+fi
+
+# 6. Check file sizes
+echo "Checking file sizes..."
+for file in $(git diff --cached --name-only); do
+    if [ -f "$file" ]; then
+        size=$(stat -f%z "$file" 2>/dev/null || stat -c%s "$file" 2>/dev/null)
+        if [ "$size" -gt 104857600 ]; then  # 100MB
+            echo "❌ Error: File $file is larger than 100MB. Use Git LFS for large files."
+            exit 1
+        elif [ "$size" -gt 10485760 ]; then  # 10MB
+            echo "⚠️  Warning: File $file is larger than 10MB."
+        fi
+    fi
+done
+
+# 7. Ensure no .env files are committed
+if git diff --cached --name-only | grep -E "^\.env$|^\.env\." | grep -v ".example"; then
+    echo "❌ Error: Attempting to commit .env file. Use .env.example instead."
+    exit 1
+fi
+
+# 8. Check for TODO/FIXME comments
+echo "Checking for TODO/FIXME comments..."
+todo_count=$(git diff --cached --name-only | xargs grep -c "TODO\|FIXME" 2>/dev/null | awk -F: '{sum += $2} END {print sum}')
+if [ "$todo_count" -gt 0 ]; then
+    echo "ℹ️  Info: Found $todo_count TODO/FIXME comments in staged files."
+fi
+
+echo "✅ Pre-commit checks passed!"
