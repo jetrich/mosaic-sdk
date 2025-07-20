@@ -10,3 +10,6 @@
 [submodule "tony"]
 	path = tony
 	url = https://github.com/jetrich/tony.git
+[submodule "mosaic-docs"]
+	path = mosaic-docs
+	url = https://github.com/jetrich/mosaic-docs.git
