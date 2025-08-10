@@ -13,6 +13,3 @@
 [submodule "mosaic-docs"]
 	path = mosaic-docs
 	url = https://git.mosaicstack.dev/mosaic/mosaic-docs.git
-[submodule "packages/mcp-integration/mosaic-tony"]
-	path = packages/mcp-integration/mosaic-tony
-	url = https://git.mosaicstack.dev/mosaic/tony.git
