@@ -12,10 +12,10 @@
  * - Populates database and creates task files
  */
 
-const { Logger } = require('../utils/Logger');
-const { StateTracker } = require('../core/state-tracker');
-const { TonyPlanningOrchestrator } = require('../core/TonyPlanningOrchestrator');
-const { SequentialTaskService } = require('../../mcp-server/src/services/SequentialTaskService');
+const { Logger } = require('../../dist/utils/Logger');
+const { StateTracker } = require('../../dist/core/state-tracker');
+const { TonyPlanningOrchestrator } = require('../../dist/core/TonyPlanningOrchestrator');
+const { SequentialTaskServiceBridge } = require('../../dist/services/SequentialTaskServiceBridge');
 const { MosAIcProjectReader } = require('../utils/MosAIcProjectReader');
 
 // Legacy domain planners (for backwards compatibility and constraint gathering)
@@ -52,8 +52,8 @@ class PlanAllReconstructedCommand {
     this.stateTracker = new StateTracker({ projectId });
     await this.stateTracker.initialize();
     
-    this.sequentialTaskService = new SequentialTaskService(this.logger);
-    await this.sequentialTaskService.initialize();
+    this.sequentialTaskService = new SequentialTaskServiceBridge(this.logger);
+    // Bridge doesn't need explicit initialization
     
     this.tonyOrchestrator = new TonyPlanningOrchestrator(
       this.logger,

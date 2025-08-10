@@ -9,11 +9,7 @@
  */
 
 import { Logger } from '../utils/Logger';
-// import { SequentialTaskService } from '../../mcp-server/src/services/SequentialTaskService';
-// Temporary mock until proper integration
-interface SequentialTaskService {
-  decomposeTask(prompt: string, context: any, options: any): Promise<any>;
-}
+import { SequentialTaskService } from '../services/SequentialTaskServiceBridge';
 
 export interface UPPTask {
   id: string;

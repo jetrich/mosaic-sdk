@@ -16,11 +16,8 @@ import { EventEmitter } from 'events';
 import { Logger } from '../utils/Logger';
 import { StateTracker } from './state-tracker';
 import { UPPDecomposer } from './UPPDecomposer';
-// import { SequentialTaskService } from '../../mcp-server/src/services/SequentialTaskService';
-// Temporary mock until proper integration
-interface SequentialTaskService {
-  decomposeTask(prompt: string, context: any, options: any): Promise<any>;
-}
+// Import the service bridge for proper integration
+import { SequentialTaskService, SequentialTaskServiceBridge } from '../services/SequentialTaskServiceBridge';
 import { AgentDeploymentManager } from './AgentDeploymentManager';
 import { ResourceManager } from './ResourceManager';
 import { TaskHierarchyManager } from './TaskHierarchyManager';
@@ -156,15 +153,15 @@ export class TonyPlanningOrchestrator extends EventEmitter {
   constructor(
     logger: Logger,
     stateTracker: StateTracker,
-    sequentialTaskService: SequentialTaskService
+    sequentialTaskService?: SequentialTaskService
   ) {
     super();
     this.logger = logger;
     this.stateTracker = stateTracker;
-    this.sequentialTaskService = sequentialTaskService;
+    this.sequentialTaskService = sequentialTaskService || new SequentialTaskServiceBridge(logger);
     
     // Initialize core components
-    this.uppDecomposer = new UPPDecomposer(logger, sequentialTaskService);
+    this.uppDecomposer = new UPPDecomposer(logger, this.sequentialTaskService);
     this.agentManager = new AgentDeploymentManager(logger);
     this.resourceManager = new ResourceManager(logger);
     this.hierarchyManager = new TaskHierarchyManager(logger, stateTracker);
