@@ -4,7 +4,7 @@ First off, thank you for considering contributing to MosAIc SDK! It's people lik
 
 ## Code of Conduct
 
-This project and everyone participating in it is governed by the [MosAIc SDK Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to [jetrich@example.com].
+This project and everyone participating in it is governed by the [MosAIc SDK Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to [jetrich@mosaicstack.dev].
 
 ## How Can I Contribute?
 

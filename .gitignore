@@ -18,6 +18,9 @@ out/
 .env
 .env.local
 .env.*.local
+
+# NPM authentication
+.npmrc
 .env.development
 .env.production
 

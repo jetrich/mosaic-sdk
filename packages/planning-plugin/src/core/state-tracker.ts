@@ -281,10 +281,14 @@ export class StateTracker {
     this.session.lastUpdated = new Date();
     this.isDirty = true;
     
-    // Auto-save if enabled
-    if (this.autoSave) {
-      this.scheduleSave();
-    }
+    // Auto-save is handled by the timer started in initialize()
+  }
+
+  /**
+   * Add session metadata (alias for updateMetadata for compatibility)
+   */
+  async addMetadata(key: string, value: any): Promise<void> {
+    return this.updateMetadata(key, value);
   }
 
   /**
@@ -295,52 +299,7 @@ export class StateTracker {
     return key ? this.session.metadata[key] : this.session.metadata;
   }
 
-  /**
-   * Get current session (for planning commands)
-   */
-  getCurrentSession(): PlanningSession | null {
-    return this.session;
-  }
 
-  /**
-   * Get session statistics (for planning commands)
-   */
-  getSessionStats(): {
-    totalModules: number;
-    completedModules: number;
-    sessionDuration: number;
-    createdAt: Date | null;
-    lastUpdated: Date | null;
-    completionRate: number;
-  } {
-    if (!this.session) {
-      return {
-        totalModules: 0,
-        completedModules: 0,
-        sessionDuration: 0,
-        createdAt: null,
-        lastUpdated: null,
-        completionRate: 0
-      };
-    }
-
-    const modules = Object.values(this.session.modules || {});
-    const totalModules = modules.length;
-    const completedModules = modules.filter(module => 
-      module.state?.status === 'completed'
-    ).length;
-
-    const sessionDuration = this.session.lastUpdated.getTime() - this.session.createdAt.getTime();
-
-    return {
-      totalModules,
-      completedModules,
-      sessionDuration,
-      createdAt: this.session.createdAt,
-      lastUpdated: this.session.lastUpdated,
-      completionRate: totalModules > 0 ? (completedModules / totalModules) * 100 : 0
-    };
-  }
 
   /**
    * Force immediate save
