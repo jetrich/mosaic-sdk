@@ -23,13 +23,22 @@ export class PlanningTools {
         path.join(os.homedir(), '.config/mosaic/plugins/planning-plugin/src/commands') // Separate plugin installation
       ];
       
-      let PlanBusinessCommand, PlanAllCommand;
+      let PlanBusinessCommand, PlanAllCommand, PlanAllReconstructed;
       
       for (const pluginPath of pluginPaths) {
         try {
           PlanBusinessCommand = require(path.join(pluginPath, 'plan-business'));
-          PlanAllCommand = require(path.join(pluginPath, 'plan-all'));
-          console.log(`Planning plugin loaded from: ${pluginPath}`);
+          
+          // Try to load Tony orchestration version first
+          try {
+            PlanAllReconstructed = require(path.join(pluginPath, 'plan-all-reconstructed'));
+            console.log(`Tony orchestration planning loaded from: ${pluginPath}`);
+          } catch (e) {
+            // Fall back to legacy version
+            PlanAllCommand = require(path.join(pluginPath, 'plan-all'));
+            console.log(`Legacy planning loaded from: ${pluginPath}`);
+          }
+          
           break;
         } catch (e) {
           // Try next path
@@ -37,9 +46,11 @@ export class PlanningTools {
         }
       }
       
-      if (PlanBusinessCommand && PlanAllCommand) {
+      if (PlanBusinessCommand && (PlanAllReconstructed || PlanAllCommand)) {
         this.businessCommand = new PlanBusinessCommand();
-        this.allCommand = new PlanAllCommand();
+        // Prefer Tony orchestration if available
+        this.allCommand = PlanAllReconstructed ? new PlanAllReconstructed() : new PlanAllCommand();
+        console.log(`Planning system mode: ${PlanAllReconstructed ? 'Tony Orchestration' : 'Legacy Domain Planning'}`);
       } else {
         throw new Error('Planning plugin commands not found in any search path');
       }
