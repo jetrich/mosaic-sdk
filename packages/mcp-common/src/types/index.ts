@@ -1,6 +1,6 @@
 /**
  * @fileoverview Core type definitions for MosAIc MCP service integrations
- * @module @mosaic/mcp-common/types
+ * @module @mosaicstack/mcp-common/types
  */
 
 import { z } from 'zod';
@@ -19,8 +19,8 @@ export type ServiceConfig = z.infer<typeof ServiceConfigSchema>;
 
 // Authentication configuration
 export const AuthConfigSchema = z.object({
-  type: z.enum(['token', 'oauth', 'ssh-key', 'basic']),
-  credentials: z.record(z.string(), z.any()),
+  type: z.enum(['token', 'oauth', 'ssh-key', 'basic', 'none']),
+  credentials: z.record(z.string(), z.any()).default({}),
   refreshable: z.boolean().default(false),
   expiresAt: z.date().optional(),
 });

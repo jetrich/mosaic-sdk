@@ -1,0 +1,25 @@
+# Subtask: testing-documentation
+
+**Subtask ID**: ST.F.0004.05.01.02.04  
+**Task**: ST.F.0004.05 - documentation  
+**Status**: In Progress
+
+## Overview
+
+Implementation of testing-documentation components
+
+## Atomic Tasks
+
+This subtask consists of 4 atomic tasks:
+
+1. **A.ST.F.0004.05.01.02.04.01** - Core implementation logic
+2. **A.ST.F.0004.05.01.02.04.02** - Validation and error handling  
+3. **A.ST.F.0004.05.01.02.04.03** - Integration and API layer
+4. **A.ST.F.0004.05.01.02.04.04** - Testing and documentation
+
+## Completion Criteria
+
+- All atomic tasks implemented
+- Unit tests passing
+- Code review completed
+- Documentation updated

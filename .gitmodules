@@ -7,9 +7,12 @@
 [submodule "mosaic-dev"]
 	path = mosaic-dev
 	url = https://git.mosaicstack.dev/mosaic/mosaic-dev.git
-[submodule "tony"]
-	path = tony
+[submodule "mosaic-tony"]
+	path = mosaic-tony
 	url = https://git.mosaicstack.dev/mosaic/tony.git
 [submodule "mosaic-docs"]
 	path = mosaic-docs
 	url = https://git.mosaicstack.dev/mosaic/mosaic-docs.git
+[submodule "packages/mcp-integration/mosaic-tony"]
+	path = packages/mcp-integration/mosaic-tony
+	url = https://git.mosaicstack.dev/mosaic/tony.git

@@ -1,0 +1,300 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://mosaicstack.dev/schemas/config.json",
+  "title": "MosAIc Stack Configuration",
+  "description": "Configuration schema for MosAIc Stack multi-mode architecture",
+  "type": "object",
+  "required": ["version", "mode", "mcp", "providers", "routing", "tony", "monitoring"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "format": "uri"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Configuration schema version"
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["local", "hybrid", "cloud"],
+      "description": "Operation mode determining provider routing preferences"
+    },
+    "mcp": {
+      "$ref": "#/definitions/MCPConfig"
+    },
+    "providers": {
+      "$ref": "#/definitions/ProvidersConfig"
+    },
+    "routing": {
+      "$ref": "#/definitions/RoutingConfig"
+    },
+    "tony": {
+      "$ref": "#/definitions/TonyConfig"
+    },
+    "monitoring": {
+      "$ref": "#/definitions/MonitoringConfig"
+    }
+  },
+  "definitions": {
+    "MCPConfig": {
+      "type": "object",
+      "required": ["port", "autoStart", "features"],
+      "properties": {
+        "port": {
+          "type": "integer",
+          "minimum": 1024,
+          "maximum": 65535,
+          "description": "MCP server port"
+        },
+        "autoStart": {
+          "type": "boolean",
+          "description": "Automatically start MCP server"
+        },
+        "features": {
+          "$ref": "#/definitions/MCPFeatures"
+        },
+        "database": {
+          "type": "string",
+          "description": "Database file path"
+        },
+        "cors": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "origins": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "MCPFeatures": {
+      "type": "object",
+      "required": ["tony", "orchestration", "streaming", "metrics", "health"],
+      "properties": {
+        "tony": { "type": "boolean" },
+        "orchestration": { "type": "boolean" },
+        "streaming": { "type": "boolean" },
+        "metrics": { "type": "boolean" },
+        "health": { "type": "boolean" }
+      }
+    },
+    "ProvidersConfig": {
+      "type": "object",
+      "properties": {
+        "ollama": { "$ref": "#/definitions/OllamaConfig" },
+        "claude": { "$ref": "#/definitions/ClaudeConfig" },
+        "openrouter": { "$ref": "#/definitions/OpenRouterConfig" }
+      }
+    },
+    "BaseProviderConfig": {
+      "type": "object",
+      "required": ["enabled"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "priority": { "type": "integer", "minimum": 1 },
+        "timeout": { "type": "integer", "minimum": 1000 },
+        "retries": { "type": "integer", "minimum": 0 },
+        "maxConcurrency": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "OllamaConfig": {
+      "allOf": [
+        { "$ref": "#/definitions/BaseProviderConfig" },
+        {
+          "type": "object",
+          "required": ["location", "url"],
+          "properties": {
+            "location": {
+              "type": "string",
+              "enum": ["local", "remote"]
+            },
+            "url": {
+              "type": "string",
+              "format": "uri"
+            },
+            "models": {
+              "oneOf": [
+                {
+                  "type": "array",
+                  "items": { "type": "string" }
+                },
+                {
+                  "type": "array",
+                  "items": { "const": "auto-detect" },
+                  "maxItems": 1
+                }
+              ]
+            },
+            "healthCheckInterval": {
+              "type": "integer",
+              "minimum": 5000
+            }
+          }
+        }
+      ]
+    },
+    "ClaudeConfig": {
+      "allOf": [
+        { "$ref": "#/definitions/BaseProviderConfig" },
+        {
+          "type": "object",
+          "required": ["access"],
+          "properties": {
+            "access": {
+              "type": "string",
+              "enum": ["subscription", "api", "both"]
+            },
+            "apiKey": { "type": "string" },
+            "fallbackToApi": { "type": "boolean" },
+            "model": { "type": "string" },
+            "maxTokens": { "type": "integer", "minimum": 1 },
+            "temperature": { "type": "number", "minimum": 0, "maximum": 2 }
+          }
+        }
+      ]
+    },
+    "OpenRouterConfig": {
+      "allOf": [
+        { "$ref": "#/definitions/BaseProviderConfig" },
+        {
+          "type": "object",
+          "required": ["apiKey"],
+          "properties": {
+            "apiKey": { "type": "string" },
+            "models": {
+              "oneOf": [
+                {
+                  "type": "array",
+                  "items": { "type": "string" }
+                },
+                {
+                  "type": "array",
+                  "items": { "const": "auto" },
+                  "maxItems": 1
+                }
+              ]
+            },
+            "baseUrl": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        }
+      ]
+    },
+    "RoutingConfig": {
+      "type": "object",
+      "required": ["strategy", "preferLocal", "costOptimization", "performanceTracking", "fallbackChain", "rules"],
+      "properties": {
+        "strategy": {
+          "type": "string",
+          "enum": ["intelligent", "round-robin", "priority"]
+        },
+        "preferLocal": { "type": "boolean" },
+        "costOptimization": { "type": "boolean" },
+        "performanceTracking": { "type": "boolean" },
+        "fallbackChain": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "rules": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/RoutingRule" }
+        },
+        "cache": { "$ref": "#/definitions/CacheConfig" }
+      }
+    },
+    "RoutingRule": {
+      "type": "object",
+      "required": ["preferredProvider"],
+      "properties": {
+        "taskType": {
+          "type": "string",
+          "enum": ["code", "analysis", "documentation", "general"]
+        },
+        "complexity": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "contextLength": { "type": "integer", "minimum": 0 },
+        "preferredProvider": { "type": "string" },
+        "preferredModel": { "type": "string" },
+        "conditions": { "type": "object" }
+      }
+    },
+    "CacheConfig": {
+      "type": "object",
+      "required": ["enabled", "maxEntries", "ttl", "strategy"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "maxEntries": { "type": "integer", "minimum": 1 },
+        "ttl": { "type": "integer", "minimum": 1000 },
+        "strategy": {
+          "type": "string",
+          "enum": ["lru", "lfu", "ttl"]
+        }
+      }
+    },
+    "TonyConfig": {
+      "type": "object",
+      "required": ["enabled", "personas", "upp", "multiAgent", "maxConcurrentAgents"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "personas": { "type": "boolean" },
+        "upp": { "type": "boolean" },
+        "multiAgent": { "type": "boolean" },
+        "maxConcurrentAgents": { "type": "integer", "minimum": 1 },
+        "workspaceDir": { "type": "string" },
+        "personaConfig": { "$ref": "#/definitions/PersonaConfig" }
+      }
+    },
+    "PersonaConfig": {
+      "type": "object",
+      "required": ["directory", "autoLoad"],
+      "properties": {
+        "directory": { "type": "string" },
+        "autoLoad": { "type": "boolean" },
+        "customPersonas": { "type": "object" }
+      }
+    },
+    "MonitoringConfig": {
+      "type": "object",
+      "required": ["metrics", "logging", "telemetry"],
+      "properties": {
+        "metrics": { "type": "boolean" },
+        "logging": {
+          "type": "string",
+          "enum": ["debug", "info", "warn", "error"]
+        },
+        "telemetry": { "type": "boolean" },
+        "exporters": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/ExporterConfig" }
+        },
+        "retention": { "$ref": "#/definitions/RetentionConfig" }
+      }
+    },
+    "ExporterConfig": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["prometheus", "jaeger", "console", "file"]
+        },
+        "endpoint": { "type": "string" },
+        "config": { "type": "object" }
+      }
+    },
+    "RetentionConfig": {
+      "type": "object",
+      "required": ["metrics", "logs", "traces"],
+      "properties": {
+        "metrics": { "type": "string" },
+        "logs": { "type": "string" },
+        "traces": { "type": "string" }
+      }
+    }
+  }
+}

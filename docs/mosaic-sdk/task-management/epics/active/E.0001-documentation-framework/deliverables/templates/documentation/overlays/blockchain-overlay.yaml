@@ -1,0 +1,144 @@
+# Blockchain Project Overlay
+# Adds blockchain-specific requirements to universal MANDATORY_STRUCTURE.md
+
+overlay:
+  name: "blockchain"
+  version: "1.0.0"
+  description: "Blockchain and smart contract development requirements"
+
+variables:
+  required:
+    - BLOCKCHAIN_NETWORKS
+    - GAS_OPTIMIZATION
+    - SMART_CONTRACTS
+  optional:
+    - MULTI_CHAIN_SUPPORT
+    - DEFI_PROTOCOLS
+    - TOKEN_STANDARDS
+
+domain_sections: |
+  ## 🔗 BLOCKCHAIN CONSIDERATIONS (MANDATORY)
+
+  ### Smart Contract Integration
+  - **Networks**: {{BLOCKCHAIN_NETWORKS}}
+  - **Gas Optimization**: {{GAS_OPTIMIZATION}}
+  - **Security Audits**: Required for all contract changes
+  - **Multi-chain Support**: {{MULTI_CHAIN_SUPPORT}}
+  - **Smart Contracts**: {{SMART_CONTRACTS}}
+
+  ### Epic Template Additions (MANDATORY)
+  All blockchain epics MUST include:
+  ```yaml
+  blockchain:
+    networks: [{{BLOCKCHAIN_NETWORKS}}]
+    gas_optimization: {{GAS_OPTIMIZATION}}
+    security_audit: required
+    contracts_affected: []
+    defi_protocols: [{{DEFI_PROTOCOLS}}]
+    token_standards: [{{TOKEN_STANDARDS}}]
+  ```
+
+  ### Atomic Task Requirements (MANDATORY)
+  Every atomic task MUST verify:
+  - [ ] Smart contract impact assessed
+  - [ ] Gas optimization considered  
+  - [ ] Security implications reviewed
+  - [ ] Multi-chain compatibility verified
+  - [ ] Token standard compliance checked
+  - [ ] DeFi protocol integration tested
+
+  ### Security Requirements (MANDATORY)
+  - **Audit Trail**: All contract interactions logged
+  - **Access Control**: Role-based permissions implemented
+  - **Reentrancy Protection**: Guards on all external calls
+  - **Integer Overflow**: SafeMath or Solidity 0.8+ used
+  - **Front-running Protection**: Commit-reveal or similar
+
+  ### Testing Requirements (MANDATORY)
+  - **Unit Tests**: 100% coverage for contract functions
+  - **Integration Tests**: Cross-contract interaction testing
+  - **Gas Tests**: Optimization verification
+  - **Security Tests**: Vulnerability scanning
+  - **Mainnet Fork Tests**: Real-world condition simulation
+
+agent_specializations: |
+  ### Blockchain-Specific Agents (MANDATORY)
+  - **BLOCKCHAIN-DEVELOPER**: Smart contract development, Solidity/Vyper
+  - **SECURITY-AUDITOR**: Blockchain security analysis, vulnerability assessment
+  - **GAS-OPTIMIZER**: Transaction cost optimization, efficiency analysis
+  - **DEFI-SPECIALIST**: DeFi protocol integration, yield farming, liquidity
+  - **TOKEN-ECONOMIST**: Tokenomics design, incentive mechanisms
+  - **BRIDGE-ENGINEER**: Cross-chain bridge development and security
+
+project_metadata: |
+  blockchain:
+    networks: "{{BLOCKCHAIN_NETWORKS}}"
+    gas_optimization: "{{GAS_OPTIMIZATION}}"
+    smart_contracts: "{{SMART_CONTRACTS}}"
+    defi_protocols: "{{DEFI_PROTOCOLS}}"
+    token_standards: "{{TOKEN_STANDARDS}}"
+    security_level: "critical"
+    audit_required: true
+
+validation_rules:
+  - name: "contract_security"
+    description: "All smart contracts must pass security audit"
+    command: "slither . && mythril analyze contracts/"
+  - name: "gas_optimization"
+    description: "Gas usage must be optimized"
+    command: "hardhat test --gas-reporter"
+  - name: "test_coverage"
+    description: "100% test coverage required"
+    command: "hardhat coverage && [[ $(cat coverage/lcov.info | grep -c 'end_of_record') -eq 100 ]]"
+
+epic_template_additions: |
+  ## Blockchain Epic Requirements
+
+  ### Smart Contract Impact
+  - **Contracts Modified**: [List all contracts affected]
+  - **Gas Impact**: [Estimated gas cost changes]
+  - **Security Review**: [Required/Completed/Not Applicable]
+  - **Audit Status**: [Pending/In Progress/Completed]
+
+  ### Network Deployment
+  - **Testnet Deployment**: [Required/Completed]
+  - **Mainnet Deployment**: [Planned/Completed]
+  - **Multi-chain**: [Single/Multiple networks]
+
+  ### DeFi Integration
+  - **Protocols**: [Uniswap, Compound, Aave, etc.]
+  - **Liquidity**: [Requirements and sources]
+  - **Yield Strategy**: [If applicable]
+
+atomic_template_additions: |
+  ## Blockchain Atomic Task Checklist
+
+  ### Pre-Development
+  - [ ] Smart contract architecture reviewed
+  - [ ] Gas optimization strategy defined
+  - [ ] Security considerations documented
+  - [ ] Test plan created
+
+  ### Development
+  - [ ] Contract code written and reviewed
+  - [ ] Unit tests implemented (100% coverage)
+  - [ ] Integration tests created
+  - [ ] Gas optimization applied
+
+  ### Security
+  - [ ] Static analysis tools run (Slither, Mythril)
+  - [ ] Manual security review completed
+  - [ ] Reentrancy protection verified
+  - [ ] Access control implemented
+
+  ### Testing
+  - [ ] Local testing completed
+  - [ ] Testnet deployment successful
+  - [ ] Integration testing passed
+  - [ ] Gas costs within budget
+
+  ### Deployment
+  - [ ] Deployment scripts tested
+  - [ ] Contract verification prepared
+  - [ ] Monitoring setup configured
+  - [ ] Emergency procedures documented

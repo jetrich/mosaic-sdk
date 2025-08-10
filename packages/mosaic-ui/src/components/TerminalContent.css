@@ -1,0 +1,95 @@
+/* Terminal Content Styles */
+.terminal-content {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.terminal-line-group {
+  margin-bottom: 8px;
+}
+
+.terminal-line {
+  display: flex;
+  align-items: center;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* Terminal Prompt */
+.terminal-prompt {
+  color: var(--color-accent-green);
+  margin-right: 8px;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+/* Terminal Command */
+.terminal-command {
+  color: var(--color-text-primary);
+  flex: 1;
+}
+
+/* Terminal Output */
+.terminal-output {
+  color: var(--color-text-secondary);
+  margin-top: 4px;
+  margin-left: 20px;
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+/* Blinking Cursor */
+.terminal-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 16px;
+  background-color: var(--color-accent-green);
+  margin-left: 2px;
+  animation: blink 1s step-end infinite;
+  vertical-align: text-bottom;
+}
+
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
+/* Syntax Highlighting for Commands */
+.terminal-command .command-keyword {
+  color: var(--color-syntax-keyword);
+}
+
+.terminal-command .command-string {
+  color: var(--color-syntax-string);
+}
+
+.terminal-command .command-flag {
+  color: var(--color-accent-yellow);
+}
+
+/* Error Output */
+.terminal-output.error {
+  color: var(--color-accent-red);
+}
+
+/* Success Output */
+.terminal-output.success {
+  color: var(--color-accent-green);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .terminal-content {
+    font-size: 13px;
+  }
+  
+  .terminal-cursor {
+    width: 6px;
+    height: 14px;
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "name": "@mosaicstack/hello-mosaic",
+  "version": "0.0.1",
+  "description": "Test package for MosAIc SDK publishing",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "test": "echo \"No tests yet\""
+  },
+  "keywords": ["mosaic", "test"],
+  "author": "MosAIc Team",
+  "license": "MIT",
+  "files": [
+    "index.js",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jetrich/mosaic-sdk.git"
+  }
+}

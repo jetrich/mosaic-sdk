@@ -1,0 +1,61 @@
+{
+  "stack": {
+    "name": "@mosaicstack/stack",
+    "version": "0.1.0",
+    "defaultMode": "development"
+  },
+  "modes": {
+    "development": {
+      "autoReload": true,
+      "debugMode": true,
+      "logLevel": "debug"
+    },
+    "testing": {
+      "coverage": true,
+      "parallel": true,
+      "logLevel": "info"
+    },
+    "production": {
+      "optimized": true,
+      "monitoring": true,
+      "logLevel": "warn"
+    }
+  },
+  "components": {
+    "mcp-common": {
+      "required": true,
+      "autoInstall": true
+    },
+    "mcp-integration": {
+      "required": false,
+      "autoInstall": true
+    },
+    "mcp-bookstack": {
+      "required": false,
+      "autoInstall": false
+    },
+    "mcp-gitea-remote": {
+      "required": false,
+      "autoInstall": false
+    },
+    "mcp-plane": {
+      "required": false,
+      "autoInstall": false
+    },
+    "mcp-woodpecker": {
+      "required": false,
+      "autoInstall": false
+    }
+  },
+  "networking": {
+    "portRange": {
+      "start": 3000,
+      "end": 9999
+    },
+    "defaultPorts": {
+      "main": 3000,
+      "mcp": 3456,
+      "api": 8080
+    }
+  }
+}

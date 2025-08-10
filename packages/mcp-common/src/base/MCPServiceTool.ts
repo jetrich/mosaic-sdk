@@ -1,9 +1,9 @@
 /**
  * @fileoverview Base class for all MosAIc MCP service tools
- * @module @mosaic/mcp-common/base
+ * @module @mosaicstack/mcp-common/base
  */
 
-import { Tool } from '@modelcontextprotocol/sdk/types.js';
+import { Tool, ToolSchema } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
 import winston from 'winston';
 import retry from 'retry';
@@ -26,7 +26,7 @@ import { CircuitBreaker } from '../utils/CircuitBreaker.js';
  * Abstract base class for all MCP service tools
  * Provides common functionality for authentication, error handling, retry logic, and circuit breaking
  */
-export abstract class MCPServiceTool implements Tool {
+export abstract class MCPServiceTool {
   protected logger: winston.Logger;
   protected authManager: AuthManager;
   protected circuitBreaker: CircuitBreaker;
@@ -53,7 +53,21 @@ export abstract class MCPServiceTool implements Tool {
   // Abstract properties that must be implemented by concrete tools
   abstract get name(): string;
   abstract get description(): string;
-  abstract get inputSchema(): z.ZodSchema<any>;
+  abstract get inputSchema(): z.ZodObject<any, any, any, any, any>;
+
+  /**
+   * Get the Tool object for MCP registration
+   */
+  getTool(): Tool {
+    return {
+      name: this.name,
+      description: this.description,
+      inputSchema: {
+        type: "object" as const,
+        properties: this.inputSchema._def.shape()
+      }
+    };
+  }
 
   /**
    * Main execution method - implements the MCP Tool interface
@@ -139,14 +153,14 @@ export abstract class MCPServiceTool implements Tool {
               service: this.serviceName,
             });
             setTimeout(() => {
-              if (retryOperation.retry(error)) return;
+              if (retryOperation.retry(error as Error)) return;
               reject(retryOperation.mainError());
             }, delay);
             return;
           }
 
           // Retry other errors
-          if (retryOperation.retry(error)) {
+          if (retryOperation.retry(error as Error)) {
             this.logger.warn(`Retrying operation`, {
               attempt: currentAttempt,
               error: error instanceof Error ? error.message : String(error),

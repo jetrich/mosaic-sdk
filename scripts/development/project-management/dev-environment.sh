@@ -12,7 +12,8 @@ NC='\033[0m'
 
 # Script directory
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-ROOT_DIR="$(dirname "$SCRIPT_DIR")"
+# Root is 3 levels up from scripts/development/project-management
+ROOT_DIR="$(dirname "$(dirname "$(dirname "$SCRIPT_DIR")")")"
 
 echo -e "${BLUE}=== MosAIc SDK Isolated Development Environment ===${NC}"
 echo

@@ -1,0 +1,131 @@
+/* Theme Toggle Component Styles */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.theme-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: var(--color-text-primary);
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--color-accent-blue);
+  outline-offset: 2px;
+}
+
+.theme-toggle:active {
+  transform: scale(0.98);
+}
+
+/* Toggle Track */
+.theme-toggle-track {
+  position: relative;
+  width: 32px;
+  height: 18px;
+  background-color: var(--color-bg-tertiary);
+  border-radius: 12px;
+  transition: background-color 0.2s ease;
+}
+
+.theme-toggle:hover .theme-toggle-track {
+  background-color: var(--color-border);
+}
+
+/* Toggle Thumb */
+.theme-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  width: 14px;
+  height: 14px;
+  background-color: var(--color-text-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.theme-toggle-thumb.dark {
+  left: 2px;
+  background-color: var(--color-text-primary);
+}
+
+.theme-toggle-thumb.light {
+  left: 16px;
+  background-color: var(--color-accent-yellow);
+}
+
+/* Theme Icons */
+.theme-icon {
+  width: 10px;
+  height: 10px;
+  transition: all 0.2s ease;
+}
+
+.theme-icon.moon {
+  color: var(--color-bg-primary);
+}
+
+.theme-icon.sun {
+  color: var(--color-bg-primary);
+  animation: rotate 0.3s ease-in-out;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(180deg);
+  }
+}
+
+/* Toggle Label */
+.theme-toggle-label {
+  font-weight: 500;
+  min-width: 32px;
+  text-align: left;
+}
+
+/* Light theme adjustments */
+[data-theme="light"] .theme-toggle {
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .theme-toggle:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="light"] .theme-toggle-track {
+  background-color: var(--color-bg-tertiary);
+}
+
+[data-theme="light"] .theme-toggle:hover .theme-toggle-track {
+  background-color: var(--color-border);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .theme-toggle-label {
+    display: none;
+  }
+  
+  .theme-toggle {
+    padding: 4px 8px;
+  }
+}

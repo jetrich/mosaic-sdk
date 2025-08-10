@@ -1,6 +1,6 @@
 /**
  * @fileoverview Circuit breaker implementation for MCP service tools
- * @module @mosaic/mcp-common/utils
+ * @module @mosaicstack/mcp-common/utils
  */
 
 import { Logger } from './Logger.js';

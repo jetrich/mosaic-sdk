@@ -1,0 +1,41 @@
+{
+  "ollama": {
+    "endpoints": {
+      "primary": "http://localhost:11434",
+      "fallback": null
+    },
+    "models": {
+      "default": "llama3.2",
+      "code": "codellama:latest",
+      "specialized": {
+        "python": "codellama:python",
+        "javascript": "codellama:code",
+        "typescript": "codellama:code",
+        "rust": "codellama:code",
+        "go": "codellama:code",
+        "java": "codellama:code",
+        "cpp": "codellama:code"
+      }
+    },
+    "execution": {
+      "enabled": true,
+      "timeout": 30000,
+      "maxMemory": "512MB",
+      "allowedLanguages": ["python", "javascript", "typescript"]
+    },
+    "cache": {
+      "enabled": true,
+      "ttl": 3600,
+      "maxSize": "100MB"
+    },
+    "options": {
+      "temperature": 0.7,
+      "num_ctx": 4096,
+      "num_predict": -1,
+      "top_k": 40,
+      "top_p": 0.9,
+      "repeat_penalty": 1.1,
+      "stream": false
+    }
+  }
+}

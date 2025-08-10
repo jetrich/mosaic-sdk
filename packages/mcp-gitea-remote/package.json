@@ -1,5 +1,5 @@
 {
-  "name": "@mosaic/mcp-gitea-remote",
+  "name": "@mosaicstack/mcp-gitea-remote",
   "version": "0.1.0",
   "description": "MCP tools for Gitea remote repository operations",
   "type": "module",
@@ -26,7 +26,7 @@
   "author": "MosAIc Team",
   "license": "MIT",
   "dependencies": {
-    "@mosaic/mcp-common": "^0.1.0",
+    "@mosaicstack/mcp-common": "^0.1.0",
     "@modelcontextprotocol/sdk": "^0.5.0",
     "axios": "^1.7.0",
     "simple-git": "^3.25.0",
@@ -44,9 +44,7 @@
     "ts-jest": "^29.1.5",
     "typescript": "^5.5.0"
   },
-  "peerDependencies": {
-    "@mosaic/core": "^0.1.0"
-  },
+  "peerDependencies": {},
   "files": [
     "dist",
     "README.md"

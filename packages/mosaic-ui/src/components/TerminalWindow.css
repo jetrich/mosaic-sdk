@@ -1,0 +1,167 @@
+/* Terminal Window Component Styles */
+.terminal-window {
+  background-color: var(--color-bg-secondary);
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  font-family: var(--font-mono);
+  width: 100%;
+}
+
+/* Terminal Header - macOS Style */
+.terminal-header {
+  background-color: var(--color-bg-tertiary);
+  height: 32px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  user-select: none;
+}
+
+/* Window Controls - macOS Style Traffic Lights */
+.terminal-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.terminal-control {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  position: relative;
+}
+
+.terminal-control:hover {
+  opacity: 0.8;
+}
+
+.terminal-control-icon {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+}
+
+/* macOS Traffic Light Colors */
+.terminal-close {
+  background-color: #ff5f56;
+}
+
+.terminal-minimize {
+  background-color: #ffbd2e;
+}
+
+.terminal-maximize {
+  background-color: #27c93f;
+}
+
+/* Show icons on hover */
+.terminal-header:hover .terminal-control-icon {
+  display: block;
+}
+
+.terminal-close .terminal-control-icon::before,
+.terminal-close .terminal-control-icon::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 1px;
+  background-color: #7d0000;
+  top: 50%;
+  left: 50%;
+}
+
+.terminal-close .terminal-control-icon::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.terminal-close .terminal-control-icon::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.terminal-minimize .terminal-control-icon::before {
+  content: '';
+  position: absolute;
+  width: 6px;
+  height: 1px;
+  background-color: #7d5700;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.terminal-maximize .terminal-control-icon::before,
+.terminal-maximize .terminal-control-icon::after {
+  content: '';
+  position: absolute;
+  background-color: #0d5700;
+}
+
+.terminal-maximize .terminal-control-icon::before {
+  width: 1px;
+  height: 6px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.terminal-maximize .terminal-control-icon::after {
+  width: 6px;
+  height: 1px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Terminal Title */
+.terminal-title {
+  flex: 1;
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.terminal-spacer {
+  width: 52px; /* Same width as controls to center title */
+}
+
+/* Terminal Body */
+.terminal-body {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  padding: 16px;
+  min-height: 300px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .terminal-header {
+    height: 28px;
+  }
+  
+  .terminal-control {
+    width: 10px;
+    height: 10px;
+  }
+  
+  .terminal-title {
+    font-size: 12px;
+  }
+  
+  .terminal-body {
+    padding: 12px;
+    font-size: 13px;
+  }
+}

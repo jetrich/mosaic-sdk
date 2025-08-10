@@ -1,0 +1,125 @@
+# Generic Project Overlay
+# Standard overlay for projects without domain-specific requirements
+
+overlay:
+  name: "generic"
+  version: "1.0.0"
+  description: "Standard project requirements without domain specialization"
+
+variables:
+  required: []
+  optional:
+    - SECURITY_LEVEL
+    - COMPLIANCE_FRAMEWORKS
+    - DATA_CLASSIFICATION
+
+domain_sections: |
+  ## 🔧 PROJECT CONFIGURATION
+
+  ### Standard Requirements
+  - **Security Level**: {{SECURITY_LEVEL}}
+  - **Compliance Frameworks**: {{COMPLIANCE_FRAMEWORKS}}
+  - **Data Classification**: {{DATA_CLASSIFICATION}}
+
+  ### Epic Template Additions (STANDARD)
+  All epics include:
+  ```yaml
+  project:
+    security_level: {{SECURITY_LEVEL}}
+    compliance: [{{COMPLIANCE_FRAMEWORKS}}]
+    data_classification: {{DATA_CLASSIFICATION}}
+  ```
+
+  ### Quality Standards (MANDATORY)
+  - **Code Coverage**: Minimum 80% test coverage
+  - **Documentation**: All public APIs documented
+  - **Security**: Regular dependency vulnerability scans
+  - **Performance**: Load testing for user-facing features
+  - **Accessibility**: WCAG 2.1 AA compliance for web interfaces
+
+  ### Development Standards (MANDATORY)
+  - **Code Review**: All changes require peer review
+  - **Testing**: Unit, integration, and end-to-end tests
+  - **CI/CD**: Automated build, test, and deployment
+  - **Monitoring**: Application performance monitoring
+  - **Logging**: Structured logging with appropriate levels
+
+agent_specializations: |
+  ### Standard Agent Personas (UNIVERSAL)
+  - **BE-BACKEND-BENJAMIN**: Backend development, APIs, databases
+  - **FE-FRONTEND-FIONA**: Frontend development, UI/UX, components
+  - **FS-FULLSTACK-FELIX**: Full-stack development, integration
+  - **DOC-DOCUMENTATION-DAVID**: Technical writing, documentation
+  - **QA-QUALITY-QUINN**: Quality assurance, testing
+  - **DEVOPS-OPERATIONS-OLIVER**: DevOps, deployment, infrastructure
+  - **SEC-SECURITY-SARAH**: Security analysis, vulnerability assessment
+
+project_metadata: |
+  project:
+    security_level: "{{SECURITY_LEVEL}}"
+    compliance_frameworks: "{{COMPLIANCE_FRAMEWORKS}}"
+    data_classification: "{{DATA_CLASSIFICATION}}"
+    quality_standards: "standard"
+    specialized_requirements: false
+
+validation_rules:
+  - name: "code_coverage"
+    description: "Minimum 80% test coverage"
+    command: "npm test -- --coverage && coverage-validator --min 80"
+  - name: "security_scan"
+    description: "Dependency vulnerability scan"
+    command: "npm audit --audit-level moderate"
+  - name: "code_quality"
+    description: "Code quality standards"
+    command: "eslint . && prettier --check ."
+  - name: "documentation"
+    description: "API documentation completeness"
+    command: "doc-validator --check-completeness --api-only"
+
+epic_template_additions: |
+  ## Standard Epic Requirements
+
+  ### Quality Metrics
+  - **Test Coverage**: [Target percentage and current status]
+  - **Performance**: [Response time and throughput requirements]
+  - **Security**: [Security considerations and requirements]
+  - **Documentation**: [Documentation requirements and status]
+
+  ### Technical Considerations
+  - **Dependencies**: [New dependencies and version updates]
+  - **Breaking Changes**: [API or interface changes]
+  - **Migration**: [Data or configuration migration needs]
+  - **Rollback**: [Rollback strategy and procedures]
+
+  ### Deployment
+  - **Environment**: [Development/Staging/Production requirements]
+  - **Configuration**: [Environment-specific configuration needs]
+  - **Monitoring**: [Metrics and alerting requirements]
+  - **Scaling**: [Performance and capacity considerations]
+
+atomic_template_additions: |
+  ## Standard Atomic Task Checklist
+
+  ### Pre-Development
+  - [ ] Requirements clearly defined
+  - [ ] Technical approach documented
+  - [ ] Dependencies identified
+  - [ ] Test plan created
+
+  ### Development
+  - [ ] Code implemented and reviewed
+  - [ ] Unit tests written and passing
+  - [ ] Documentation updated
+  - [ ] Security considerations addressed
+
+  ### Quality Assurance
+  - [ ] Code coverage meets standards (80%+)
+  - [ ] Integration tests passing
+  - [ ] Performance requirements met
+  - [ ] Security scan completed
+
+  ### Deployment
+  - [ ] Deployment tested in staging
+  - [ ] Configuration validated
+  - [ ] Monitoring configured
+  - [ ] Rollback procedure verified

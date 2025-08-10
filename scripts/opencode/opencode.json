@@ -1,0 +1,13 @@
+{
+  "mcp": {
+    "mosaic": {
+      "type": "local",
+      "command": ["@mosaicstack/opencode-mcp"],
+      "environment": {
+        "MOSAIC_CONFIG": "~/.mosaic/config.json",
+        "MOSAIC_DATA_DIR": "~/.mosaic/data",
+        "MOSAIC_PROJECT_ROOT": "."
+      }
+    }
+  }
+}

@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 /**
  * @fileoverview MosAIc MCP Integration Server
- * @module @mosaic/mcp-integration/server
+ * @module @mosaicstack/mcp-integration/server
  */
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 import dotenv from 'dotenv';
-import { Logger } from '@mosaic/mcp-common';
+import { Logger } from '@mosaicstack/mcp-common';
 import { MCPServiceRegistry } from './MCPServiceRegistry.js';
 
 // Load environment variables

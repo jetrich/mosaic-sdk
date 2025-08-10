@@ -1,6 +1,6 @@
 /**
  * @fileoverview MCP tool for Gitea repository operations
- * @module @mosaic/mcp-gitea-remote/tools
+ * @module @mosaicstack/mcp-gitea-remote/tools
  */
 
 import { z } from 'zod';
@@ -12,7 +12,7 @@ import {
   MCPResult,
   GitServiceConfig,
   AuthConfig,
-} from '@mosaic/mcp-common';
+} from '@mosaicstack/mcp-common';
 
 // Input schemas for repository operations
 const CreateRepositorySchema = z.object({
@@ -122,8 +122,32 @@ export class RepositoryTool extends MCPServiceTool {
     return 'Manage Gitea repositories - create, read, update, delete, list, and clone operations';
   }
 
-  get inputSchema(): z.ZodSchema<RepositoryToolInput> {
-    return InputSchema;
+  get inputSchema(): z.ZodObject<any, any, any, any, any> {
+    // Convert union schema to object schema for base class compatibility
+    return z.object({
+      operation: z.enum(['create', 'read', 'update', 'delete', 'list', 'clone']),
+      name: z.string().optional(),
+      owner: z.string().optional(),
+      repo: z.string().optional(),
+      organization: z.string().optional(),
+      description: z.string().optional(),
+      private: z.boolean().optional(),
+      defaultBranch: z.string().optional(),
+      autoInit: z.boolean().optional(),
+      readme: z.string().optional(),
+      gitignores: z.string().optional(),
+      license: z.string().optional(),
+      topics: z.array(z.string()).optional(),
+      allowMergeCommits: z.boolean().optional(),
+      allowSquashMerge: z.boolean().optional(),
+      allowRebaseMerge: z.boolean().optional(),
+      page: z.number().optional(),
+      perPage: z.number().optional(),
+      sort: z.string().optional(),
+      order: z.string().optional(),
+      destination: z.string().optional(),
+      token: z.string().optional(),
+    });
   }
 
   protected async executeOperation(
@@ -485,7 +509,17 @@ export class RepositoryTool extends MCPServiceTool {
     }
   }
 
-  protected extractOperation(args: any): ServiceOperation | string {
-    return args.operation || ServiceOperation.READ;
+  protected extractOperation(args: any): ServiceOperation {
+    const operation = args.operation || 'read';
+    // Map string operations to ServiceOperation enum
+    switch (operation) {
+      case 'create': return ServiceOperation.CREATE;
+      case 'read': return ServiceOperation.READ;  
+      case 'update': return ServiceOperation.UPDATE;
+      case 'delete': return ServiceOperation.DELETE;
+      case 'list': return ServiceOperation.LIST;
+      case 'clone': return ServiceOperation.READ; // Clone maps to READ operation
+      default: return ServiceOperation.READ;
+    }
   }
 }

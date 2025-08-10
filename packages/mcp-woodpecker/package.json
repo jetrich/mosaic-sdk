@@ -1,5 +1,5 @@
 {
-  "name": "@mosaic/mcp-woodpecker",
+  "name": "@mosaicstack/mcp-woodpecker",
   "version": "0.1.0",
   "description": "MCP tools for Woodpecker CI/CD operations",
   "type": "module",
@@ -26,7 +26,7 @@
   "author": "MosAIc Team",
   "license": "MIT",
   "dependencies": {
-    "@mosaic/mcp-common": "^0.1.0",
+    "@mosaicstack/mcp-common": "^0.1.0",
     "@modelcontextprotocol/sdk": "^0.5.0",
     "axios": "^1.7.0",
     "yaml": "^2.4.0",

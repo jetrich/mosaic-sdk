@@ -1,0 +1,80 @@
+$schema: https://mosaicstack.dev/schemas/config.json
+mode: hybrid
+version: 1.0.0
+mcp:
+  port: 3456
+  autoStart: true
+  features:
+    tony: true
+    orchestration: true
+    streaming: true
+    metrics: true
+    health: true
+providers:
+  ollama:
+    enabled: true
+    location: local
+    url: http://localhost:11434
+    models:
+      - auto-detect
+    priority: 1
+    timeout: 30000
+    retries: 2
+    healthCheckInterval: 60000
+  claude:
+    enabled: true
+    access: subscription
+    fallbackToApi: true
+    priority: 2
+    maxConcurrency: 5
+    timeout: 60000
+    retries: 2
+    apiKey: env:ANTHROPIC_API_KEY
+  openrouter:
+    enabled: false
+    apiKey: ''
+    models:
+      - auto
+    priority: 3
+routing:
+  strategy: intelligent
+  preferLocal: true
+  costOptimization: true
+  performanceTracking: true
+  fallbackChain:
+    - ollama
+    - claude
+    - openrouter
+  rules:
+    - taskType: code
+      preferredProvider: ollama
+      preferredModel: codellama
+    - taskType: analysis
+      complexity: 4
+      preferredProvider: claude
+      preferredModel: claude-3-sonnet
+    - taskType: analysis
+      complexity: 3
+      preferredProvider: ollama
+      preferredModel: llama3.1
+    - taskType: documentation
+      preferredProvider: ollama
+      preferredModel: llama3.1
+    - contextLength: 8000
+      preferredProvider: claude
+      preferredModel: claude-3-sonnet
+  cache:
+    enabled: true
+    maxEntries: 2000
+    ttl: 7200000
+    strategy: lru
+tony:
+  enabled: true
+  personas: true
+  upp: true
+  multiAgent: true
+  maxConcurrentAgents: 5
+monitoring:
+  metrics: true
+  logging: info
+  telemetry: false

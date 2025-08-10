@@ -1,0 +1,160 @@
+# Healthcare Project Overlay
+# Adds healthcare compliance requirements to universal MANDATORY_STRUCTURE.md
+
+overlay:
+  name: "healthcare"
+  version: "1.0.0"
+  description: "Healthcare compliance and HIPAA requirements"
+
+variables:
+  required:
+    - HIPAA_COMPLIANCE
+    - PATIENT_DATA
+    - AUDIT_REQUIREMENTS
+  optional:
+    - FDA_VALIDATION
+    - MEDICAL_DEVICE_CLASS
+    - PHI_ENCRYPTION
+
+domain_sections: |
+  ## 🏥 HEALTHCARE COMPLIANCE (MANDATORY)
+
+  ### Regulatory Requirements
+  - **HIPAA Compliance**: {{HIPAA_COMPLIANCE}}
+  - **Patient Data**: {{PATIENT_DATA}}
+  - **Audit Requirements**: {{AUDIT_REQUIREMENTS}}
+  - **FDA Validation**: {{FDA_VALIDATION}}
+  - **Medical Device Class**: {{MEDICAL_DEVICE_CLASS}}
+  - **Data Classification**: PHI, PII, Public
+
+  ### Epic Template Additions (MANDATORY)
+  All healthcare epics MUST include:
+  ```yaml
+  healthcare:
+    hipaa_applicable: {{HIPAA_COMPLIANCE}}
+    patient_data: {{PATIENT_DATA}}
+    audit_trail: required
+    data_classification: []
+    fda_validation: {{FDA_VALIDATION}}
+    medical_device_class: {{MEDICAL_DEVICE_CLASS}}
+    phi_encryption: {{PHI_ENCRYPTION}}
+  ```
+
+  ### Atomic Task Requirements (MANDATORY)
+  Every atomic task MUST verify:
+  - [ ] HIPAA implications assessed
+  - [ ] Patient data protection verified
+  - [ ] Audit trail requirements met
+  - [ ] Data classification confirmed
+  - [ ] Access controls implemented
+  - [ ] Encryption requirements satisfied
+
+  ### Data Protection Requirements (MANDATORY)
+  - **PHI Encryption**: AES-256 minimum for data at rest
+  - **Transmission Security**: TLS 1.3 for data in transit
+  - **Access Controls**: Role-based access with MFA
+  - **Audit Logging**: All PHI access logged and monitored
+  - **Data Minimization**: Only necessary PHI collected/processed
+  - **Retention Policies**: Automated PHI deletion per policy
+
+  ### Compliance Validation (MANDATORY)
+  - **Risk Assessment**: Annual HIPAA risk assessments
+  - **Business Associate Agreements**: All third-party vendors
+  - **Employee Training**: HIPAA awareness and security training
+  - **Incident Response**: PHI breach notification procedures
+  - **Vulnerability Management**: Regular security assessments
+
+  ### Testing Requirements (MANDATORY)
+  - **Security Testing**: Penetration testing for PHI systems
+  - **Compliance Testing**: HIPAA compliance validation
+  - **Access Testing**: Role-based access verification
+  - **Audit Testing**: Audit trail completeness verification
+  - **Encryption Testing**: Data protection validation
+
+agent_specializations: |
+  ### Healthcare-Specific Agents (MANDATORY)
+  - **HEALTHCARE-COMPLIANCE**: Regulatory compliance, HIPAA requirements
+  - **HIPAA-SPECIALIST**: HIPAA-specific implementation and validation
+  - **AUDIT-SPECIALIST**: Audit trail management and compliance reporting
+  - **PHI-SECURITY**: Patient data protection and encryption
+  - **MEDICAL-DEVICE**: FDA medical device software requirements
+  - **CLINICAL-WORKFLOW**: Healthcare workflow optimization and safety
+
+project_metadata: |
+  healthcare:
+    hipaa_compliance: "{{HIPAA_COMPLIANCE}}"
+    patient_data: "{{PATIENT_DATA}}"
+    audit_requirements: "{{AUDIT_REQUIREMENTS}}"
+    fda_validation: "{{FDA_VALIDATION}}"
+    medical_device_class: "{{MEDICAL_DEVICE_CLASS}}"
+    phi_encryption: "{{PHI_ENCRYPTION}}"
+    security_level: "critical"
+    compliance_frameworks: ["HIPAA", "HITECH"]
+
+validation_rules:
+  - name: "hipaa_compliance"
+    description: "HIPAA compliance validation"
+    command: "hipaa-audit-tool --validate --config hipaa.yaml"
+  - name: "phi_encryption"
+    description: "PHI encryption verification"
+    command: "encryption-validator --check-phi --standard aes256"
+  - name: "access_controls"
+    description: "Access control validation"
+    command: "rbac-validator --test-roles --verify-mfa"
+  - name: "audit_trail"
+    description: "Audit trail completeness"
+    command: "audit-validator --check-completeness --verify-integrity"
+
+epic_template_additions: |
+  ## Healthcare Epic Requirements
+
+  ### Compliance Impact
+  - **HIPAA Applicable**: [Yes/No - if yes, detail requirements]
+  - **Patient Data**: [PHI/PII/None - specify data types]
+  - **Audit Requirements**: [Level of audit trail needed]
+  - **Risk Level**: [Low/Medium/High/Critical]
+
+  ### Regulatory Considerations
+  - **FDA Validation**: [Required/Not Required]
+  - **Medical Device**: [Class I/II/III or Not Applicable]
+  - **Clinical Impact**: [Direct patient care/Administrative/Research]
+  - **Safety Critical**: [Yes/No - patient safety implications]
+
+  ### Data Protection
+  - **Encryption Required**: [At rest/In transit/Both]
+  - **Access Controls**: [Role definitions and restrictions]
+  - **Data Retention**: [Retention period and deletion policy]
+  - **Third-party Sharing**: [BAAs required, data sharing agreements]
+
+atomic_template_additions: |
+  ## Healthcare Atomic Task Checklist
+
+  ### Pre-Development
+  - [ ] HIPAA impact assessment completed
+  - [ ] Data classification documented
+  - [ ] Security requirements defined
+  - [ ] Compliance review scheduled
+
+  ### Development
+  - [ ] PHI handling procedures implemented
+  - [ ] Encryption requirements satisfied
+  - [ ] Access controls configured
+  - [ ] Audit logging implemented
+
+  ### Compliance
+  - [ ] HIPAA compliance validated
+  - [ ] Risk assessment updated
+  - [ ] Security controls tested
+  - [ ] Documentation updated
+
+  ### Testing
+  - [ ] Security testing completed
+  - [ ] Access control testing passed
+  - [ ] Audit trail testing verified
+  - [ ] Compliance testing passed
+
+  ### Deployment
+  - [ ] Production security validated
+  - [ ] Monitoring configured
+  - [ ] Incident response procedures updated
+  - [ ] Staff training completed

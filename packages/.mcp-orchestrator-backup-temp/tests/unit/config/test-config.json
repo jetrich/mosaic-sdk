@@ -1,0 +1,27 @@
+{
+  "server": {
+    "name": "test-mcp-orchestrator",
+    "version": "1.0.0",
+    "port": 0
+  },
+  "database": {
+    "path": ":memory:",
+    "options": {
+      "busyTimeout": 30000,
+      "prepare": true
+    }
+  },
+  "logging": {
+    "level": "error",
+    "format": "simple"
+  },
+  "features": {
+    "taskManagement": true,
+    "projectSwitching": true,
+    "agentCoordination": true
+  },
+  "performance": {
+    "maxConcurrentTasks": 100,
+    "taskTimeout": 300000
+  }
+}

@@ -1,0 +1,39 @@
+/* packages/mosaic-ui/src/styles/spacing.css */
+:root {
+  /* Base spacing unit - 8px grid system */
+  --space-unit: 8px;
+  
+  /* Spacing Scale */
+  --space-0: 0;
+  --space-px: 1px;
+  --space-0-5: calc(var(--space-unit) * 0.5);   /* 4px */
+  --space-1: calc(var(--space-unit) * 1);       /* 8px */
+  --space-1-5: calc(var(--space-unit) * 1.5);   /* 12px */
+  --space-2: calc(var(--space-unit) * 2);       /* 16px */
+  --space-2-5: calc(var(--space-unit) * 2.5);   /* 20px */
+  --space-3: calc(var(--space-unit) * 3);       /* 24px */
+  --space-3-5: calc(var(--space-unit) * 3.5);   /* 28px */
+  --space-4: calc(var(--space-unit) * 4);       /* 32px */
+  --space-5: calc(var(--space-unit) * 5);       /* 40px */
+  --space-6: calc(var(--space-unit) * 6);       /* 48px */
+  --space-7: calc(var(--space-unit) * 7);       /* 56px */
+  --space-8: calc(var(--space-unit) * 8);       /* 64px */
+  --space-9: calc(var(--space-unit) * 9);       /* 72px */
+  --space-10: calc(var(--space-unit) * 10);     /* 80px */
+  --space-12: calc(var(--space-unit) * 12);     /* 96px */
+  --space-14: calc(var(--space-unit) * 14);     /* 112px */
+  --space-16: calc(var(--space-unit) * 16);     /* 128px */
+  --space-20: calc(var(--space-unit) * 20);     /* 160px */
+  --space-24: calc(var(--space-unit) * 24);     /* 192px */
+  --space-28: calc(var(--space-unit) * 28);     /* 224px */
+  --space-32: calc(var(--space-unit) * 32);     /* 256px */
+  
+  /* Named Spacing (from prototype) */
+  --space-xs: var(--space-1);    /* 8px */
+  --space-sm: var(--space-2);    /* 16px */
+  --space-md: var(--space-3);    /* 24px */
+  --space-lg: var(--space-4);    /* 32px */
+  --space-xl: var(--space-6);    /* 48px */
+  --space-2xl: var(--space-8);   /* 64px */
+  --space-3xl: var(--space-12);  /* 96px */
+}

@@ -1,6 +1,6 @@
 /**
  * @fileoverview Registry for managing all MCP service tools
- * @module @mosaic/mcp-integration
+ * @module @mosaicstack/mcp-integration
  */
 
 import { Tool } from '@modelcontextprotocol/sdk/types.js';
@@ -13,18 +13,19 @@ import {
   CIServiceConfig,
   DocsServiceConfig,
   ProjectServiceConfig,
-} from '@mosaic/mcp-common';
-import { RepositoryTool } from '@mosaic/mcp-gitea-remote';
+} from '@mosaicstack/mcp-common';
+import { RepositoryTool } from '@mosaicstack/mcp-gitea-remote';
 // TODO: Import other tools when implemented
-// import { PipelineTool } from '@mosaic/mcp-woodpecker';
-// import { DocumentationTool } from '@mosaic/mcp-bookstack';
-// import { ProjectTool } from '@mosaic/mcp-plane';
+// import { PipelineTool } from '@mosaicstack/mcp-woodpecker';
+// import { DocumentationTool } from '@mosaicstack/mcp-bookstack';
+// import { ProjectTool } from '@mosaicstack/mcp-plane';
 
 /**
  * Registry for managing all MCP service tools
  */
 export class MCPServiceRegistry {
   private tools: Map<string, Tool> = new Map();
+  private serviceTools: Map<string, any> = new Map(); // Store actual service tool instances for execution
   private logger = Logger.getLogger('mcp-service-registry');
 
   /**
@@ -180,7 +181,8 @@ export class MCPServiceRegistry {
     this.logger.info('Initializing Gitea tools...');
 
     const repositoryTool = new RepositoryTool(config, config.auth);
-    this.tools.set(repositoryTool.name, repositoryTool);
+    this.tools.set(repositoryTool.name, repositoryTool.getTool());
+    this.serviceTools.set(repositoryTool.name, repositoryTool);
 
     // TODO: Add other Gitea tools (OrganizationTool, WebhookTool, etc.)
 
@@ -239,7 +241,7 @@ export class MCPServiceRegistry {
    * Execute a tool by name
    */
   async executeTool(name: string, args: any): Promise<MCPResult> {
-    const tool = this.tools.get(name);
+    const tool = this.serviceTools.get(name);
 
     if (!tool) {
       return {

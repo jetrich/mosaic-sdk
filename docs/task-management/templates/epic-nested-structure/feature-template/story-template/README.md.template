@@ -1,0 +1,72 @@
+# Story S.XXXX.XX.XX: [STORY_TITLE]
+
+**Story ID**: S.XXXX.XX.XX  
+**Feature**: F.XXXX.XX - [FEATURE_TITLE]  
+**User Value**: [How this benefits users]  
+**Priority**: [High|Medium|Low]
+
+## Story Overview
+
+**As a** [user type/persona]  
+**I want** [goal/capability]  
+**So that** [benefit/value]
+
+## Acceptance Criteria
+
+1. **Given** [context/precondition]  
+   **When** [action/trigger]  
+   **Then** [expected outcome]
+
+2. **Given** [context/precondition]  
+   **When** [action/trigger]  
+   **Then** [expected outcome]
+
+3. **Given** [context/precondition]  
+   **When** [action/trigger]  
+   **Then** [expected outcome]
+
+## Task Breakdown
+
+### T.XXXX.XX.XX.01: [Task 1 Title]
+**Description**: [Technical focus and deliverables]  
+**Estimate**: [X hours]
+
+**Subtasks**:
+- ST.XXXX.XX.XX.01.01: [Subtask 1 description]
+- ST.XXXX.XX.XX.01.02: [Subtask 2 description]
+
+### T.XXXX.XX.XX.02: [Task 2 Title]
+**Description**: [Technical focus and deliverables]  
+**Estimate**: [X hours]
+
+**Subtasks**:
+- ST.XXXX.XX.XX.02.01: [Subtask 1 description]
+- ST.XXXX.XX.XX.02.02: [Subtask 2 description]
+
+### T.XXXX.XX.XX.03: [Task 3 Title]
+**Description**: [Technical focus and deliverables]  
+**Estimate**: [X hours]
+
+**Subtasks**:
+- ST.XXXX.XX.XX.03.01: [Subtask 1 description]
+
+## Definition of Done
+
+- [ ] All acceptance criteria met
+- [ ] Unit tests written and passing
+- [ ] Integration tests written and passing
+- [ ] Code reviewed and approved
+- [ ] Documentation updated
+- [ ] Performance requirements met
+- [ ] Security requirements validated
+- [ ] User acceptance testing completed
+
+## Dependencies
+
+- [Other stories/tasks this depends on]
+- [External dependencies or blockers]
+- [Resource requirements]
+
+## Notes
+
+[Any additional context, assumptions, or considerations for this story]

@@ -1,0 +1,95 @@
+{
+  "name": "@mosaicstack/stack",
+  "version": "0.1.0",
+  "description": "MosAIc Stack meta-package - Complete enterprise AI development platform orchestrator",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "mosaicstack": "./dist/cli/index.js",
+    "mosaic-stack": "./dist/cli/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "test": "npm run build && node dist/test-runner.js",
+    "test:jest": "jest",
+    "e2e": "npm run build && node dist/test-runner.js",
+    "prepublishOnly": "npm run clean && npm run build"
+  },
+  "keywords": [
+    "mosaic",
+    "mosaicstack",
+    "ai",
+    "development",
+    "platform",
+    "enterprise",
+    "orchestration",
+    "meta-package",
+    "tony",
+    "mcp",
+    "stack"
+  ],
+  "author": "MosAIc Team",
+  "license": "MIT",
+  "dependencies": {
+    "@mosaicstack/config": "^0.1.0",
+    "@mosaicstack/providers": "^0.1.0",
+    "@mosaicstack/cli": "^0.1.0",
+    "@mosaicstack/tony": "^0.1.0",
+    "commander": "^11.0.0",
+    "inquirer": "^9.2.0",
+    "chalk": "^5.3.0",
+    "ora": "^7.0.1",
+    "node-fetch": "^3.3.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/inquirer": "^9.0.7",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.14.0",
+    "@types/semver": "^7.5.6",
+    "@typescript-eslint/eslint-plugin": "^7.13.0",
+    "@typescript-eslint/parser": "^7.13.0",
+    "eslint": "^8.57.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.5",
+    "typescript": "^5.5.0"
+  },
+  "peerDependencies": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "templates",
+    "configs"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./cli": {
+      "import": "./dist/cli/index.js",
+      "types": "./dist/cli/index.d.ts"
+    },
+    "./orchestrator": {
+      "import": "./dist/orchestrator/index.js",
+      "types": "./dist/orchestrator/index.d.ts"
+    },
+    "./modes": {
+      "import": "./dist/modes/index.js",
+      "types": "./dist/modes/index.d.ts"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jetrich/mosaic-sdk.git",
+    "directory": "packages/stack"
+  },
+  "bugs": {
+    "url": "https://github.com/jetrich/mosaic-sdk/issues"
+  },
+  "homepage": "https://mosaicstack.dev"
+}

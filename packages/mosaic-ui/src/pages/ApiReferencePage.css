@@ -1,0 +1,33 @@
+/* API Reference Page */
+.api-reference-page {
+  min-height: 100vh;
+  background: var(--color-bg-primary);
+}
+
+.api-reference-content {
+  max-width: none; /* Allow full width for API reference */
+}
+
+/* Override documentation layout for better API reference display */
+.api-reference-page .docs-main {
+  max-width: none;
+  padding: 2rem;
+}
+
+.api-reference-page .docs-article {
+  max-width: none;
+  padding: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .api-reference-page .docs-main {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .api-reference-page .docs-main {
+    padding: 1rem;
+  }
+}

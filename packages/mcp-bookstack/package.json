@@ -1,7 +1,7 @@
 {
-  "name": "@mosaic/mcp-bookstack",
+  "name": "@mosaicstack/mcp-bookstack",
   "version": "0.1.0",
-  "description": "MCP tools for BookStack documentation operations",
+  "description": "BookStack integration for MosAIc SDK with Project = Shelf mapping strategy",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -25,17 +25,20 @@
   "author": "MosAIc Team",
   "license": "MIT",
   "dependencies": {
-    "@mosaic/mcp-common": "^0.1.0",
+    "@mosaicstack/mcp-common": "^0.1.0",
     "@modelcontextprotocol/sdk": "^0.5.0",
     "axios": "^1.7.0",
+    "commander": "^11.0.0",
+    "js-yaml": "^4.1.0",
     "marked": "^12.0.0",
     "turndown": "^7.1.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
+    "@types/js-yaml": "^4.0.8",
     "@types/node": "^20.14.0",
-    "@types/marked": "^12.0.0",
+    "@types/marked": "^6.0.0",
     "@types/turndown": "^5.0.0",
     "@typescript-eslint/eslint-plugin": "^7.13.0",
     "@typescript-eslint/parser": "^7.13.0",

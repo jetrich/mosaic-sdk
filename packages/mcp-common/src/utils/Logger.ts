@@ -1,6 +1,6 @@
 /**
  * @fileoverview Centralized logging utility for MCP tools
- * @module @mosaic/mcp-common/utils
+ * @module @mosaicstack/mcp-common/utils
  */
 
 import winston from 'winston';

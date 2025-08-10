@@ -79,6 +79,83 @@ import { MosAIcCore } from '@mosaic/core';
 const mosaic = new MosAIcCore({ mcp });
 ```
 
+## 🖥️ Terminal UI (OpenCode Integration)
+
+MosAIc Stack includes integration with [OpenCode](https://github.com/sst/opencode) for a sophisticated terminal-based development experience that combines OpenCode's professional TUI with MosAIc's enterprise capabilities.
+
+### Prerequisites
+
+```bash
+# Install Bun runtime (required by OpenCode)
+curl -fsSL https://bun.sh/install | bash
+
+# Install OpenCode CLI
+npm install -g opencode-ai@latest
+
+# Verify installation
+opencode --version
+```
+
+### Quick Start with TUI
+
+```bash
+# Configure OpenCode for MosAIc integration
+mosaic tui setup
+
+# Launch OpenCode TUI with MosAIc integration
+mosaic tui
+
+# Or use specific modes
+mosaic tui --mode mosaic-plan    # Enterprise planning mode
+mosaic tui --mode mosaic-execute # Full development mode
+```
+
+### Available Modes
+
+- **`mosaic-plan`**: Planning mode with enterprise task management tools
+- **`mosaic-execute`**: Full development mode with agent orchestration
+- **`build`**: Standard OpenCode build mode (default)
+- **`plan`**: Standard OpenCode planning mode
+
+### Integration Features
+
+- ✅ **Zero OpenCode Modifications**: Plugin-based integration via MCP servers
+- ✅ **Enterprise Task Management**: Hierarchical task tracking with UPP methodology
+- ✅ **Multi-Project Coordination**: Switch between projects seamlessly
+- ✅ **Agent Orchestration**: Spawn and coordinate specialized AI agents
+- ✅ **Automatic Updates**: Benefit from OpenCode team's continuous improvements
+- ✅ **Web Monitoring**: Optional web UI for task and progress monitoring
+
+### Configuration
+
+The integration works through Model Context Protocol (MCP) servers. Configuration is automatically generated, but can be customized:
+
+```json
+{
+  "mcp": {
+    "mosaic": {
+      "type": "local",
+      "command": ["mosaic-mcp", "serve"],
+      "environment": {
+        "MOSAIC_CONFIG": "~/.mosaic/config.json"
+      }
+    }
+  },
+  "mode": {
+    "mosaic-plan": {
+      "prompt": "You are using MosAIc planning mode with enterprise task management tools.",
+      "tools": {
+        "mosaic_task_create": true,
+        "mosaic_task_assign": true,
+        "mosaic_project_switch": true
+      }
+    }
+  }
+}
+```
+
+For detailed setup instructions, see the [OpenCode Setup Guide](docs/sdk/operations/OPENCODE-SETUP-GUIDE.md).
+
 ## 📦 Component Versions
 
 | Component | Current Version | Next Milestone | GA Target |

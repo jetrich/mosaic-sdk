@@ -1,0 +1,60 @@
+# MosAIc SDK Project Configuration
+# Following Project = Shelf principle
+
+project:
+  name: MosAIc SDK
+  type: mono-repo
+  shelf_name: mosaic-sdk
+  description: Integration and orchestration platform for MosAIc components
+
+# Submodules that get their own shelves
+submodules:
+  - name: mosaic
+    path: mosaic/
+    description: Core MosAIc platform
+  - name: mosaic-mcp
+    path: mosaic-mcp/
+    description: Model Context Protocol server
+  - name: mosaic-tony
+    path: mosaic-tony/
+    description: Tony AI orchestration framework
+  - name: mosaic-webui
+    path: mosaic-webui/
+    description: Web user interface
+
+# BookStack domains for this project
+domains:
+  - name: getting-started
+    books:
+      - quick-start
+      - installation
+      - tutorials
+  - name: architecture
+    books:
+      - integration-patterns
+      - system-overview
+      - component-interaction
+  - name: deployment
+    books:
+      - docker-compose
+      - kubernetes
+      - production
+  - name: task-management
+    books:
+      - active-epics
+      - planning
+      - completed
+
+# Validation rules
+validation:
+  enforce_project_shelf: true
+  allow_domain_shelves: false
+  require_task_management: true
+  epic_centric_structure: true
+
+# BookStack sync configuration
+bookstack:
+  sync_enabled: true
+  api_endpoint: https://docs.mosaicstack.dev
+  shelf_id: null # Will be created on first sync
+  auto_create_shelf: true

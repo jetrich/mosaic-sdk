@@ -1,0 +1,134 @@
+Available MCP Tools:
+==================
+
+mosaic_task_create:
+  Description: Create a new task with UPP hierarchy support
+  Namespace: mosaic_task
+
+mosaic_task_assign:
+  Description: Assign a task to an agent or person
+  Namespace: mosaic_task
+
+mosaic_task_status:
+  Description: Update or query task status
+  Namespace: mosaic_task
+
+mosaic_task_depend:
+  Description: Add a dependency between tasks to control execution order
+  Namespace: mosaic_task
+
+mosaic_task_decompose:
+  Description: Decompose a high-level task into atomic subtasks using Sequential Thinking
+  Namespace: mosaic_task
+
+mosaic_task_estimate_batch:
+  Description: Estimate time for multiple tasks efficiently using AI or historical data
+  Namespace: mosaic_task
+
+mosaic_task_assign_intelligent:
+  Description: Intelligently assign tasks to agents based on skills and workload
+  Namespace: mosaic_task
+
+mosaic_task_analyze_complexity:
+  Description: Analyze task complexity to determine decomposition strategy
+  Namespace: mosaic_task
+
+mosaic_project_create:
+  Description: Create a new project
+  Namespace: mosaic_project
+
+mosaic_project_update:
+  Description: Update an existing project
+  Namespace: mosaic_project
+
+mosaic_project_list:
+  Description: List available projects
+  Namespace: mosaic_project
+
+mosaic_project_switch:
+  Description: Switch to a different project context
+  Namespace: mosaic_project
+
+mosaic_project_status:
+  Description: Get comprehensive project status
+  Namespace: mosaic_project
+
+mosaic_agent_mosaic_agent_deploy:
+  Description: Deploy a new AI agent with specified persona and configuration
+  Namespace: mosaic_agent
+
+mosaic_agent_mosaic_agent_status:
+  Description: Get comprehensive status and monitoring information for agents
+  Namespace: mosaic_agent
+
+mosaic_agent_mosaic_agent_terminate:
+  Description: Gracefully terminate an agent and clean up resources
+  Namespace: mosaic_agent
+
+mosaic_agent_mosaic_agent_message:
+  Description: Send a direct message between agents
+  Namespace: mosaic_agent
+
+mosaic_agent_mosaic_agent_handoff:
+  Description: Transfer task ownership between agents with context
+  Namespace: mosaic_agent
+
+mosaic_agent_mosaic_agent_broadcast:
+  Description: Send a broadcast message to multiple agents
+  Namespace: mosaic_agent
+
+mosaic_agent_mosaic_workflow_create:
+  Description: Create a new multi-agent workflow with defined steps and dependencies
+  Namespace: mosaic_agent
+
+mosaic_agent_mosaic_workflow_execute:
+  Description: Execute a workflow with coordinated multi-agent sequences
+  Namespace: mosaic_agent
+
+mosaic_agent_mosaic_workflow_monitor:
+  Description: Monitor workflow progress, execution status, and performance metrics
+  Namespace: mosaic_agent
+
+mosaic_agent_mosaic_workflow_list:
+  Description: List workflows with optional filtering
+  Namespace: mosaic_agent
+
+mosaic_agent_mosaic_workflow_get:
+  Description: Get detailed information about a specific workflow
+  Namespace: mosaic_agent
+
+mosaic_agent_mosaic_workflow_pause:
+  Description: Pause a running workflow
+  Namespace: mosaic_agent
+
+mosaic_agent_mosaic_workflow_resume:
+  Description: Resume a paused workflow
+  Namespace: mosaic_agent
+
+mosaic_agent_mosaic_workflow_cancel:
+  Description: Cancel a running or paused workflow
+  Namespace: mosaic_agent
+
+mosaic_agent_mosaic_resource_monitor:
+  Description: Monitor system and agent resource usage with real-time metrics, historical data, and active alerts
+  Namespace: mosaic_agent
+
+mosaic_agent_mosaic_agent_limits:
+  Description: Set, get, check, or remove resource limits for agents to prevent resource abuse and ensure system stability
+  Namespace: mosaic_agent
+
+mosaic_agent_mosaic_performance_report:
+  Description: Generate comprehensive performance analytics with resource usage trends, efficiency metrics, and optimization recommendations
+  Namespace: mosaic_agent
+
+mosaic_agent_mosaic_resource_alerts:
+  Description: Manage resource alerts - list active alerts, acknowledge notifications, or resolve issues
+  Namespace: mosaic_agent
+
+mosaic_plan_business:
+  Description: Execute business strategy planning using MosAIc UPP methodology
+  Namespace: mosaic_plan
+
+mosaic_plan_all:
+  Description: Execute complete business-to-technical planning pipeline with scope control
+  Namespace: mosaic_plan

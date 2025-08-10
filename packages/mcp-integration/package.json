@@ -1,5 +1,5 @@
 {
-  "name": "@mosaic/mcp-integration",
+  "name": "@mosaicstack/mcp-integration",
   "version": "0.1.0",
   "description": "Integrated MCP server for MosAIc remote services",
   "type": "module",
@@ -30,11 +30,11 @@
   "author": "MosAIc Team",
   "license": "MIT",
   "dependencies": {
-    "@mosaic/mcp-common": "^0.1.0",
-    "@mosaic/mcp-gitea-remote": "^0.1.0",
-    "@mosaic/mcp-woodpecker": "^0.1.0",
-    "@mosaic/mcp-bookstack": "^0.1.0",
-    "@mosaic/mcp-plane": "^0.1.0",
+    "@mosaicstack/mcp-common": "^0.1.0",
+    "@mosaicstack/mcp-gitea-remote": "^0.1.0",
+    "@mosaicstack/mcp-woodpecker": "^0.1.0",
+    "@mosaicstack/mcp-bookstack": "^0.1.0",
+    "@mosaicstack/mcp-plane": "^0.1.0",
     "@modelcontextprotocol/sdk": "^0.5.0",
     "zod": "^3.23.8",
     "dotenv": "^16.4.0"

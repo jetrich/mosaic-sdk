@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Tony Framework - Manual Project Deployment Script
-# Use this to manually deploy Tony infrastructure to a specific project
+# MosAIc Framework - Manual Project Deployment Script
+# Use this to manually deploy MosAIc infrastructure to a specific project
 
 set -euo pipefail
 
@@ -15,17 +15,17 @@ fi
 PROJECT_DIR=$(pwd)
 PROJECT_NAME=$(basename "$PROJECT_DIR")
 
-echo "🤖 Tony Framework - Manual Project Deployment"
-echo "=============================================="
+echo "🤖 MosAIc Framework - Manual Project Deployment"
+echo "==============================================="
 echo "Project: $PROJECT_NAME"
 echo "Directory: $PROJECT_DIR"
 echo ""
 
 # Check if user-level framework is installed
-if [ ! -d "$HOME/.claude/tony" ]; then
-    echo "❌ User-level Tony framework not found"
-    echo "   Please install framework first in tech-lead-tony directory:"
-    echo "   ./scripts/tony-install.sh --mode=install --source=local --auto-confirm"
+if [ ! -d "$HOME/.mosaic" ]; then
+    echo "❌ User-level MosAIc framework not found"
+    echo "   Please install framework first by running migration:"
+    echo "   Migration from Tony to MosAIc is required"
     exit 1
 fi
 
@@ -46,7 +46,7 @@ echo "✅ Directory structure created"
 # Create project-level Tony commands
 echo "📋 Creating project-level Tony commands..."
 cat > .claude/commands/tony.md << 'EOF'
-# Project-Level Tony Commands
+# Project-Level MosAIc Commands (Tony Integration)
 
 **Purpose**: Project-specific Tony commands that delegate to user-level framework  
 **Context**: Available in project Claude sessions for local Tony management  
@@ -60,10 +60,10 @@ cat > .claude/commands/tony.md << 'EOF'
 
 ```bash
 # Execute user-level status with project context
-if [ -f "$HOME/.claude/tony/scripts/tony-status.sh" ]; then
-    "$HOME/.claude/tony/scripts/tony-status.sh" --include-projects --verbose
+if [ -f "$HOME/.mosaic/frameworks/tony/scripts/tony-status.sh" ]; then
+    "$HOME/.mosaic/frameworks/tony/scripts/tony-status.sh" --include-projects --verbose
 else
-    echo "❌ Tony framework not installed at user level"
+    echo "❌ MosAIc framework not installed at user level"
     echo "   Install framework: git clone <repo> && ./install-modular.sh"
 fi
 ```
@@ -74,10 +74,10 @@ fi
 
 ```bash
 # Execute user-level upgrade with project migration
-if [ -f "$HOME/.claude/tony/scripts/tony-upgrade.sh" ]; then
-    "$HOME/.claude/tony/scripts/tony-upgrade.sh" --hierarchy-check --include-projects
+if [ -f "$HOME/.mosaic/frameworks/tony/scripts/tony-upgrade.sh" ]; then
+    "$HOME/.mosaic/frameworks/tony/scripts/tony-upgrade.sh" --hierarchy-check --include-projects
 else
-    echo "❌ Tony framework not installed at user level"
+    echo "❌ MosAIc framework not installed at user level"
     echo "   Install framework first, then redeploy to project"
 fi
 ```
@@ -88,10 +88,10 @@ fi
 
 ```bash
 # Execute user-level verification with project focus
-if [ -f "$HOME/.claude/tony/scripts/tony-verify.sh" ]; then
-    "$HOME/.claude/tony/scripts/tony-verify.sh" --comprehensive --include-projects
+if [ -f "$HOME/.mosaic/frameworks/tony/scripts/tony-verify.sh" ]; then
+    "$HOME/.mosaic/frameworks/tony/scripts/tony-verify.sh" --comprehensive --include-projects
 else
-    echo "❌ Tony framework not installed at user level"
+    echo "❌ MosAIc framework not installed at user level"
     echo "   Install framework to enable verification"
 fi
 ```
@@ -104,10 +104,10 @@ fi
 ```bash
 # Execute user-level ATHMS planning with project context
 # All planning documents are stored in docs/task-management/planning/ for consistency
-if [ -f "$HOME/.claude/tony/scripts/tony-tasks.sh" ]; then
-    "$HOME/.claude/tony/scripts/tony-tasks.sh" "$@"
+if [ -f "$HOME/.mosaic/frameworks/tony/scripts/tony-tasks.sh" ]; then
+    "$HOME/.mosaic/frameworks/tony/scripts/tony-tasks.sh" "$@"
 else
-    echo "❌ Tony framework not installed at user level"
+    echo "❌ MosAIc framework not installed at user level"
     echo "   Install framework to enable ATHMS planning"
 fi
 ```
@@ -118,10 +118,10 @@ fi
 
 ```bash
 # Execute user-level ATHMS task management with project context
-if [ -f "$HOME/.claude/tony/scripts/tony-tasks.sh" ]; then
-    "$HOME/.claude/tony/scripts/tony-tasks.sh" "$@"
+if [ -f "$HOME/.mosaic/frameworks/tony/scripts/tony-tasks.sh" ]; then
+    "$HOME/.mosaic/frameworks/tony/scripts/tony-tasks.sh" "$@"
 else
-    echo "❌ Tony framework not installed at user level"
+    echo "❌ MosAIc framework not installed at user level"
     echo "   Install framework to enable ATHMS task management"
 fi
 ```
@@ -132,10 +132,10 @@ fi
 
 ```bash
 # Execute user-level ATHMS backup with project context
-if [ -f "$HOME/.claude/tony/scripts/tony-tasks.sh" ]; then
-    "$HOME/.claude/tony/scripts/tony-tasks.sh" backup
+if [ -f "$HOME/.mosaic/frameworks/tony/scripts/tony-tasks.sh" ]; then
+    "$HOME/.mosaic/frameworks/tony/scripts/tony-tasks.sh" backup
 else
-    echo "❌ Tony framework not installed at user level"
+    echo "❌ MosAIc framework not installed at user level"
     echo "   Install framework to enable ATHMS backup"
 fi
 ```
@@ -146,10 +146,10 @@ fi
 
 ```bash
 # Execute user-level ATHMS restore with project context
-if [ -f "$HOME/.claude/tony/scripts/tony-tasks.sh" ]; then
-    "$HOME/.claude/tony/scripts/tony-tasks.sh" restore "$@"
+if [ -f "$HOME/.mosaic/frameworks/tony/scripts/tony-tasks.sh" ]; then
+    "$HOME/.mosaic/frameworks/tony/scripts/tony-tasks.sh" restore "$@"
 else
-    echo "❌ Tony framework not installed at user level"
+    echo "❌ MosAIc framework not installed at user level"
     echo "   Install framework to enable ATHMS restore"
 fi
 ```
@@ -160,10 +160,10 @@ fi
 
 ```bash
 # Execute user-level ATHMS validation with project context
-if [ -f "$HOME/.claude/tony/scripts/tony-tasks.sh" ]; then
-    "$HOME/.claude/tony/scripts/tony-tasks.sh" validate
+if [ -f "$HOME/.mosaic/frameworks/tony/scripts/tony-tasks.sh" ]; then
+    "$HOME/.mosaic/frameworks/tony/scripts/tony-tasks.sh" validate
 else
-    echo "❌ Tony framework not installed at user level"
+    echo "❌ MosAIc framework not installed at user level"
     echo "   Install framework to enable ATHMS validation"
 fi
 ```
@@ -174,10 +174,10 @@ fi
 
 ```bash
 # Execute user-level ATHMS emergency recovery with project context
-if [ -f "$HOME/.claude/tony/scripts/tony-tasks.sh" ]; then
-    "$HOME/.claude/tony/scripts/tony-tasks.sh" emergency
+if [ -f "$HOME/.mosaic/frameworks/tony/scripts/tony-tasks.sh" ]; then
+    "$HOME/.mosaic/frameworks/tony/scripts/tony-tasks.sh" emergency
 else
-    echo "❌ Tony framework not installed at user level"
+    echo "❌ MosAIc framework not installed at user level"
     echo "   Install framework to enable ATHMS emergency recovery"
 fi
 ```
@@ -188,10 +188,10 @@ fi
 
 ```bash
 # Execute user-level system health dashboard
-if [ -f "$HOME/.claude/tony/scripts/tony-dashboard.sh" ]; then
-    "$HOME/.claude/tony/scripts/tony-dashboard.sh" "$@"
+if [ -f "$HOME/.mosaic/frameworks/tony/scripts/tony-dashboard.sh" ]; then
+    "$HOME/.mosaic/frameworks/tony/scripts/tony-dashboard.sh" "$@"
 else
-    echo "❌ Tony framework not installed at user level"
+    echo "❌ MosAIc framework not installed at user level"
     echo "   Install framework to enable health monitoring"
 fi
 ```

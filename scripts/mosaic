@@ -36,6 +36,80 @@ case "${1:-help}" in
         exec "$SCRIPT_DIR/dev-environment.sh" "$@"
         ;;
     
+    personas)
+        shift
+        # Persona management commands
+        PERSONA_SCRIPT="$HOME/.mosaic/frameworks/tony/scripts/persona-loader.sh"
+        if [ -f "$PERSONA_SCRIPT" ]; then
+            case "${1:-list}" in
+                list)
+                    exec "$PERSONA_SCRIPT" --list
+                    ;;
+                search)
+                    if [ -z "$2" ]; then
+                        echo "Usage: mosaic personas search <keyword>"
+                        exit 1
+                    fi
+                    exec "$PERSONA_SCRIPT" --search "$2"
+                    ;;
+                validate)
+                    if [ -z "$2" ]; then
+                        echo "Usage: mosaic personas validate <persona-id>"
+                        exit 1
+                    fi
+                    exec "$PERSONA_SCRIPT" --persona "$2" --validate
+                    ;;
+                show)
+                    if [ -z "$2" ]; then
+                        echo "Usage: mosaic personas show <persona-id>"
+                        exit 1
+                    fi
+                    exec "$PERSONA_SCRIPT" --persona "$2"
+                    ;;
+                route)
+                    if [ -z "$2" ]; then
+                        echo "Usage: mosaic personas route \"<task description>\""
+                        exit 1
+                    fi
+                    ROUTER_SCRIPT="$HOME/.mosaic/frameworks/tony/scripts/task-persona-router.sh"
+                    if [ -f "$ROUTER_SCRIPT" ]; then
+                        exec "$ROUTER_SCRIPT" --task "$2" --output detailed
+                    else
+                        echo "Error: Task-persona router not found"
+                        exit 1
+                    fi
+                    ;;
+                help|--help|-h)
+                    echo "MosAIc Persona Management"
+                    echo
+                    echo "Usage: mosaic personas <command> [args]"
+                    echo
+                    echo "Commands:"
+                    echo "  list                    List all available personas"
+                    echo "  search <keyword>        Search personas by keyword"
+                    echo "  validate <persona-id>   Validate a persona definition"
+                    echo "  show <persona-id>       Show persona JSON definition"
+                    echo "  route \"<task>\"         Find best persona for task"
+                    echo
+                    echo "Examples:"
+                    echo "  mosaic personas list"
+                    echo "  mosaic personas search backend"
+                    echo "  mosaic personas validate BE-BACKEND-BENJAMIN"
+                    echo "  mosaic personas route \"Implement user auth API\""
+                    ;;
+                *)
+                    echo "Unknown personas command: $1"
+                    echo "Use 'mosaic personas help' for usage information"
+                    exit 1
+                    ;;
+            esac
+        else
+            echo "Error: Persona system not installed at $PERSONA_SCRIPT"
+            echo "Run the persona integration setup first"
+            exit 1
+        fi
+        ;;
+    
     test)
         # Test the isolated setup
         echo "MosAIc Stack Isolated Environment Test"
@@ -62,6 +136,7 @@ case "${1:-help}" in
         echo "Commands:"
         echo "  tony [args]      Run Tony Framework with MosAIc MCP"
         echo "  claude [args]    Run Claude with MosAIc MCP"
+        echo "  personas <cmd>   Manage agent personas"
         echo "  dev <cmd>        Manage development environment"
         echo "  test             Test the isolated setup"
         echo
@@ -75,6 +150,8 @@ case "${1:-help}" in
         echo "  mosaic dev start          # Start the isolated environment"
         echo "  mosaic tony plan          # Use Tony with MosAIc MCP"
         echo "  mosaic claude -p 'Help'   # Use Claude with MosAIc MCP"
+        echo "  mosaic personas list      # List available agent personas"
+        echo "  mosaic personas route 'API task'  # Find best persona for task"
         echo
         echo "This wrapper ensures all commands use the isolated MosAIc"
         echo "environment without affecting your other projects."

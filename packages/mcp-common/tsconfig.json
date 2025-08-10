@@ -23,6 +23,7 @@
     "incremental": true,
     "tsBuildInfoFile": "dist/.tsbuildinfo"
   },
+  "composite": true,
   "include": [
     "src/**/*"
   ],

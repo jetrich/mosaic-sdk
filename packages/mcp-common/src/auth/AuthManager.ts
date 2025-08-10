@@ -1,6 +1,6 @@
 /**
  * @fileoverview Authentication manager for MCP service tools
- * @module @mosaic/mcp-common/auth
+ * @module @mosaicstack/mcp-common/auth
  */
 
 import jwt from 'jsonwebtoken';

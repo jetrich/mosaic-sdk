@@ -1,0 +1,87 @@
+$schema: https://mosaicstack.dev/schemas/config.json
+mode: cloud
+version: 1.0.0
+mcp:
+  port: 3456
+  autoStart: true
+  features:
+    tony: true
+    orchestration: true
+    streaming: true
+    metrics: true
+    health: true
+providers:
+  claude:
+    enabled: true
+    access: api
+    fallbackToApi: false
+    priority: 1
+    maxConcurrency: 10
+    timeout: 120000
+    retries: 3
+  openrouter:
+    enabled: true
+    apiKey: ''
+    priority: 2
+    models:
+      - auto
+    timeout: 60000
+    retries: 2
+  ollama:
+    enabled: true
+    location: local
+    url: http://localhost:11434
+    models:
+      - auto-detect
+    priority: 3
+    timeout: 30000
+    retries: 1
+routing:
+  strategy: intelligent
+  preferLocal: false
+  costOptimization: false
+  performanceTracking: true
+  fallbackChain:
+    - claude
+    - openrouter
+    - ollama
+  rules:
+    - taskType: code
+      complexity: 4
+      preferredProvider: claude
+      preferredModel: claude-3-opus
+    - taskType: code
+      complexity: 3
+      preferredProvider: claude
+      preferredModel: claude-3-sonnet
+    - taskType: analysis
+      preferredProvider: claude
+      preferredModel: claude-3-opus
+    - taskType: documentation
+      preferredProvider: claude
+      preferredModel: claude-3-sonnet
+    - contextLength: 32000
+      preferredProvider: claude
+      preferredModel: claude-3-opus
+  cache:
+    enabled: true
+    maxEntries: 5000
+    ttl: 14400000
+    strategy: lru
+tony:
+  enabled: true
+  personas: true
+  upp: true
+  multiAgent: true
+  maxConcurrentAgents: 10
+monitoring:
+  metrics: true
+  logging: info
+  telemetry: true
+  exporters:
+    - type: prometheus
+      endpoint: http://localhost:9090
+  retention:
+    metrics: 30d
+    logs: 7d
+    traces: 7d

@@ -1,0 +1,22 @@
+{
+  "mcpServers": {
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "env": {
+        "MAX_THINKING_DEPTH": "6",
+        "ENABLE_TASK_DECOMPOSITION": "true",
+        "THINKING_TIMEOUT": "30000"
+      }
+    },
+    "mosaic": {
+      "command": "mosaic-mcp",
+      "args": ["serve"],
+      "env": {
+        "MOSAIC_CONFIG": "~/.config/mosaic/config.json",
+        "MOSAIC_DATA_DIR": "~/.config/mosaic/data",
+        "SEQUENTIAL_THINKING_ENABLED": "true"
+      }
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "name": "{{PROJECT_NAME}}",
+  "version": "0.1.0",
+  "description": "{{PROJECT_DESCRIPTION}}",
+  "type": "module",
+  "scripts": {
+    "dev": "mosaicstack dev --start",
+    "test": "mosaicstack test --all",
+    "build": "mosaicstack prod --deploy",
+    "validate": "mosaicstack stack --validate"
+  },
+  "dependencies": {
+    "@mosaicstack/stack": "^0.1.0"
+  },
+  "mosaicstack": {
+    "mode": "development",
+    "components": {
+      "mcp-common": true,
+      "mcp-integration": true,
+      "mcp-bookstack": false,
+      "mcp-gitea-remote": false,
+      "mcp-plane": false,
+      "mcp-woodpecker": false
+    },
+    "ports": {
+      "main": 3000,
+      "mcp": 3456,
+      "api": 8080
+    }
+  }
+}

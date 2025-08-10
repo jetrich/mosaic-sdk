@@ -1,0 +1,50 @@
+{
+  "port": 3457,
+  "host": "0.0.0.0",
+  "transports": {
+    "sse": {
+      "enabled": true,
+      "endpoint": "/mcp",
+      "opencode_compat": true,
+      "timeout": 1800000
+    },
+    "rest": {
+      "enabled": true,
+      "endpoint": "/api/v1",
+      "long_polling": true,
+      "batch_size": 10
+    },
+    "websocket": {
+      "enabled": false,
+      "endpoint": "/ws",
+      "compression": true,
+      "heartbeat": 30000
+    }
+  },
+  "fallback": {
+    "enabled": true,
+    "chain": ["sse", "rest"],
+    "retry_count": 3,
+    "retry_delay": 1000
+  },
+  "security": {
+    "cors": {
+      "origin": true,
+      "credentials": true
+    },
+    "rate_limit": {
+      "requests_per_minute": 100
+    }
+  },
+  "monitoring": {
+    "health_check": "/health",
+    "metrics": "/metrics",
+    "logging": "info"
+  },
+  "plane": {
+    "apiUrl": "http://localhost:8091",
+    "apiKey": "YOUR_PLANE_API_KEY",
+    "workspaceSlug": "mosaic",
+    "projectId": "YOUR_PROJECT_ID"
+  }
+}

@@ -1,0 +1,25 @@
+#!/usr/bin/expect -f
+
+# Verdaccio user creation script
+set timeout 10
+
+# Get arguments
+set registry [lindex $argv 0]
+set username [lindex $argv 1]
+set password [lindex $argv 2]
+set email [lindex $argv 3]
+
+# Start npm adduser
+spawn npm adduser --registry $registry
+
+# Handle prompts
+expect "Username:"
+send "$username\r"
+
+expect "Password:"
+send "$password\r"
+
+expect "Email:"
+send "$email\r"
+
+expect eof

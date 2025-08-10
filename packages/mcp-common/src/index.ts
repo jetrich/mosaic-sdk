@@ -1,6 +1,6 @@
 /**
- * @fileoverview Main entry point for @mosaic/mcp-common package
- * @module @mosaic/mcp-common
+ * @fileoverview Main entry point for @mosaicstack/mcp-common package
+ * @module @mosaicstack/mcp-common
  */
 
 // Export base classes

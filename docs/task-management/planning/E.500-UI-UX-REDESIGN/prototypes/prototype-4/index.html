@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MosAIc - Developer-First AI Platform</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Terminal-style Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-wrapper">
+                <a href="#" class="nav-logo">
+                    <span class="logo-prompt">$</span>
+                    <span class="logo-text">mosaic</span>
+                    <span class="logo-cursor">_</span>
+                </a>
+                <div class="nav-menu">
+                    <a href="#docs" class="nav-link">/docs</a>
+                    <a href="#api" class="nav-link">/api</a>
+                    <a href="#examples" class="nav-link">/examples</a>
+                    <a href="#pricing" class="nav-link">/pricing</a>
+                </div>
+                <div class="nav-actions">
+                    <a href="#" class="nav-status">
+                        <span class="status-indicator"></span>
+                        <span>v2.4.1</span>
+                    </a>
+                    <a href="#" class="btn btn-terminal">$ npm login</a>
+                    <a href="#" class="btn btn-primary">Get Started</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="terminal-window">
+                    <div class="terminal-header">
+                        <div class="terminal-controls">
+                            <span class="control red"></span>
+                            <span class="control yellow"></span>
+                            <span class="control green"></span>
+                        </div>
+                        <div class="terminal-title">~/projects/awesome-app</div>
+                    </div>
+                    <div class="terminal-body">
+                        <div class="terminal-line">
+                            <span class="prompt">$</span>
+                            <span class="command">npm install -g @mosaic/cli</span>
+                        </div>
+                        <div class="terminal-line output">
+                            <span class="success">✓</span> Installed @mosaic/cli@2.4.1
+                        </div>
+                        <div class="terminal-line">
+                            <span class="prompt">$</span>
+                            <span class="command">mosaic init my-project</span>
+                        </div>
+                        <div class="terminal-line output">
+                            <span class="info">⚡</span> Initializing AI agents...
+                        </div>
+                        <div class="terminal-line">
+                            <span class="prompt">$</span>
+                            <span class="command typing">mosaic deploy --production</span>
+                            <span class="cursor">|</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <h1 class="hero-title">
+                    AI Development.
+                    <span class="text-accent">Simplified.</span>
+                </h1>
+                <p class="hero-description">
+                    Build, test, and deploy AI-powered applications with the tools you already love. 
+                    No magic, just great developer experience.
+                </p>
+                
+                <div class="hero-actions">
+                    <div class="action-group">
+                        <button class="code-tab active" data-tab="npm">npm</button>
+                        <button class="code-tab" data-tab="yarn">yarn</button>
+                        <button class="code-tab" data-tab="pnpm">pnpm</button>
+                    </div>
+                    <div class="code-snippet">
+                        <code class="snippet-content">npm install @mosaic/sdk</code>
+                        <button class="copy-button">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/>
+                                <path d="M5 15H4C2.89543 15 2 14.1046 2 13V4C2 2.89543 2.89543 2 4 2H13C14.1046 2 15 2.89543 15 4V5" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-value">2.3M+</span>
+                        <span class="stat-label">Weekly Downloads</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value">15K+</span>
+                        <span class="stat-label">GitHub Stars</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value">< 5ms</span>
+                        <span class="stat-label">API Response</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Code Example Section -->
+    <section class="code-examples">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Write Less. Build More.</h2>
+                <p class="section-description">
+                    Simple, intuitive APIs that feel like magic but work like clockwork.
+                </p>
+            </div>
+            
+            <div class="example-grid">
+                <div class="example-card">
+                    <div class="example-header">
+                        <span class="example-title">Initialize in seconds</span>
+                        <span class="example-lang">TypeScript</span>
+                    </div>
+                    <pre class="code-block"><code><span class="keyword">import</span> { <span class="variable">MosAIc</span> } <span class="keyword">from</span> <span class="string">'@mosaic/sdk'</span>;
+
+<span class="keyword">const</span> <span class="variable">ai</span> = <span class="keyword">new</span> <span class="function">MosAIc</span>({
+  <span class="property">apiKey</span>: <span class="variable">process</span>.<span class="property">env</span>.<span class="property">MOSAIC_API_KEY</span>,
+  <span class="property">model</span>: <span class="string">'gpt-4'</span>
+});
+
+<span class="keyword">const</span> <span class="variable">agent</span> = <span class="keyword">await</span> <span class="variable">ai</span>.<span class="function">createAgent</span>({
+  <span class="property">name</span>: <span class="string">'CodeReviewer'</span>,
+  <span class="property">skills</span>: [<span class="string">'typescript'</span>, <span class="string">'react'</span>, <span class="string">'testing'</span>]
+});</code></pre>
+                </div>
+                
+                <div class="example-card">
+                    <div class="example-header">
+                        <span class="example-title">Deploy with confidence</span>
+                        <span class="example-lang">JavaScript</span>
+                    </div>
+                    <pre class="code-block"><code><span class="comment">// Automatic testing before deployment</span>
+<span class="keyword">await</span> <span class="variable">agent</span>.<span class="function">test</span>({
+  <span class="property">coverage</span>: <span class="number">90</span>,
+  <span class="property">performance</span>: <span class="string">'optimize'</span>
+});
+
+<span class="comment">// Deploy to production</span>
+<span class="keyword">const</span> <span class="variable">deployment</span> = <span class="keyword">await</span> <span class="variable">agent</span>.<span class="function">deploy</span>({
+  <span class="property">environment</span>: <span class="string">'production'</span>,
+  <span class="property">scaling</span>: <span class="string">'auto'</span>
+});
+
+<span class="variable">console</span>.<span class="function">log</span>(<span class="string">`Deployed to: ${<span class="variable">deployment</span>.<span class="property">url</span>}`</span>);</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <span class="icon-text">⚡</span>
+                    </div>
+                    <h3 class="feature-title">Lightning Fast</h3>
+                    <p class="feature-description">
+                        Sub-5ms API responses. Optimized for performance from day one.
+                    </p>
+                    <a href="#" class="feature-link">
+                        View benchmarks →
+                    </a>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <span class="icon-text">🔧</span>
+                    </div>
+                    <h3 class="feature-title">Developer Tools</h3>
+                    <p class="feature-description">
+                        CLI, VS Code extension, and Chrome DevTools integration included.
+                    </p>
+                    <a href="#" class="feature-link">
+                        Explore tools →
+                    </a>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <span class="icon-text">📚</span>
+                    </div>
+                    <h3 class="feature-title">Type-Safe</h3>
+                    <p class="feature-description">
+                        Full TypeScript support with auto-completion and type inference.
+                    </p>
+                    <a href="#" class="feature-link">
+                        Read docs →
+                    </a>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <span class="icon-text">🔒</span>
+                    </div>
+                    <h3 class="feature-title">Secure by Default</h3>
+                    <p class="feature-description">
+                        End-to-end encryption, API key rotation, and audit logging built-in.
+                    </p>
+                    <a href="#" class="feature-link">
+                        Security details →
+                    </a>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <span class="icon-text">🚀</span>
+                    </div>
+                    <h3 class="feature-title">Deploy Anywhere</h3>
+                    <p class="feature-description">
+                        Works with Vercel, Netlify, AWS, or your own infrastructure.
+                    </p>
+                    <a href="#" class="feature-link">
+                        Deployment guide →
+                    </a>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <span class="icon-text">🤝</span>
+                    </div>
+                    <h3 class="feature-title">Open Source</h3>
+                    <p class="feature-description">
+                        MIT licensed. Contribute, fork, or build your own extensions.
+                    </p>
+                    <a href="#" class="feature-link">
+                        View on GitHub →
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- API Reference Preview -->
+    <section class="api-preview">
+        <div class="container">
+            <div class="api-wrapper">
+                <div class="api-sidebar">
+                    <h3 class="sidebar-title">API Reference</h3>
+                    <div class="api-nav">
+                        <a href="#" class="api-link active">Getting Started</a>
+                        <a href="#" class="api-link">Authentication</a>
+                        <a href="#" class="api-link">Agents</a>
+                        <a href="#" class="api-link indent">create()</a>
+                        <a href="#" class="api-link indent">deploy()</a>
+                        <a href="#" class="api-link indent">test()</a>
+                        <a href="#" class="api-link">Models</a>
+                        <a href="#" class="api-link">Webhooks</a>
+                        <a href="#" class="api-link">Error Handling</a>
+                    </div>
+                </div>
+                <div class="api-content">
+                    <h2 class="api-title">agent.deploy()</h2>
+                    <p class="api-description">
+                        Deploy an agent to a specified environment with automatic scaling and monitoring.
+                    </p>
+                    <div class="api-section">
+                        <h4>Parameters</h4>
+                        <table class="api-table">
+                            <tr>
+                                <td class="param-name">environment</td>
+                                <td class="param-type">string</td>
+                                <td class="param-desc">Target environment: 'development' | 'staging' | 'production'</td>
+                            </tr>
+                            <tr>
+                                <td class="param-name">scaling</td>
+                                <td class="param-type">string | object</td>
+                                <td class="param-desc">Scaling configuration: 'auto' | { min: 1, max: 10 }</td>
+                            </tr>
+                            <tr>
+                                <td class="param-name">monitoring</td>
+                                <td class="param-type">boolean</td>
+                                <td class="param-desc">Enable performance monitoring (default: true)</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="api-section">
+                        <h4>Returns</h4>
+                        <pre class="code-block"><code><span class="keyword">interface</span> <span class="type">DeploymentResult</span> {
+  <span class="property">id</span>: <span class="type">string</span>;
+  <span class="property">url</span>: <span class="type">string</span>;
+  <span class="property">status</span>: <span class="string">'pending'</span> | <span class="string">'active'</span> | <span class="string">'failed'</span>;
+  <span class="property">metrics</span>: <span class="type">DeploymentMetrics</span>;
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Community Section -->
+    <section class="community">
+        <div class="container">
+            <div class="community-content">
+                <h2 class="section-title">Join the Community</h2>
+                <p class="section-description">
+                    Built by developers, for developers. Get help, share ideas, and contribute.
+                </p>
+                <div class="community-stats">
+                    <div class="community-card">
+                        <div class="community-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836a9.59 9.59 0 012.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.42 22 12c0-5.523-4.477-10-10-10z"/>
+                            </svg>
+                        </div>
+                        <div class="community-number">15,234</div>
+                        <div class="community-label">GitHub Stars</div>
+                    </div>
+                    <div class="community-card">
+                        <div class="community-icon">💬</div>
+                        <div class="community-number">8,421</div>
+                        <div class="community-label">Discord Members</div>
+                    </div>
+                    <div class="community-card">
+                        <div class="community-icon">📦</div>
+                        <div class="community-number">342</div>
+                        <div class="community-label">Contributors</div>
+                    </div>
+                </div>
+                <div class="community-actions">
+                    <a href="#" class="btn btn-primary">Join Discord</a>
+                    <a href="#" class="btn btn-secondary">Star on GitHub</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <div class="cta-terminal">
+                <div class="terminal-line large">
+                    <span class="prompt">$</span>
+                    <span class="command">npx create-mosaic-app</span>
+                </div>
+                <p class="cta-description">
+                    Start building in under 30 seconds. No configuration needed.
+                </p>
+                <div class="cta-actions">
+                    <a href="#" class="btn btn-primary btn-large">Get Started</a>
+                    <a href="#" class="btn btn-secondary btn-large">Read the Docs</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Developers</h4>
+                    <a href="#">Documentation</a>
+                    <a href="#">API Reference</a>
+                    <a href="#">Examples</a>
+                    <a href="#">Changelog</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Community</h4>
+                    <a href="#">GitHub</a>
+                    <a href="#">Discord</a>
+                    <a href="#">Twitter</a>
+                    <a href="#">Blog</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <a href="#">Tutorials</a>
+                    <a href="#">Best Practices</a>
+                    <a href="#">Performance</a>
+                    <a href="#">Security</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Company</h4>
+                    <a href="#">About</a>
+                    <a href="#">Careers</a>
+                    <a href="#">Terms</a>
+                    <a href="#">Privacy</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="footer-info">
+                    <span>© 2025 MosAIc</span>
+                    <span class="separator">•</span>
+                    <span>MIT License</span>
+                    <span class="separator">•</span>
+                    <span>Made with ❤️ by developers</span>
+                </div>
+                <div class="footer-status">
+                    <span class="status-dot online"></span>
+                    <span>All systems operational</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

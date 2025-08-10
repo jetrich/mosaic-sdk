@@ -1,0 +1,53 @@
+{
+  "assignments": {
+    "TL-LEAD-TONY": {
+      "role": "Tech Lead",
+      "epics": ["E.0001", "E.0002", "E.0003"],
+      "current_tasks": [],
+      "capacity": "available"
+    },
+    "DOC-DOCUMENTATION-DAVID": {
+      "role": "Documentation Specialist",
+      "epics": ["E.0001"],
+      "current_tasks": ["T.0001.01.01.01", "T.0001.01.01.02"],
+      "capacity": "busy"
+    },
+    "BE-BACKEND-BENJAMIN": {
+      "role": "Backend Developer",
+      "epics": ["E.0001", "E.0002", "E.0003", "E.3001"],
+      "current_tasks": ["T.0001.03.01.01"],
+      "capacity": "available"
+    },
+    "FE-FRONTEND-FIONA": {
+      "role": "Frontend Developer",
+      "epics": ["E.3001"],
+      "current_tasks": [],
+      "capacity": "available"
+    },
+    "PM-PROJECT-PAUL": {
+      "role": "Project Manager",
+      "epics": ["E.0002"],
+      "current_tasks": [],
+      "capacity": "available"
+    },
+    "UX-EXPERIENCE-URSULA": {
+      "role": "UX Designer",
+      "epics": ["E.3001"],
+      "current_tasks": [],
+      "capacity": "available"
+    },
+    "ML-LEARNING-MARCUS": {
+      "role": "ML Engineer",
+      "epics": ["E.0003"],
+      "current_tasks": [],
+      "capacity": "available"
+    }
+  },
+  "epic_leads": {
+    "E.0001": "DOC-DOCUMENTATION-DAVID",
+    "E.0002": "PM-PROJECT-PAUL",
+    "E.0003": "TL-LEAD-TONY",
+    "E.3001": "FE-FRONTEND-FIONA"
+  },
+  "last_updated": "2025-01-27T00:00:00Z"
+}
